@@ -21,7 +21,7 @@
 
 ### 👉 https://jgcindy.github.io/rime-weasel-skin-studio/
 
-如果上面的地址还打不开（说明 GitHub Pages 尚未启用），可以先用这个临时地址：
+如果上面的地址一时打不开（GitHub Pages 在部分地区网络可能较慢或被拦截），可以先用这个备用地址：
 
 **https://raw.githack.com/JGCindy/rime-weasel-skin-studio/main/index.html**
 
