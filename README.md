@@ -1,4 +1,4 @@
-# 小狼毫皮肤工作室 · Rime Weasel Skin Studio
+# <img src="favicon.svg" width="34" align="top" alt=""> 小狼毫皮肤工作室 · Rime Weasel Skin Studio
 
 > 一个零依赖的单文件网页工具：可视化调参小狼毫（Weasel）输入法皮肤，实时预览，一键生成 `weasel.custom.yaml`。
 
