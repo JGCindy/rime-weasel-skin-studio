@@ -99,6 +99,21 @@
   details.group>summary .ico{font-size:14px;width:16px;text-align:center}
   .gbody{padding:2px 18px 18px}
 
+  /* 配色出处署名：小字 + 左侧竖线，避免和正文提示混淆 */
+  .srcnote{
+    margin-top:10px;padding:7px 10px 7px 9px;
+    border-left:2px solid #dcdfe4;border-radius:0 6px 6px 0;
+    background:#fafbfc;
+    font-size:11px;line-height:1.6;color:var(--text-3);
+  }
+  .srcnote b{font-weight:600;color:var(--text-2)}
+  .srcnote a{color:#2f6fed;text-decoration:none;border-bottom:1px solid rgba(47,111,237,.3)}
+  .srcnote a:hover{border-bottom-color:#2f6fed}
+  .srcnote code{
+    font-family:var(--mono);font-size:10.5px;
+    background:#eef0f3;border-radius:3px;padding:0 3px;color:var(--text-2);
+  }
+
   /* ---------- 表单行 ---------- */
   .row{display:flex;align-items:center;gap:10px;margin:9px 0}
   .row .lbl{flex:none;width:112px;font-size:12.5px;color:var(--text-2)}
@@ -440,6 +455,12 @@
         <div class="presets" id="presets"></div>
         <div class="hint" style="font-size:11.5px;color:var(--text-3);line-height:1.55">
           点一下即套用整套配色与版式，之后可继续手动微调。最下面一行「完全随机」能摇出<b>预设里没有</b>的配色——色相、明度、彩度全随机，附中文色名。
+        </div>
+        <div class="srcnote">
+          <b>配色出处</b>：「千禧粉 / 千禧粉 · 夜色」取自
+          <a href="https://github.com/nevertoday/rime-color-scheme" target="_blank" rel="noopener">nevertoday/rime-color-scheme</a>
+          （MIT）的 <code>xxd_millennial</code> / <code>xxd_millennial_night</code>，色值未作改动。<br>
+          其余色卡（高级灰 / 莫兰迪 / 马卡龙 / 多巴胺）的色值取自公开色卡通行叫法，整套配色由本工具按各色系规则派生。
         </div>
       </div>
     </details>
@@ -1266,9 +1287,15 @@ const LAYOUT_DEFS = [
 ];
 
 /* ---------- 预设主题 ---------- */
+/* 千禧粉两套的出处（MIT）：色值原样取自该仓库，未作改动 */
+const XXD_SRC = {
+  repo: "nevertoday/rime-color-scheme",
+  url:  "https://github.com/nevertoday/rime-color-scheme",
+  keys: "xxd_millennial / xxd_millennial_night"
+};
 const PRESETS = [
   {
-    id:"xxd_millennial", group:"pink", schemeId:"xxd_millennial", author:"xxd", name:"千禧粉",
+    id:"xxd_millennial", group:"pink", schemeId:"xxd_millennial", author:"xxd", name:"千禧粉", origin:XXD_SRC,
     layout:{cornerRadius:10,hilitedCornerRadius:6,borderWidth:1,marginX:12,marginY:8,
             candidateSpacing:16,spacing:8,hiliteSpacing:4,hilitePaddingX:6,hilitePaddingY:4,
             minWidth:160,shadowRadius:8,shadowOffsetX:0,shadowOffsetY:2},
@@ -1283,7 +1310,7 @@ const PRESETS = [
     }
   },
   {
-    id:"xxd_millennial_night", group:"pink", schemeId:"xxd_millennial_night", author:"xxd", name:"千禧粉 · 夜色",
+    id:"xxd_millennial_night", group:"pink", schemeId:"xxd_millennial_night", author:"xxd", name:"千禧粉 · 夜色", origin:XXD_SRC,
     layout:{cornerRadius:10,hilitedCornerRadius:6,borderWidth:1,marginX:12,marginY:8,
             candidateSpacing:16,spacing:8,hiliteSpacing:4,hilitePaddingX:6,hilitePaddingY:4,
             minWidth:160,shadowRadius:8,shadowOffsetX:0,shadowOffsetY:2},
@@ -1630,7 +1657,7 @@ function clonePreset(p){
     else                          colors[k] = { rgb: "#888888", a: 255 };
   });
   return {
-    meta:{ id: p.schemeId || "my_skin", name:p.name, author: p.author || "" },
+    meta:{ id: p.schemeId || "my_skin", name:p.name, author: p.author || "", origin: p.origin || null },
     font: s.font,
     flags:{ horizontal:s.flags.horizontal, inlinePreedit:s.flags.inlinePreedit, verticalText:s.flags.verticalText, vertL2R:!!s.flags.vertL2R, showComment:s.flags.showComment !== false },
     layout: s.layout,
@@ -1730,7 +1757,7 @@ function presetCard(p){
   const hitx = pick(p.colors.hilited_candidate_text_color);
   const tip  = p.hex
     ? `${p.name} ${p.hex}${p.group==="free" ? `（${SERIES_STYLE[p.style].label}取向）` : ""}`
-    : p.name;
+    : p.name + (p.origin ? ` · 配色出自 ${p.origin.repo}（MIT）` : "");
   const el = document.createElement("div");
   el.className = "preset" + (state.presetId===p.id ? " on":"");
   el.innerHTML = `
@@ -2669,6 +2696,15 @@ function buildYaml(){
   P("#   （小狼毫支持逗号回退链，中英文名一起写最保险）② 文件位置必须是 %APPDATA%\\Rime");
   P("#   ③ UTF-8 无 BOM、缩进用空格不用 Tab、冒号后要有空格 ④ 必须重新部署，");
   P("#   仍不生效就先「结束算法服务」+ 删掉 %APPDATA%\\Rime\\build 再部署 ⑤ 看 weasel.log。");
+  /* 用了别人的配色就写清出处：只在当前方案确实是千禧粉那两套时才加，避免误标 */
+  const _src = (state.meta && state.meta.origin) || /^xxd_millennial/.test(state.meta.id || "")
+    ? (state.meta.origin || XXD_SRC) : null;
+  if(_src){
+    P("#");
+    P(`# 配色出处：${_src.repo}（MIT）`);
+    P(`#   ${_src.url}`);
+    P(`#   对应其 ${_src.keys}，色值未作改动。`);
+  }
   P("# ─────────────────────────────────────────────");
   P("");
   P("patch:");

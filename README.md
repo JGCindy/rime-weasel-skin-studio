@@ -63,7 +63,7 @@
 
 | 分组 | 色数 | 说明 |
 | --- | --- | --- |
-| 千禧粉 | 2 | 柔和粉调，参考千禧粉夜色风格 |
+| 千禧粉 | 2 | **取自 [nevertoday/rime-color-scheme](https://github.com/nevertoday/rime-color-scheme)（MIT）** 的 `xxd_millennial` / `xxd_millennial_night`，色值原样保留，含官方夜色版 |
 | 高级灰 | 红橙黄绿青蓝紫 | 低饱和彩灰，克制耐看 |
 | 莫兰迪 | 12 色卡 | 雾霾蓝、灰豆绿、藕荷粉… 蒙着灰的高级感 |
 | 马卡龙 | 12 色卡 | 千禧粉、薄荷绿、薰衣草紫… 甜而不腻 |
@@ -187,6 +187,30 @@ rime-weasel-skin-studio/
 4. 等 30 秒～1 分钟，访问 👉 **https://jgcindy.github.io/rime-weasel-skin-studio/**
 
 之后每次 `git push`，Pages 会自动重新构建，不需要再设置。
+
+---
+
+## 致谢与配色来源
+
+**「千禧粉 / 千禧粉 · 夜色」** 这两套预设直接取自
+[nevertoday/rime-color-scheme](https://github.com/nevertoday/rime-color-scheme)（**MIT** 协议），
+对应其 `xxd_millennial` 与 `xxd_millennial_night`，**色值原样保留、未作改动** ——
+包括高亮块的千禧粉 `#F3C6C8` 和夜色的近粉黑底 `#1A1415`。
+该仓库给了 20 套品牌色配色（蒂芙尼蓝、爱马仕橙、克莱因蓝…每套带浅色 + 夜色），推荐去看看。
+
+本工具对它的致敬之处在于：**夜间按钮的派生逻辑正是照着「千禧粉 → 千禧粉 · 夜色」的映射方式反推的** ——
+夜底的色相取强调色（高亮块）的色相而不是背景的色相，这样派生出来的夜色才会像官方那样保留一丝粉调，而不是死灰。
+
+其余部分来源如下：
+
+| 内容 | 来源 |
+| --- | --- |
+| 千禧粉 / 千禧粉 · 夜色 | [nevertoday/rime-color-scheme](https://github.com/nevertoday/rime-color-scheme)（MIT），色值原样 |
+| 莫兰迪 / 马卡龙 / 多巴胺 色卡 | 公开色卡的通行叫法与常用 HEX（如克莱因蓝 `#002FA7` 为公开记载的品牌色值） |
+| 整套配色的明度 / 彩度 / 阴影派生规则 | 本工具按各色系特征自行推导 |
+| 界面、代码、文案 | 本仓库原创，[MIT](LICENSE) |
+
+选了千禧粉那两套预设时，导出的 `weasel.custom.yaml` 头部注释里也会自动带上这条出处，方便转给别人时对方也能知道来源。
 
 ---
 
