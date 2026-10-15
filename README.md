@@ -2,30 +2,30 @@
 
 > 一个零依赖的单文件网页工具：可视化调参小狼毫（Weasel）输入法皮肤，实时预览，一键生成 `weasel.custom.yaml`。
 
-**不需要安装任何东西，不需要联网。** 双击 `index.html` 就能用。
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+![Single File](https://img.shields.io/badge/single--file-HTML-blue)
+![No Dependencies](https://img.shields.io/badge/dependencies-none-brightgreen)
+
+![小狼毫皮肤工作室 · 主界面](docs/main.png)
+
+## 👉 [点此在线使用（无需下载安装）](https://jgcindy.github.io/rime-weasel-skin-studio/)
+
+**不需要安装任何东西，不需要联网。** 在线地址打开即用；也可以把仓库下载下来双击 `index.html`。
 
 > **关于文件名**：主程序叫 `index.html`，它就是原来的 `rime-skin-studio.html` 改名而来，
 > 内容一模一样。改名只有一个原因 —— **GitHub Pages 只把 `index.html` 当作目录入口**，
 > 叫这个名字，在线地址才能直接用根路径打开（`.../rime-weasel-skin-studio/`），
 > 而不用写成 `.../rime-weasel-skin-studio/rime-skin-studio.html`。
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-![Single File](https://img.shields.io/badge/single--file-HTML-blue)
-![No Dependencies](https://img.shields.io/badge/dependencies-none-brightgreen)
-
 ---
 
 ## 在线使用
 
-**打开就能用，不用下载、不用安装、不用联网加载资源：**
-
-### 👉 https://jgcindy.github.io/rime-weasel-skin-studio/
+**👉 https://jgcindy.github.io/rime-weasel-skin-studio/**
 
 如果上面的地址一时打不开（GitHub Pages 在部分地区网络可能较慢或被拦截），可以先用这个备用地址：
 
 **https://raw.githack.com/JGCindy/rime-weasel-skin-studio/main/index.html**
-
-或者把仓库下载下来，双击 `index.html`。
 
 > ⚠️ **注意**：在 GitHub 的仓库文件列表里**点击 `index.html`，看到的是源代码，不会运行**。
 > 这是 GitHub 的行为 —— 它把 `.html` 当文本展示。想直接用请走上面的在线地址，或下载后双击。
@@ -72,6 +72,8 @@
 
 每个具名色卡都附带颜色名称，选完即得到一整套协调的配色（底色 / 边框 / 三种文字色 / 高亮块 / 阴影的亮度、饱和度关系都是按色系规则派生的，不是随手填的数值）。
 
+![预设主题：色卡点一下即套用，每组都能「随机一色」](docs/presets.png)
+
 ### 配色
 
 15 个颜色字段全部可视化编辑，每项独立控制色相、透明度（α）：
@@ -95,6 +97,8 @@
 ### 夜间模式
 
 顶栏 **`🌙 夜间`** 按钮：以当前配色的**强调色**为色相基准，派生一套深色配色（默认对齐千禧粉夜景），画布同步切深色。切换预设会自动退出夜间，避免配色打架。
+
+![夜间模式：以强调色为色相基准派生深色配色](docs/night.png)
 
 ### 关于「声开关行为」（重点）
 
@@ -145,6 +149,8 @@
 ---
 
 ## 生成的 YAML 长什么样
+
+![生成配置：带出处注释、语法高亮，一键复制或下载](docs/yaml.png)
 
 ```yaml
 patch:
@@ -201,6 +207,7 @@ patch:
 rime-weasel-skin-studio/
 ├── index.html            # 全部代码：HTML + CSS + JS 单文件，无外部依赖（原 rime-skin-studio.html）
 ├── 声全局-修复诊断.bat    # 「声」开关诊断+修复脚本（见上文「在另一台电脑上跑了却没生效？」）
+├── docs/                 # README 里的界面截图
 ├── README.md
 └── LICENSE
 ```
