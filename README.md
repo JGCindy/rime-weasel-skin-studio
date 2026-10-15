@@ -4,9 +4,31 @@
 
 **不需要安装任何东西，不需要联网。** 双击 `index.html` 就能用。
 
+> **关于文件名**：主程序叫 `index.html`，它就是原来的 `rime-skin-studio.html` 改名而来，
+> 内容一模一样。改名只有一个原因 —— **GitHub Pages 只把 `index.html` 当作目录入口**，
+> 叫这个名字，在线地址才能直接用根路径打开（`.../rime-weasel-skin-studio/`），
+> 而不用写成 `.../rime-weasel-skin-studio/rime-skin-studio.html`。
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 ![Single File](https://img.shields.io/badge/single--file-HTML-blue)
 ![No Dependencies](https://img.shields.io/badge/dependencies-none-brightgreen)
+
+---
+
+## 在线使用
+
+**打开就能用，不用下载、不用安装、不用联网加载资源：**
+
+### 👉 https://jgcindy.github.io/rime-weasel-skin-studio/
+
+如果上面的地址还打不开（说明 GitHub Pages 尚未启用），可以先用这个临时地址：
+
+**https://raw.githack.com/JGCindy/rime-weasel-skin-studio/main/index.html**
+
+或者把仓库下载下来，双击 `index.html`。
+
+> ⚠️ **注意**：在 GitHub 的仓库文件列表里**点击 `index.html`，看到的是源代码，不会运行**。
+> 这是 GitHub 的行为 —— 它把 `.html` 当文本展示。想直接用请走上面的在线地址，或下载后双击。
 
 ---
 
@@ -148,12 +170,23 @@ patch:
 
 ```
 rime-weasel-skin-studio/
-├── index.html    # 全部代码：HTML + CSS + JS 单文件，无外部依赖
+├── index.html    # 全部代码：HTML + CSS + JS 单文件，无外部依赖（原 rime-skin-studio.html）
 ├── README.md
 └── LICENSE
 ```
 
-想直接在线体验，可在仓库 **Settings → Pages** 里把分支设为 `main`、目录选 `/ (root)`，因为入口是 `index.html`，开启后即可通过 GitHub Pages 访问。
+---
+
+## 开启在线访问（GitHub Pages）
+
+因为入口文件名正好是 `index.html`，**不需要任何额外配置**，开启后根路径就能直接访问：
+
+1. 打开仓库的 **Settings** → 左侧栏 **Pages**
+2. **Source** 选 `Deploy from a branch`
+3. **Branch** 选 `main`，目录选 `/ (root)`，点 **Save**
+4. 等 30 秒～1 分钟，访问 👉 **https://jgcindy.github.io/rime-weasel-skin-studio/**
+
+之后每次 `git push`，Pages 会自动重新构建，不需要再设置。
 
 ---
 
