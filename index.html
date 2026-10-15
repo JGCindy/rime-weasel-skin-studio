@@ -868,13 +868,12 @@ if ($dep) {
 <script type="text/plain" id="mintToneBatTpl">
 @echo off
 chcp 65001 >nul
-title Rime - tone_display {{TITLE}}
+title Rime - tone_display
 
 set "RIME=%APPDATA%\Rime"
 if not exist "%RIME%" (
-  echo [ERROR] Rime user folder not found: %RIME%
-  echo         Install Weasel first.
-  pause & exit /b 1
+  echo [NOTE] Not found in the usual place: %RIME%
+  echo        The script will locate the real user folder by itself.
 )
 
 powershell -NoProfile -ExecutionPolicy Bypass -Command "$s=[IO.File]::ReadAllText('%~f0',[Text.Encoding]::UTF8);$m='##'+'PS'+'##';iex $s.Substring($s.IndexOf($m)+6)"
@@ -882,8 +881,28 @@ echo.
 pause
 exit /b
 ##PS##
-$ErrorActionPreference='Stop'
+$ErrorActionPreference='Continue'
+# 用户资料夹：优先读注册表（小狼毫允许自定义位置），再退回 %APPDATA%\Rime。
+# 只认 %APPDATA% 是旧版的坑：资料夹被改过的机器上会「改了个空壳」却一路打印 [OK]。
 $rime=$env:APPDATA+'\Rime'
+try{
+  $rk='HKCU:\Software\Rime\Weasel'
+  if(Test-Path $rk){
+    $rv=(Get-ItemProperty $rk -EA SilentlyContinue).RimeUserDir
+    if($rv -and (Test-Path $rv)){ $rime=$rv }
+  }
+}catch{}
+# 逃生口：便携安装 / 上面两个位置都不对时，可用环境变量 TONEDIR 直接指定资料夹
+if($env:TONEDIR -and (Test-Path $env:TONEDIR)){ $rime=$env:TONEDIR }
+if(-not (Test-Path $rime)){
+  Write-Host ('[ERROR] Rime user folder not found: ' + $rime)
+  Write-Host '        Install Weasel first, or check the user folder setting.'
+  exit 1
+}
+Write-Host ('[OK] Rime user folder: ' + $rime)
+# 窗口标题带中文，只能在这里设：cmd 段落必须是纯 ASCII，
+# 否则 chcp 65001 下含中文的 .bat 会被 cmd 断行/乱码。
+try{ $Host.UI.RawUI.WindowTitle = 'Rime - tone_display {{TITLE}}' }catch{}
 
 # ---- 1. default.custom.yaml: 清理 save_options 里的 tone_display（历史遗留）----
 # 说明：librime 里开关要「全局生效」只能靠 schema 的 reset 参数；
@@ -951,10 +970,20 @@ function Set-ToneReset($sp,$rst){
   return $false
 }
 $cnt=0
-Get-ChildItem -Path $rime -Filter '*.schema.yaml' | Where-Object {$_.Name -notlike 'build*'} | ForEach-Object {
-  if(Set-ToneReset $_.FullName '{{RST}}'){ Write-Host ('[OK] '+$_.Name+': reset -> {{RST}}'); $cnt++ }
+# 递归找（有的人把方案放在子目录里），但排除 build / sync / preview / plum：
+# sync 是同步快照、plum 是包管理器缓存，改了没用，还容易让人误以为「改了 16 个文件」。
+$srcAll=@(Get-ChildItem -LiteralPath $rime -Recurse -Filter '*.schema.yaml' -File -EA SilentlyContinue |
+          Where-Object { $_.FullName -notmatch '\\(build|sync|preview|plum|\.git)\\' })
+$srcHit=@($srcAll | Where-Object { Select-String -LiteralPath $_.FullName -Pattern 'name:\s*tone_display' -Quiet -EA SilentlyContinue })
+Write-Host ('[OK] source schemas: ' + $srcAll.Count + ' found, ' + $srcHit.Count + ' contain tone_display')
+foreach($f in $srcHit){
+  if(Set-ToneReset $f.FullName '{{RST}}'){ Write-Host ('[OK]   ' + $f.Name + ': reset -> {{RST}}'); $cnt++ }
 }
-if($cnt -eq 0){ Write-Host '[OK] 源 schema：reset 本来就是 {{RST}}，无需改动' }else{ Write-Host ('[OK] 源 schema：'+$cnt+' 个文件已更新') }
+if($srcHit.Count -eq 0){
+  Write-Host '[WARN] No schema contains a tone_display switch, so nothing was changed.'
+  Write-Host '       Check that the user folder printed above is the right one.'
+}elseif($cnt -eq 0){ Write-Host '[OK] source schemas: already {{RST}}, nothing to change' }
+else{ Write-Host ('[OK] source schemas: ' + $cnt + ' file(s) updated') }
 
 # ---- 2b. build/ 编译产物 + build/default.yaml：同步修改，保证立即生效 ----
 # 有些机器的「重新部署」不会重建 build，服务读的是 build/ 里的文件；只改源文件不生效。
@@ -980,20 +1009,60 @@ if(Test-Path $bd){
       }else{ Write-Host '[OK] build/default.yaml: save_options 无 tone_display，跳过' }
     }
   }
-  $bcnt=0; $bfound=0
-  Get-ChildItem $bd -Filter '*.schema.yaml' | ForEach-Object {
-    $bfound++
-    if(Set-ToneReset $_.FullName '{{RST}}'){ Write-Host ('[OK] build/'+$_.Name+': reset -> {{RST}}'); $bcnt++ }
+  $bAll=@(Get-ChildItem -LiteralPath $bd -Filter '*.schema.yaml' -File -EA SilentlyContinue)
+  $bHit=@($bAll | Where-Object { Select-String -LiteralPath $_.FullName -Pattern 'name:\s*tone_display' -Quiet -EA SilentlyContinue })
+  $bcnt=0
+  foreach($f in $bHit){
+    if(Set-ToneReset $f.FullName '{{RST}}'){ Write-Host ('[OK]   build/' + $f.Name + ': reset -> {{RST}}'); $bcnt++ }
   }
-  if($bfound -eq 0){ Write-Host '[SKIP] build：没有编译产物 schema（首次部署后才会生成）' }
-  elseif($bcnt -eq 0){ Write-Host '[OK] build：reset 本来就是 {{RST}}，无需改动' }
-  else{ Write-Host ('[OK] build：'+$bcnt+' 个文件已更新') }
+  if($bAll.Count -eq 0){ Write-Host '[SKIP] build: no compiled schema yet (it appears after the first deploy)' }
+  elseif($bHit.Count -eq 0){ Write-Host '[SKIP] build: no compiled schema carries tone_display' }
+  elseif($bcnt -eq 0){ Write-Host '[OK] build: already {{RST}}, nothing to change' }
+  else{ Write-Host ('[OK] build: ' + $bcnt + ' file(s) updated') }
 }
+
+# ---- 2c. user.yaml 里的选项残留 ----
+# librime 可能把上次保存的开关值存在 user.yaml（属 var/option）。万一某台机器在
+# 新会话里把它恢复出来，就会把 reset 顶掉，表现正是「刚设好，重开应用又没了」。
+# 这里把这一项改成与目标一致（没有这项就不动，绝不新建结构）。
+$uy=Join-Path $rime 'user.yaml'
+if(Test-Path $uy){
+  $want='false'
+  if('{{RST}}' -eq '1'){ $want='true' }
+  $ul=[IO.File]::ReadAllText($uy) -split "`r?`n"
+  $done=$false
+  for($i=0;$i -lt $ul.Count;$i++){
+    if($ul[$i] -match '^(\s+)tone_display\s*:'){
+      $nv=$matches[1]+'tone_display: '+$want
+      if($ul[$i] -ne $nv){
+        Copy-Item $uy ($uy+'.bak-tone') -Force -EA SilentlyContinue
+        $ul[$i]=$nv
+        [IO.File]::WriteAllText($uy,($ul -join "`r`n"),(New-Object Text.UTF8Encoding $false))
+        Write-Host ('[OK] user.yaml: tone_display -> ' + $want + ' (backup: user.yaml.bak-tone)')
+      }else{
+        Write-Host ('[OK] user.yaml: tone_display already ' + $want)
+      }
+      $done=$true
+      break
+    }
+  }
+  if(-not $done){ Write-Host '[OK] user.yaml: no tone_display entry, left as is' }
+}else{ Write-Host '[OK] user.yaml: not found, skipped' }
 
 # ---- 3. deploy ----
 # 安装位置兼容：<root>\Rime\weasel-*\  或  <root>\weasel-*\
 function Find-Weasel($exe){
-  foreach($r in @($env:ProgramFiles,${env:ProgramFiles(x86)},'D:\Program Files','E:\Program Files','C:\Program Files','C:\Program Files (x86)')){
+  # 1) 正在运行的服务最可靠：有进程就一定能拿到真实安装目录
+  foreach($p in @(Get-Process WeaselServer,WeaselDeployer -EA SilentlyContinue)){
+    try{
+      $c=Join-Path (Split-Path $p.Path) $exe
+      if(Test-Path $c){ return $c }
+    }catch{}
+  }
+  # 2) 常见安装位置（含 %LOCALAPPDATA%\Programs，新版安装器默认装这儿）
+  $roots=@($env:ProgramFiles,${env:ProgramFiles(x86)},'C:\Program Files','C:\Program Files (x86)','D:\Program Files','E:\Program Files','F:\Program Files')
+  if($env:LOCALAPPDATA){ $roots+=(Join-Path $env:LOCALAPPDATA 'Programs') }
+  foreach($r in ($roots | Select-Object -Unique)){
     if(-not $r -or -not (Test-Path $r)){continue}
     foreach($sub in @('Rime','')){
       $base=if($sub){Join-Path $r $sub}else{$r}
@@ -1007,11 +1076,15 @@ function Find-Weasel($exe){
 }
 $dep=Find-Weasel 'WeaselDeployer.exe'
 if($dep){
+  Write-Host ('[OK] deployer: ' + $dep)
   Write-Host 'Redeploying...'
-  & $dep
-  if('{{RST}}' -eq '1'){ Write-Host '[OK] 完成：所有应用一律打开「声起」，重开应用也保持打开。' }
-  else{ Write-Host '[OK] 完成：各应用独立，各自按 F4 开关，互不影响。' }
-}else{ Write-Host '[WARN] WeaselDeployer.exe not found. Right-click tray -> Redeploy manually.' }
+  Start-Process -FilePath $dep -ArgumentList '/deploy' -Wait
+  if('{{RST}}' -eq '1'){ Write-Host '[OK] Done. 所有应用一律打开「声起」，重开应用也保持打开。' }
+  else{ Write-Host '[OK] Done. 各应用独立，各自按 F4 开关，互不影响。' }
+}else{
+  Write-Host '[WARN] WeaselDeployer.exe not found -> schema files were edited but NOT deployed.'
+  Write-Host '       Right-click the Weasel tray icon and choose Redeploy, otherwise nothing changes.'
+}
 
 # ---- 4. 确认 WeaselServer 在运行（部署通常已自动重启它）----
 # 不主动杀服务：杀掉再拉起在受限环境下容易失败，反而弄坏输入法。
@@ -1032,6 +1105,17 @@ if(Get-Process WeaselServer -EA SilentlyContinue){
     else{ Write-Host '[WARN] WeaselServer 未能启动。请右键托盘图标 -> 重新部署，或手动运行 WeaselServer.exe。' }
   }else{ Write-Host '[WARN] WeaselServer.exe not found; 请手动启动小狼毫服务。' }
 }
+
+# ---- 5. 收尾 ----
+Write-Host ''
+Write-Host ('[DONE] user folder handled: ' + $rime)
+if('{{RST}}' -eq '1'){
+  Write-Host '[DONE] 现在关掉所有应用（记事本/浏览器/微信…）再重新打开，打几个字看看编码区是否显示带声调的拼音。'
+}else{
+  Write-Host '[DONE] 现在各应用互不影响：在哪个应用里按 F4 选「声起」，就只在那个应用生效。'
+}
+Write-Host '[DONE] 如果仍旧无效，请运行 GitHub 仓库里那份「声全局-修复诊断.bat」，它会把每个方案文件的'
+Write-Host '       reset 值、用户资料夹位置、部署器路径都打印成一份报告，便于定位。'
 </script>
 <script type="text/plain" id="mintLuaFix">
 --[[
@@ -2443,7 +2527,11 @@ function updatePatchTip(){
       `它把所有方案的 <code>tone_display</code> 的 <code>reset</code> 写成 <b>${schTone === "global" ? "1" : "0"}</b>（源文件 + build 一起改）后重新部署，幂等可重复运行。<br>` +
       `<b>为什么不用 save_options：</b>librime 里 <code>save_options</code> 只在「从 F4 选单切换」时写入 <code>user.yaml</code>，` +
       `<b>新会话启动时不会恢复它</b>，所以做不到跨应用；开关要真正「全局生效」只能写 <code>reset</code> 参数。<br>` +
-      `两个 bat 互为逆操作：${schTone === "global" ? "想各应用独立就切到「各应用独立」再下载声独立.bat" : "想所有应用一律打开就切到「全局打开」再下载声全局.bat"}。`;
+      `两个 bat 互为逆操作：${schTone === "global" ? "想各应用独立就切到「各应用独立」再下载声独立.bat" : "想所有应用一律打开就切到「全局打开」再下载声全局.bat"}。<br>` +
+      `<b>换了台电脑跑完却没生效？</b>看窗口里 <code>[OK] Rime user folder:</code> 那行指的路径对不对，` +
+      `以及有没有 <code>[WARN] WeaselDeployer.exe not found</code>（没部署＝没生效）。` +
+      `排查不出就用仓库里的 <b>声全局-修复诊断.bat</b>，它会把用户资料夹、每个方案的 <code>reset</code> 值、` +
+      `部署器路径等都写成一份报告。`;
     return;
   }
   tip.innerHTML = `将生成 <code>${id}.custom.yaml</code>，放进 <code>%APPDATA%\\Rime\\</code> 后重新部署。<br>` +

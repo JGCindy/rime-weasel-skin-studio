@@ -111,7 +111,36 @@
 - `reset: 1` → 全局强制打开，所有应用一致；
 - `reset: 0` → 各应用独立，按 F4 切换。
 
-这是不依赖恢复机制的确定行为。工具里附带的 `.bat` 脚本会自动扫描源目录与 `build/` 下的 `*.schema.yaml` 并写入对应值，同时清理 `default.custom.yaml` 里的 `save_options` 残留。
+这是不依赖恢复机制的确定行为。工具里附带的 `.bat` 脚本会自动扫描源目录与 `build/` 下的 `*.schema.yaml` 并写入对应值，同时清理 `default.custom.yaml` / `build/default.yaml` 里 `save_options` 的残留，并把 `user.yaml` 里存着的旧开关值一并纠正——那正是「刚设好、重开应用又变回去」的典型原因。
+
+#### 在另一台电脑上跑了却没生效？
+
+先看脚本窗口里这几行，它们会直接说明问题：
+
+| 输出 | 含义 |
+| --- | --- |
+| `[OK] Rime user folder: <路径>` | 脚本实际改的是哪个资料夹。若这不是你在用的那个，后面全白做 |
+| `[OK] source schemas: N found, M contain tone_display` | 找到几个方案文件、其中几个带「声」。`M` 为 0 就是没找到对的资料夹 |
+| `[WARN] WeaselDeployer.exe not found` | 文件改了但**没重新部署**，所以不生效 |
+| `[WARN] No schema contains a tone_display switch` | 该资料夹里没有支持「声」的方案 |
+
+常见的三种不生效原因，脚本都已针对性处理：
+
+1. **用户资料夹不在默认位置**。小狼毫允许自定义资料夹，真实位置记在注册表
+   `HKCU\Software\Rime\Weasel` 的 `RimeUserDir`。旧脚本硬编码 `%APPDATA%\Rime`，
+   资料夹改过的机器上会「改了个空壳」却一路打印 `[OK]`。现在优先读注册表。
+2. **找到的部署器不对 / 没找到**。现在优先用正在运行的 `WeaselServer.exe` 的路径反推安装目录，
+   并覆盖 `%LOCALAPPDATA%\Programs`、各盘符的 `Program Files`。
+3. **`sync\` 快照让人误判**。`%APPDATA%\Rime\sync\<installation_id>\` 里有一份方案备份，
+   它不参与加载。脚本已把它（以及 `preview\`、`plum\`）排除，避免「改了 16 个文件」这种假象。
+
+**如果还是不行**，用仓库根目录下的 **`声全局-修复诊断.bat`**：它只做诊断+修复，并把完整报告写到桌面
+（`rime-tone-report-*.txt`），内容包括用户资料夹候选、每个方案文件的 `reset` 当前值、`build` 编译产物状态、
+`user.yaml` 残留、`lua/super_preedit.lua` 是否存在、部署器路径、以及修复后的复核结果。把这份报告发出来就能定位。
+
+> 只诊断不改动：把 bat 拖进 cmd，加参数 `diag`（即 `声全局-修复诊断.bat diag`）。
+> 只改不部署：加参数 `noredeploy`。
+> 资料夹既不在注册表也不在默认位置（便携安装）：先 `set TONEDIR=D:\某处\Rime` 再运行。
 
 ---
 
@@ -170,10 +199,14 @@ patch:
 
 ```
 rime-weasel-skin-studio/
-├── index.html    # 全部代码：HTML + CSS + JS 单文件，无外部依赖（原 rime-skin-studio.html）
+├── index.html            # 全部代码：HTML + CSS + JS 单文件，无外部依赖（原 rime-skin-studio.html）
+├── 声全局-修复诊断.bat    # 「声」开关诊断+修复脚本（见上文「在另一台电脑上跑了却没生效？」）
 ├── README.md
 └── LICENSE
 ```
+
+`声全局-修复诊断.bat` 是独立的排障工具，正常路径用不上——直接从网页下载 `声全局.bat` 双击即可。
+它只在「换了台电脑，脚本报了一堆 OK 但『声』还是不对」时使用，会输出一份可发出来求助的报告。
 
 ---
 
