@@ -1,0 +1,3116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>小狼毫皮肤工作室 · Rime Weasel Skin Studio</title>
+<style>
+  :root{
+    --bg:#f4f5f7;
+    --panel:#ffffff;
+    --line:#e4e6ea;
+    --line-soft:#eef0f3;
+    --text:#1b1d21;
+    --text-2:#5a5f6a;
+    --text-3:#8b909a;
+    --accent:#2f6fed;
+    --accent-soft:#eaf1fe;
+    --radius:10px;
+    --mono:"JetBrains Mono","Cascadia Mono",Consolas,"SF Mono",Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    font:14px/1.55 -apple-system,"Segoe UI","Microsoft YaHei UI","Microsoft YaHei",system-ui,sans-serif;
+    color:var(--text);
+    background:var(--bg);
+    -webkit-font-smoothing:antialiased;
+  }
+  /* ---------- 顶栏 ---------- */
+  header{
+    position:sticky;top:0;z-index:50;
+    display:flex;align-items:center;gap:14px;
+    padding:12px 20px;
+    background:rgba(255,255,255,.88);
+    backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--line);
+  }
+  .logo{
+    width:30px;height:30px;border-radius:8px;flex:none;
+    background:linear-gradient(135deg,#2f6fed,#7b5cf0);
+    display:grid;place-items:center;color:#fff;font-weight:700;font-size:15px;
+    box-shadow:0 2px 8px rgba(47,111,237,.3);
+  }
+  .titles h1{margin:0;font-size:15px;font-weight:600;letter-spacing:.2px}
+  .titles p{margin:1px 0 0;font-size:11.5px;color:var(--text-3)}
+  .spacer{flex:1}
+  .btn{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:7px 13px;border-radius:8px;border:1px solid var(--line);
+    background:#fff;color:var(--text);font-size:13px;font-family:inherit;
+    cursor:pointer;transition:.15s;white-space:nowrap;
+  }
+  .btn:hover{border-color:#c9cdd6;background:#fafbfc}
+  .btn:active{transform:translateY(1px)}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+  .btn.primary:hover{background:#245dd4}
+  .btn.ghost{background:transparent;border-color:transparent;color:var(--text-2)}
+  .btn.ghost:hover{background:#eceef2;color:var(--text)}
+  /* 夜间切换钮：开启时呈深底暖字，示意「现在是夜色」 */
+  .btn.night.on{background:#252a39;border-color:#252a39;color:#f2c979}
+  .btn.night.on:hover{background:#2d3345;border-color:#2d3345}
+
+  /* ---------- 布局 ---------- */
+  main{
+    display:grid;
+    grid-template-columns:424px minmax(360px,1fr);
+    gap:0;
+    height:calc(100vh - 55px);
+  }
+  .panel{
+    overflow-y:auto;overflow-x:hidden;
+    border-right:1px solid var(--line);
+    background:var(--panel);
+    padding:0 0 60px;
+  }
+  .panel::-webkit-scrollbar{width:9px}
+  .panel::-webkit-scrollbar-thumb{background:#d4d7dd;border-radius:5px;border:2px solid #fff}
+  .panel::-webkit-scrollbar-thumb:hover{background:#bcc0c8}
+
+  .stage{
+    display:flex;flex-direction:column;min-width:0;overflow:hidden;
+  }
+
+  /* ---------- 折叠分组 ---------- */
+  details.group{border-bottom:1px solid var(--line-soft)}
+  details.group>summary{
+    list-style:none;cursor:pointer;user-select:none;
+    display:flex;align-items:center;gap:8px;
+    padding:13px 18px;font-size:13px;font-weight:600;color:var(--text);
+    transition:.15s;
+  }
+  details.group>summary::-webkit-details-marker{display:none}
+  details.group>summary:hover{background:#fafbfc}
+  details.group>summary .chev{
+    margin-left:auto;color:var(--text-3);font-size:10px;transition:transform .18s;
+  }
+  details.group[open]>summary .chev{transform:rotate(90deg)}
+  details.group>summary .ico{font-size:14px;width:16px;text-align:center}
+  .gbody{padding:2px 18px 18px}
+
+  /* ---------- 表单行 ---------- */
+  .row{display:flex;align-items:center;gap:10px;margin:9px 0}
+  .row .lbl{flex:none;width:112px;font-size:12.5px;color:var(--text-2)}
+  .row .lbl small{display:block;font-size:10.5px;color:var(--text-3);line-height:1.3}
+  .row input[type=text],.row input[type=number],.row select{
+    flex:1;min-width:0;padding:6px 9px;font-size:12.5px;font-family:inherit;
+    border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--text);
+    transition:.15s;
+  }
+  .row input[type=text]:focus,.row input[type=number]:focus,.row select:focus{
+    outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);
+  }
+  .row input[type=range]{flex:1;min-width:0;accent-color:var(--accent);height:18px}
+  .val{
+    flex:none;min-width:44px;text-align:right;font-family:var(--mono);
+    font-size:11.5px;color:var(--text-2);
+  }
+
+  /* 开关 */
+  .sw{position:relative;width:38px;height:21px;flex:none;cursor:pointer}
+  .sw input{position:absolute;opacity:0;width:100%;height:100%;margin:0;cursor:pointer;z-index:2}
+  .sw i{
+    position:absolute;inset:0;border-radius:11px;background:#d6d9df;transition:.18s;
+  }
+  .sw i::after{
+    content:"";position:absolute;top:2.5px;left:2.5px;width:16px;height:16px;
+    border-radius:50%;background:#fff;transition:.18s;box-shadow:0 1px 3px rgba(0,0,0,.22);
+  }
+  .sw input:checked+i{background:var(--accent)}
+  .sw input:checked+i::after{transform:translateX(17px)}
+
+  /* ---------- 颜色行 ---------- */
+  .crow{
+    display:grid;grid-template-columns:26px 1fr auto;gap:10px;align-items:center;
+    padding:7px 0;border-bottom:1px dashed var(--line-soft);
+  }
+  .crow:last-child{border-bottom:none}
+  .crow input[type=color]{
+    width:26px;height:26px;padding:0;border:1px solid var(--line);border-radius:7px;
+    background:none;cursor:pointer;overflow:hidden;
+  }
+  .crow input[type=color]::-webkit-color-swatch-wrapper{padding:2px}
+  .crow input[type=color]::-webkit-color-swatch{border:none;border-radius:4px}
+  .cinfo{min-width:0}
+  .cname{font-size:12.5px;color:var(--text);display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
+  .ckey{
+    font-family:var(--mono);font-size:9.5px;color:var(--text-3);
+    background:#f2f3f6;padding:1px 5px;border-radius:4px;
+  }
+  .cctl{display:flex;align-items:center;gap:8px;margin-top:3px}
+  .chex{
+    width:78px;padding:3px 6px;font-family:var(--mono);font-size:11px;
+    border:1px solid var(--line);border-radius:5px;background:#fff;color:var(--text-2);
+    text-transform:uppercase;
+  }
+  .chex:focus{outline:none;border-color:var(--accent);color:var(--text)}
+  .ca{display:flex;align-items:center;gap:5px;flex:1;min-width:0}
+  .ca span{font-size:10px;color:var(--text-3);font-family:var(--mono)}
+  .ca input[type=range]{flex:1;min-width:0;height:14px;accent-color:var(--accent)}
+  .cbgr{
+    font-family:var(--mono);font-size:10.5px;color:var(--text-3);
+    background:#f7f8fa;padding:3px 7px;border-radius:5px;white-space:nowrap;
+  }
+
+  /* ---------- 预设 ---------- */
+  .presets{padding:2px 0 6px}
+  .pgroup{
+    display:flex;align-items:center;gap:8px;
+    font-size:11px;color:var(--text-3);letter-spacing:.5px;
+    margin:13px 0 7px;
+  }
+  .pgroup:first-child{margin-top:3px}
+  .pgroup .pline{flex:1;height:1px;background:var(--line-soft)}
+  .prand{
+    flex:none;font:inherit;letter-spacing:.3px;cursor:pointer;white-space:nowrap;
+    padding:3px 9px;border-radius:20px;border:1px solid var(--line);
+    background:#fff;color:var(--text-2);transition:.15s;
+  }
+  .prand:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+  .prand:active{transform:scale(.96)}
+  .pfreshint{
+    font-size:11px;color:var(--text-3);line-height:1.6;
+    border:1px dashed var(--line);border-radius:8px;padding:7px 10px;margin-bottom:9px;
+  }
+  .pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+  .preset{
+    border:1.5px solid var(--line);border-radius:9px;padding:8px 7px;cursor:pointer;
+    transition:.15s;background:#fff;min-width:0;
+  }
+  .preset:hover{border-color:#c2c7d0;transform:translateY(-1px);box-shadow:0 3px 10px rgba(0,0,0,.06)}
+  .preset.on{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+  .pbar{height:22px;border-radius:5px;display:flex;align-items:center;justify-content:center;gap:4px}
+  .pbar b{width:12px;height:12px;border-radius:3px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.10)}
+  .pname{font-size:11px;color:var(--text-2);text-align:center;margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+  /* ---------- 字体快捷卡 ---------- */
+  .fontbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:2px 0 7px}
+  .fontbar button{
+    font:inherit;font-size:12px;font-weight:600;cursor:pointer;
+    border:1px dashed var(--accent);color:var(--accent);background:var(--accent-soft);
+    border-radius:7px;padding:5px 11px;transition:.15s;
+  }
+  .fontbar button:hover{background:var(--accent);color:#fff;border-style:solid}
+  .fontbar button.plain{
+    border-style:solid;border-color:var(--line);background:#fff;color:var(--text-2);font-weight:400;
+  }
+  .fontbar button.plain:hover{background:#f6f7f9;border-color:#c9cdd6;color:var(--text)}
+  .fontbar span{font-size:10.5px;color:var(--text-3);line-height:1.45}
+  .fontchips{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:2px 0 10px;border-radius:8px}
+  .fontchips.drop{outline:2px dashed var(--accent);outline-offset:4px}
+  .fchip{
+    position:relative;border:1.5px solid var(--line);border-radius:8px;
+    padding:7px 8px;cursor:pointer;transition:.15s;background:#fff;overflow:hidden;
+  }
+  .fchip:hover{border-color:#c2c7d0;transform:translateY(-1px)}
+  .fchip.on{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+  .fchip .fs{font-size:15px;line-height:1.35;white-space:nowrap;overflow:hidden}
+  .fchip .fn{font-size:10.5px;color:var(--text-3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .fchip .dot{position:absolute;top:7px;right:7px;width:7px;height:7px;border-radius:50%;background:#d8dbe0}
+  .fchip .dot.ok{background:#31a24c}
+  .fchip .dot.loc{background:#2f7fe0}
+  .fchip.miss{background:#fbfbfc;border-style:dashed}
+  .fchip.miss .fs{color:#a8adb6}
+  .fchip .fload{
+    margin-top:5px;width:100%;font:inherit;font-size:10.5px;
+    border:1px solid var(--line);border-radius:5px;background:#fff;color:var(--text-2);
+    padding:2px 0;cursor:pointer;transition:.15s;
+  }
+  .fchip .fload:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+  .fchip.cust{border-style:solid;border-color:#c9d8ee;background:#fafcff}
+  .fchip.cust .dot{right:25px}
+  .fchip .fdel{
+    position:absolute;top:5px;right:5px;width:17px;height:17px;padding:0;line-height:1;
+    border:0;border-radius:4px;background:transparent;color:#bcc1c9;
+    font:inherit;font-size:14px;cursor:pointer;transition:.15s;
+  }
+  .fchip .fdel:hover{background:#f6dcdc;color:#b3261e}
+  .fhint{font-size:11px;color:var(--text-3);line-height:1.55;margin:-4px 0 8px}
+  .fnote{
+    font-size:11px;color:var(--text-3);line-height:1.7;margin:8px 0 2px;
+    border-top:1px dashed var(--line);padding-top:8px;
+  }
+  .fnote b{color:var(--text-2);font-weight:600}
+  .fnote a{color:var(--accent);text-decoration:none;border-bottom:1px solid transparent}
+  .fnote a:hover{border-bottom-color:var(--accent)}
+  .fnote code{background:var(--line-soft);border-radius:3px;padding:0 3px;font-size:10.5px}
+
+  /* ---------- 修复盒（方案级补丁指引） ---------- */
+  .fixbox{
+    border:1px solid #dfe6f2;background:#f8fafe;border-radius:9px;
+    padding:10px 12px 12px;margin:2px 0 10px;
+  }
+  .fixt{font-size:12.5px;font-weight:600;color:#26497f;margin:0 0 2px}
+  .fixbox .row{margin:7px 0}
+  .fixbtns{display:flex;gap:7px;flex-wrap:wrap;margin:9px 0 2px}
+  .fixbtns button{
+    font:inherit;font-size:12px;font-weight:600;cursor:pointer;
+    border:1px solid var(--accent);color:var(--accent);background:#fff;
+    border-radius:7px;padding:5px 11px;transition:.15s;
+  }
+  .fixbtns button:hover{background:var(--accent);color:#fff}
+  .fixbox .fhint{color:#5d6b80}
+  .fixbox code{background:#e9effa;border-radius:3px;padding:0 3px;font-size:10.5px}
+  .fixwarn{
+    margin:8px 0 0;padding:7px 10px;border-radius:7px;
+    background:#fff8e6;border:1px solid #f0dfae;color:#7a5c14;
+    font-size:11.5px;line-height:1.6;
+  }
+  .fixwarn code{background:#f4e8c4;border-radius:3px;padding:0 3px;font-size:10.5px}
+  .fixwarn b{color:#6b4d0a}
+
+  /* ---------- 通用分段控件（.stagebar 里已有同名规则，此处供分组复用） ---------- */
+  .seg{display:flex;background:#eef0f3;border-radius:8px;padding:2px}
+  .seg button{
+    border:none;background:transparent;padding:4px 10px;border-radius:6px;
+    font-size:12px;font-family:inherit;color:var(--text-2);cursor:pointer;transition:.15s;
+  }
+  .seg button.on{background:#fff;color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.1);font-weight:500}
+
+  /* ---------- 预览舞台 ---------- */
+  .stagebar{
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+    padding:10px 18px;border-bottom:1px solid var(--line);background:#fff;
+  }
+  .stagebar .seg{display:flex;background:#eef0f3;border-radius:8px;padding:2px}
+  .stagebar .seg button{
+    border:none;background:transparent;padding:5px 12px;border-radius:6px;
+    font-size:12.5px;font-family:inherit;color:var(--text-2);cursor:pointer;transition:.15s;
+  }
+  .stagebar .seg button.on{background:#fff;color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.1);font-weight:500}
+  .stagetip{font-size:11.5px;color:var(--text-3);margin-left:auto}
+
+  .canvas{
+    flex:1;overflow:auto;position:relative;
+    display:flex;align-items:center;justify-content:center;
+    padding:56px 40px;
+    background-color:#f0f1f4;
+    background-image:
+      linear-gradient(45deg,#e7e9ed 25%,transparent 25%),
+      linear-gradient(-45deg,#e7e9ed 25%,transparent 25%),
+      linear-gradient(45deg,transparent 75%,#e7e9ed 75%),
+      linear-gradient(-45deg,transparent 75%,#e7e9ed 75%);
+    background-size:20px 20px;
+    background-position:0 0,0 10px,10px -10px,-10px 0;
+    transition:background-color .2s;
+  }
+  .canvas.dark{background-color:#16181d;
+    background-image:
+      linear-gradient(45deg,#1e2128 25%,transparent 25%),
+      linear-gradient(-45deg,#1e2128 25%,transparent 25%),
+      linear-gradient(45deg,transparent 75%,#1e2128 75%),
+      linear-gradient(-45deg,transparent 75%,#1e2128 75%);
+    background-size:20px 20px;
+    background-position:0 0,0 10px,10px -10px,-10px 0;
+  }
+  .simwrap{transform-origin:center center;transition:transform .15s}
+
+  /* 模拟编辑器文本行 */
+  .editorline{
+    font-size:15px;color:#3a3d44;margin-bottom:10px;
+    font-family:"Microsoft YaHei",sans-serif;min-height:22px;
+    transition:color .2s;
+  }
+  .canvas.dark .editorline{color:#c9ccd4}
+
+  /* ---- IME 候选窗 ---- */
+  /* overflow:hidden —— 高亮块向窗口外外扩时被裁切，复现小狼毫的「天圆地方」 */
+  .ime{display:inline-block;transition:.12s;overflow:hidden}
+  .ime .preedit{display:flex;align-items:baseline;letter-spacing:.4px}
+  .ime .cands{display:flex}
+  .ime.horiz .cands{flex-direction:row;align-items:stretch}
+  .ime.vert .cands{flex-direction:column;align-items:stretch}
+  .ime.vtext .cands{flex-direction:row;align-items:flex-start}
+
+  .cand{
+    display:flex;align-items:baseline;white-space:nowrap;
+    transition:background-color .1s;
+  }
+  /* 竖排：序号+词 撑到同一宽度，注音列右对齐（对应源码 comment_shift_width） */
+  .ime.vert .cmain{min-width:var(--cw,auto)}
+  /* 竖排文字：候选内部纵向堆叠，整列居中 */
+  .ime.vtext .cand{flex-direction:column;align-items:center}
+  .ime.vtext .cmain{flex-direction:column;align-items:center}
+  .ime.vtext span{writing-mode:vertical-rl;text-orientation:upright}
+
+  .cand .lb{font-variant-numeric:tabular-nums}
+  .cand .cmain{display:flex;align-items:baseline}
+  .cand .cm{font-style:normal}
+
+  .pg{display:flex;align-items:center;font-size:.85em;opacity:.85}
+
+  /* ---------- 输出区 ---------- */
+  .out{
+    border-top:1px solid var(--line);background:#fff;
+    display:flex;flex-direction:column;flex:none;
+  }
+  .outhead{
+    display:flex;align-items:center;gap:8px;padding:9px 18px;
+    border-bottom:1px solid var(--line-soft);
+  }
+  .outhead .t{font-size:12.5px;font-weight:600}
+  .outhead .p{font-size:11px;color:var(--text-3);font-family:var(--mono)}
+  pre.code{
+    margin:0;padding:14px 18px;max-height:270px;overflow:auto;
+    font-family:var(--mono);font-size:12px;line-height:1.62;
+    color:#2b2f36;background:#fbfcfd;
+    white-space:pre;
+  }
+  pre.code::-webkit-scrollbar{width:9px;height:9px}
+  pre.code::-webkit-scrollbar-thumb{background:#d4d7dd;border-radius:5px;border:2px solid #fbfcfd}
+  .cmt{color:#98a0ad}
+  .key{color:#2f6fed}
+  .str{color:#a24fbf}
+  .num{color:#c2571a}
+
+  /* ---------- 导入弹层 ---------- */
+  .modal{
+    position:fixed;inset:0;z-index:200;display:none;
+    background:rgba(20,22,27,.42);backdrop-filter:blur(3px);
+    align-items:center;justify-content:center;padding:24px;
+  }
+  .modal.on{display:flex}
+  .sheet{
+    background:#fff;border-radius:14px;width:min(640px,100%);max-height:86vh;
+    display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.28);overflow:hidden;
+  }
+  .sheet h3{margin:0;padding:16px 20px 6px;font-size:15px}
+  .sheet p.hint{margin:0;padding:0 20px 12px;font-size:12px;color:var(--text-3);line-height:1.6}
+  .sheet textarea{
+    flex:1;margin:0 20px;padding:12px 14px;min-height:220px;resize:vertical;
+    font-family:var(--mono);font-size:12px;line-height:1.6;
+    border:1px solid var(--line);border-radius:9px;background:#fbfcfd;color:var(--text);
+  }
+  .sheet textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+  .sheet .foot{display:flex;gap:9px;padding:14px 20px 18px;justify-content:flex-end}
+  .sheet .msg{margin:0 20px 10px;font-size:12px;color:var(--text-2);min-height:17px}
+  .sheet .msg.ok{color:#1a8a4a}
+  .sheet .msg.err{color:#d1362f}
+
+  /* toast */
+  .toast{
+    position:fixed;left:50%;bottom:32px;transform:translate(-50%,14px);
+    background:#22252b;color:#fff;font-size:13px;padding:9px 18px;border-radius:9px;
+    opacity:0;pointer-events:none;transition:.22s;z-index:300;box-shadow:0 6px 24px rgba(0,0,0,.25);
+  }
+  .toast.on{opacity:1;transform:translate(-50%,0)}
+
+  @media(max-width:1020px){
+    main{grid-template-columns:1fr;height:auto;overflow:visible}
+    .panel{border-right:none;border-bottom:1px solid var(--line);max-height:none;overflow:visible}
+    .stage{height:auto}
+    .canvas{min-height:340px}
+    header{position:static}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">狼</div>
+  <div class="titles">
+    <h1>小狼毫皮肤工作室</h1>
+    <p>Rime Weasel Skin Studio · 可视化调参 → 生成 weasel.custom.yaml</p>
+  </div>
+  <div class="spacer"></div>
+  <button class="btn ghost" id="btnImport">导入配置</button>
+  <button class="btn ghost" id="btnReset">重置</button>
+  <button class="btn" id="btnCopy">复制 YAML</button>
+  <button class="btn primary" id="btnDownload">下载 weasel.custom.yaml</button>
+</header>
+
+<main>
+  <!-- ================= 控制面板 ================= -->
+  <aside class="panel">
+
+    <details class="group" open>
+      <summary><span class="ico">🎨</span>预设主题<span class="chev">▶</span></summary>
+      <div class="gbody">
+        <div class="presets" id="presets"></div>
+        <div class="hint" style="font-size:11.5px;color:var(--text-3);line-height:1.55">
+          点一下即套用整套配色与版式，之后可继续手动微调。最下面一行「完全随机」能摇出<b>预设里没有</b>的配色——色相、明度、彩度全随机，附中文色名。
+        </div>
+      </div>
+    </details>
+
+    <details class="group" open>
+      <summary><span class="ico">🖌️</span>配色<span class="chev">▶</span></summary>
+      <div class="gbody">
+        <div id="colorList"></div>
+      </div>
+    </details>
+
+    <details class="group" open>
+      <summary><span class="ico">🔤</span>字体<span class="chev">▶</span></summary>
+      <div class="gbody">
+        <div class="row">
+          <div class="lbl">候选词字体<small>支持回退链：字体A, 字体B</small></div>
+          <input type="text" data-path="font.face" list="fontlist" placeholder="Microsoft YaHei">
+        </div>
+        <div class="fhint" id="faceChain" style="margin:-2px 0 8px"></div>
+        <div class="fontbar">
+          <button id="btnLoadFont" type="button">＋ 载入字体文件</button>
+          <button id="btnExportFont" type="button">⤓ 导出含字体的网页</button>
+          <button id="btnClearFonts" type="button" class="plain">清空已存字体</button>
+        </div>
+        <div class="fhint" style="margin:-2px 0 8px">
+          支持 ttf / otf / ttc，可多选，也可直接把文件拖进下面的卡片区。载入的字体会<b>记住在本机浏览器</b>，下次打开自动恢复。
+          点卡片会在上面填入<b>整套名称回退链</b>——该字体的中文族名 + 从字体文件里读出的西文族名 / PostScript 名，全是同一个字体，小狼毫依次尝试、命中任意一个即可。
+        </div>
+        <div class="fontchips" id="fontChips"></div>
+        <div class="row">
+          <div class="lbl">候选词字号</div>
+          <input type="range" min="8" max="40" step="1" data-path="font.point">
+          <span class="val" data-out="font.point"></span>
+        </div>
+        <div class="row">
+          <div class="lbl">序号字体<small>留空则跟随候选词</small></div>
+          <input type="text" data-path="font.labelFace" list="fontlist" placeholder="（同候选词）">
+        </div>
+        <div class="row">
+          <div class="lbl">序号字号</div>
+          <input type="range" min="6" max="36" step="1" data-path="font.labelPoint">
+          <span class="val" data-out="font.labelPoint"></span>
+        </div>
+        <div class="row">
+          <div class="lbl">注音字体<small>留空则跟随候选词</small></div>
+          <input type="text" data-path="font.commentFace" list="fontlist" placeholder="（同候选词）">
+        </div>
+        <div class="row">
+          <div class="lbl">注音字号</div>
+          <input type="range" min="6" max="36" step="1" data-path="font.commentPoint">
+          <span class="val" data-out="font.commentPoint"></span>
+        </div>
+        <div class="row">
+          <div class="lbl">显示候选词注音<small>关闭＝隐藏候选词旁的注解小字</small></div>
+          <div class="sw"><input type="checkbox" data-path="flags.showComment"><i></i></div>
+          <span class="val" style="min-width:auto;font-family:inherit;color:var(--text-3);font-size:11px">comment_font_point</span>
+        </div>
+        <div class="fhint" style="margin:2px 0 10px">
+          这个开关只管<b>皮肤层</b>的显隐（关闭＝写入 <code>comment_font_point: 0</code>）。<br>
+          <b>注意</b>：关掉它会把<b>所有</b>候选词注解一起隐藏 —— 包括<b>错音错字提示</b>（如 按耐 → 按捺(nà)）。想省地方就把字号调小，别关这个开关。<br>
+          <b>打开开关依然看不到注音，不是皮肤的问题</b>：注解文字由<b>输入方案</b>产生——把候选词的编码交给<b>词库</b>解码得到的读音（自造短语、Emoji 这类没读音的条目注定没有注音）；而且 Rime 默认在「编码 == 注解」时<b>自动隐藏注解</b>，拼音方案的编码本身就是拼音，所以原生方案默认永远看不到注音。必须在方案里显式打开，见下面。
+        </div>
+
+        <div class="fixbox">
+          <div class="fixt">让注音真正显示出来（方案级补丁，必须做这一步）</div>
+          <div class="fhint" style="margin:2px 0 0">
+            注解文字由<b>输入方案</b>产生，皮肤只能管它的<b>字号和颜色</b>。而且 Rime 默认在「编码 == 注解」时自动隐藏注解——拼音方案的编码本身就是拼音，所以原生方案默认<b>永远看不到注音</b>。
+          </div>
+          <div class="fixwarn">
+            ⚠ <b>必须另存为一个新文件</b>：<code>&lt;方案ID&gt;.custom.yaml</code>，放进 <code>%APPDATA%\Rime\</code>。<br>
+            <b>把 <code>patch:</code> 段粘进 <code>xxx.schema.yaml</code> 里是完全无效的</b>——Rime 只在 <code>.custom.yaml</code> 里处理 <code>patch:</code>，粘进方案文件等于没写。
+          </div>
+          <div class="row" style="margin:9px 0 4px">
+            <div class="lbl">输入方案 ID<small>看用户文件夹里的 xxx.schema.yaml</small></div>
+            <input type="text" data-path="schemaId" list="schemalist" placeholder="luna_pinyin_simp">
+          </div>
+          <div class="row" style="margin:4px 0 4px">
+            <div class="lbl">方案类型<small>决定补丁怎么写</small></div>
+            <div class="seg" id="segSchema">
+              <button type="button" data-fam="std">朙月/雾凇/双拼</button>
+              <button type="button" data-fam="mint">薄荷/万象</button>
+            </div>
+          </div>
+          <div class="row" id="rowTone" style="margin:4px 0 4px;display:none">
+            <div class="lbl">声开关行为<small>所有应用是否一律打开</small></div>
+            <div class="seg" id="segTone">
+              <button type="button" data-tone="indep">各应用独立</button>
+              <button type="button" data-tone="global">全局打开 ★</button>
+            </div>
+          </div>
+          <div class="fixbtns">
+            <button id="btnCopyPatch" type="button">复制注音补丁</button>
+            <button id="btnDlPatch" type="button">下载注音补丁</button>
+            <button id="btnDlLua" type="button" style="display:none">⤓ 下载注音修复 Lua</button>
+            <button id="btnDlBat" type="button" style="display:none">⤓ 下载 F4 热键脚本</button>
+          </div>
+          <div class="fhint" id="patchTip"></div>
+        </div>
+
+        <datalist id="schemalist">
+          <option value="luna_pinyin_simp"><option value="luna_pinyin"><option value="luna_pinyin_tw">
+          <option value="double_pinyin_flypy"><option value="double_pinyin"><option value="rime_ice">
+          <option value="rime_mint_flypy"><option value="rime_mint"><option value="t9">
+          <option value="wubi86"><option value="wubi98"><option value="cangjie5"><option value="bopomofo">
+        </datalist>
+        <datalist id="fontlist">
+          <option value="Microsoft YaHei"><option value="Microsoft YaHei UI"><option value="微软雅黑">
+          <option value="SimSun"><option value="宋体"><option value="FangSong"><option value="SimHei">
+          <option value="汉仪夏日体"><option value="汉仪夏日体W"><option value="HYXiaRiTiW">
+          <option value="LXGW WenKai"><option value="霞鹜文楷"><option value="Sarasa Mono SC">
+          <option value="Segoe UI"><option value="Consolas"><option value="Noto Color Emoji">
+        </datalist>
+        <div class="fnote">
+          <b>字体写了却没变？按这个顺序查</b>（按命中率排序）：<br>
+          <b>① 名称必须和系统里一字不差</b>：<code>Microsoft YaHei UI</code> 和 <code>Microsoft YaHei</code> 是两个字体。
+          正确做法是在系统「字体设置」里看字体的<b>字体名称</b>，不是文件名。工具会自动填入<b>回退链</b>，把<b>同一个字体</b>登记的几个名字全列上
+          （例 <code>汉仪夏日体W, HYXiaRiTiW</code>；载入过字体文件的还会带上它的西文族名与 PostScript 名，例
+          <code>方正FW轻吟体 简 B, FZFW Qing Yin Ti Jian B</code>），小狼毫从左往右依次尝试、先命中者生效——<b>不用自己纠结写中文名还是英文名</b>，
+          关键是别写错，链上也不会串到别的字体去。<br>
+          <b>①′ 版本前提</b>：逗号回退链是 <b>weasel 0.15.0</b> 起才支持的。更老的版本会把整串当成<i>一个</i>字体名，反而导致字体完全不生效——
+          托盘图标右键能看到版本号，太老就升级，或把 <code>font_face</code> 改成单个名字。<br>
+          <b>② 文件位置</b>：必须放 <code>%APPDATA%\Rime\weasel.custom.yaml</code>（托盘图标右键 →「用户文件夹」），<b>不能</b>放在程序安装目录。<br>
+          <b>③ 别覆盖已有文件</b>：如果那个文件已经存在（小狼毫自己生成过，里面有 <code>customization:</code> 和 <code>app_options:</code>），不要整个覆盖，只把 <code>patch:</code> 段合并进去。一个文件里只能有<b>一个</b> <code>patch:</code> 段且必须顶格。<br>
+          <b>④ 编码与格式</b>：保存为 <b>UTF-8 无 BOM</b>；缩进只能用空格、不能用 Tab；冒号后面必须有一个空格。<br>
+          <b>⑤ 必须重新部署</b>：托盘图标右键 →「重新部署」。还不生效就先「结束算法服务」，删掉 <code>%APPDATA%\Rime\build</code> 文件夹，再重新部署。<br>
+          <b>⑥ 看日志</b>：用户文件夹里的 <code>weasel.log</code>，搜 <code>error</code> / <code>warning</code> 能看到具体哪行配置出错。<br>
+          <b>另外</b>：字体本身要先<b>装进系统</b>（选中字体文件 → 右键 →「为所有用户安装」），皮肤只能调用系统里已装的字体。<br>
+          <b>网页部署后字体不显示</b>：浏览器不允许网页读你本机的字体文件。点<b>「⤓ 导出含字体的网页」</b>生成内嵌字体的单文件 HTML，部署那一份就行。<br>
+          <b>圆点</b>：<span style="color:#31a24c">●</span> 系统已装 ｜ <span style="color:#2f7fe0">●</span> 已载入/已保存 ｜ <span style="color:#d8dbe0">●</span> 未装。汉仪夏日体个人非商用免费下载：<a href="https://www.hanyi.com.cn/productdetail.php?id=642" target="_blank" rel="noopener">汉仪官网 · 夏日体W</a>
+        </div>
+      </div>
+    </details>
+
+    <details class="group" open>
+      <summary><span class="ico">📐</span>候选窗布局<span class="chev">▶</span></summary>
+      <div class="gbody">
+        <div class="row">
+          <div class="lbl">横排候选</div>
+          <div class="sw"><input type="checkbox" data-path="flags.horizontal"><i></i></div>
+          <span class="val" style="min-width:auto;font-family:inherit;color:var(--text-3);font-size:11px">horizontal</span>
+        </div>
+        <div class="row">
+          <div class="lbl">编码内嵌<small>拼音显示在光标处</small></div>
+          <div class="sw"><input type="checkbox" data-path="flags.inlinePreedit"><i></i></div>
+          <span class="val" style="min-width:auto;font-family:inherit;color:var(--text-3);font-size:11px">inline_preedit</span>
+        </div>
+        <div class="row">
+          <div class="lbl">文字竖排<small>候选窗内文字竖排显示</small></div>
+          <div class="sw"><input type="checkbox" data-path="flags.verticalText"><i></i></div>
+          <span class="val" style="min-width:auto;font-family:inherit;color:var(--text-3);font-size:11px">vertical_text</span>
+        </div>
+        <div class="row">
+          <div class="lbl">竖排列序<small>竖排文字时列从左到右排</small></div>
+          <div class="sw"><input type="checkbox" data-path="flags.vertL2R"><i></i></div>
+          <span class="val" style="min-width:auto;font-family:inherit;color:var(--text-3);font-size:11px">vertical_text_left_to_right</span>
+        </div>
+        <div style="height:1px;background:var(--line-soft);margin:10px 0"></div>
+        <div class="row"><div class="lbl">圆角半径</div><input type="range" min="0" max="30" step="1" data-path="layout.cornerRadius"><span class="val" data-out="layout.cornerRadius"></span></div>
+        <div class="row"><div class="lbl">高亮块圆角</div><input type="range" min="0" max="30" step="1" data-path="layout.hilitedCornerRadius"><span class="val" data-out="layout.hilitedCornerRadius"></span></div>
+        <div class="row"><div class="lbl">边框粗细</div><input type="range" min="0" max="6" step="1" data-path="layout.borderWidth"><span class="val" data-out="layout.borderWidth"></span></div>
+        <div class="row"><div class="lbl">左右留白<small>margin_x</small></div><input type="range" min="0" max="40" step="1" data-path="layout.marginX"><span class="val" data-out="layout.marginX"></span></div>
+        <div class="row"><div class="lbl">上下留白<small>margin_y</small></div><input type="range" min="0" max="40" step="1" data-path="layout.marginY"><span class="val" data-out="layout.marginY"></span></div>
+        <div class="row"><div class="lbl">候选项间距<small>candidate_spacing · 竖排时为行距</small></div><input type="range" min="0" max="40" step="1" data-path="layout.candidateSpacing"><span class="val" data-out="layout.candidateSpacing"></span></div>
+        <div class="row"><div class="lbl">区间间距<small>spacing · 编码行与候选区</small></div><input type="range" min="0" max="40" step="1" data-path="layout.spacing"><span class="val" data-out="layout.spacing"></span></div>
+        <div class="row"><div class="lbl">序号与词距</div><input type="range" min="0" max="24" step="1" data-path="layout.hiliteSpacing"><span class="val" data-out="layout.hiliteSpacing"></span></div>
+        <div class="row"><div class="lbl">高亮块内边距<small>左右</small></div><input type="range" min="0" max="24" step="1" data-path="layout.hilitePaddingX"><span class="val" data-out="layout.hilitePaddingX"></span></div>
+        <div class="row"><div class="lbl">高亮块内边距<small>上下</small></div><input type="range" min="0" max="24" step="1" data-path="layout.hilitePaddingY"><span class="val" data-out="layout.hilitePaddingY"></span></div>
+        <div class="row"><div class="lbl">最小宽度<small>min_width</small></div><input type="range" min="60" max="420" step="10" data-path="layout.minWidth"><span class="val" data-out="layout.minWidth"></span></div>
+      </div>
+    </details>
+
+    <details class="group">
+      <summary><span class="ico">🌫️</span>阴影<span class="chev">▶</span></summary>
+      <div class="gbody">
+        <div class="row"><div class="lbl">模糊半径</div><input type="range" min="0" max="40" step="1" data-path="layout.shadowRadius"><span class="val" data-out="layout.shadowRadius"></span></div>
+        <div class="row"><div class="lbl">水平偏移</div><input type="range" min="-20" max="20" step="1" data-path="layout.shadowOffsetX"><span class="val" data-out="layout.shadowOffsetX"></span></div>
+        <div class="row"><div class="lbl">垂直偏移</div><input type="range" min="-20" max="20" step="1" data-path="layout.shadowOffsetY"><span class="val" data-out="layout.shadowOffsetY"></span></div>
+        <div style="font-size:11.5px;color:var(--text-3);line-height:1.55;margin-top:6px">
+          阴影颜色在「配色」分组里调（shadow_color 的 α 通道）。
+        </div>
+      </div>
+    </details>
+
+    <details class="group">
+      <summary><span class="ico">🏷️</span>方案名称<span class="chev">▶</span></summary>
+      <div class="gbody">
+        <div class="row"><div class="lbl">方案 ID<small>用于 color_scheme</small></div><input type="text" data-path="meta.id" placeholder="my_skin"></div>
+        <div class="row"><div class="lbl">显示名称</div><input type="text" data-path="meta.name" placeholder="我的皮肤"></div>
+        <div class="row"><div class="lbl">作者</div><input type="text" data-path="meta.author" placeholder="（可留空）"></div>
+      </div>
+    </details>
+
+  </aside>
+
+  <!-- ================= 预览 + 输出 ================= -->
+  <section class="stage">
+    <div class="stagebar">
+      <div class="seg" id="segLayout">
+        <button data-layout="horiz" class="on">横排</button>
+        <button data-layout="vert">竖排</button>
+        <button data-layout="vtext">竖排文字</button>
+      </div>
+      <div class="seg" id="segCanvas">
+        <button data-canvas="light" class="on">浅色背景</button>
+        <button data-canvas="dark">深色背景</button>
+      </div>
+      <button class="btn ghost night" id="btnNight" style="padding:5px 12px">🌙 夜间</button>
+      <button class="btn ghost" id="btnZoomOut" style="padding:5px 10px">－</button>
+      <span class="val" id="zoomVal" style="min-width:38px">100%</span>
+      <button class="btn ghost" id="btnZoomIn" style="padding:5px 10px">＋</button>
+      <span class="stagetip">预览为近似效果，实际以重新部署后为准</span>
+    </div>
+
+    <div class="canvas" id="canvas">
+      <div class="simwrap" id="simwrap"></div>
+    </div>
+
+    <div class="out">
+      <div class="outhead">
+        <span class="t">生成的配置</span>
+        <span class="p" id="outPath">%APPDATA%\Rime\weasel.custom.yaml</span>
+        <div class="spacer"></div>
+        <button class="btn ghost" id="btnCopy2" style="padding:4px 10px;font-size:12px">复制</button>
+      </div>
+      <pre class="code" id="code"></pre>
+    </div>
+  </section>
+</main>
+
+<!-- ================= 导入弹层 ================= -->
+<div class="modal" id="modal">
+  <div class="sheet">
+    <h3>导入现有 weasel.custom.yaml</h3>
+    <p class="hint">
+      把文件内容整段粘进来。会尝试读取 <code>style</code> 与 <code>preset_color_schemes</code> 下的设置。<br>
+      颜色按 <b>0xBBGGRR / 0xAABBGGRR</b>（BGR 顺序）解析。
+    </p>
+    <textarea id="impText" spellcheck="false" placeholder="patch:&#10;  style:&#10;    font_face: &quot;Microsoft YaHei&quot;&#10;    font_point: 15&#10;  preset_color_schemes/+:&#10;    my_skin:&#10;      back_color: 0xF9F9F9"></textarea>
+    <div class="msg" id="impMsg"></div>
+    <div class="foot">
+      <button class="btn" id="btnImpCancel">取消</button>
+      <button class="btn primary" id="btnImpOk">解析并应用</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="text/plain" id="mintBatFix">
+@echo off
+chcp 65001 >nul
+title Rime Weasel - make F4 open the schema menu
+
+set "RIME=%APPDATA%\Rime"
+
+echo ============================================================
+echo  Add F4 to switcher/hotkeys
+echo  Target : %RIME%\default.custom.yaml
+echo  Note   : corrector_filter.lua is NOT touched.
+echo ============================================================
+echo.
+
+if not exist "%RIME%" (
+  echo [ERROR] Rime user folder not found:
+  echo         %RIME%
+  echo         Start Weasel once, then: tray icon -^> User folder.
+  echo.
+  pause
+  exit /b 1
+)
+
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$s=[IO.File]::ReadAllText('%~f0');$m='##'+'PS'+'##';iex $s.Substring($s.IndexOf($m)+6)"
+set "RC=%ERRORLEVEL%"
+
+echo.
+pause
+exit /b %RC%
+##PS##
+$ErrorActionPreference = 'Stop'
+
+$dir  = Join-Path $env:APPDATA 'Rime'
+$file = Join-Path $dir 'default.custom.yaml'
+
+$hot = @(
+  '  "switcher/hotkeys":',
+  '    - F4',
+  '    - "Control+grave"',
+  '    - "Control+Shift+grave"'
+)
+
+$utf8   = New-Object System.Text.UTF8Encoding $false
+$strict = New-Object System.Text.UTF8Encoding $false, $true
+
+$old = ''
+$has = Test-Path -LiteralPath $file
+if ($has) {
+  $bytes = [IO.File]::ReadAllBytes($file)
+  try { $old = $strict.GetString($bytes) } catch {
+    Write-Host '  [ERROR] default.custom.yaml is not valid UTF-8.'
+    Write-Host '          Save it as UTF-8 without BOM, then run again.'
+    exit 2
+  }
+  $old = $old -replace '^\uFEFF', ''
+}
+
+if ($old.Trim().Length -eq 0) {
+  $out = 'patch:' + "`r`n" + ($hot -join "`r`n") + "`r`n"
+  Write-Host '  [NEW]  default.custom.yaml will be created'
+} else {
+  $lines = @($old -split "`r`n|`n|`r")
+  $n = $lines.Count
+  while ($n -gt 0 -and $lines[$n - 1].Trim().Length -eq 0) { $n-- }
+  $lines = if ($n -gt 0) { @($lines[0..($n - 1)]) } else { @() }
+  $keyIdx = -1
+  $patchIdx = -1
+  for ($i = 0; $i -lt $lines.Count; $i++) {
+    if ($keyIdx -lt 0 -and $lines[$i] -match 'switcher/hotkeys') { $keyIdx = $i }
+    if ($patchIdx -lt 0 -and $lines[$i] -match '^patch\s*:\s*$') { $patchIdx = $i }
+  }
+  $res = New-Object System.Collections.ArrayList
+  if ($keyIdx -ge 0) {
+    $pad = ($lines[$keyIdx] -replace '^([ \t]*)[\s\S]*$', '$1')
+    if ($lines[$keyIdx] -match '^\s*["'']?switcher/hotkeys["'']?\s*:(?:\s*#.*)?$') {
+      $kline = $lines[$keyIdx]
+    } else {
+      $kline = '  "switcher/hotkeys":'
+      $pad = '  '
+    }
+    $items = @(($pad + '  - F4'), ($pad + '  - "Control+grave"'), ($pad + '  - "Control+Shift+grave"'))
+    $ind = $pad.Length
+    $end = $keyIdx
+    for ($j = $keyIdx + 1; $j -lt $lines.Count; $j++) {
+      if ($lines[$j].Trim().Length -eq 0) { $end = $j; continue }
+      $li = ($lines[$j] -replace '^([ \t]*)[\s\S]*$', '$1').Length
+      if ($li -gt $ind) { $end = $j } else { break }
+    }
+    for ($k = 0; $k -lt $lines.Count; $k++) {
+      if ($k -eq $keyIdx) {
+        [void]$res.Add($kline)
+        foreach ($h in $items) { [void]$res.Add($h) }
+        $k = $end
+        continue
+      }
+      [void]$res.Add($lines[$k])
+    }
+    Write-Host '  [OK]   existing switcher/hotkeys block checked'
+  } elseif ($patchIdx -ge 0) {
+    for ($k = 0; $k -lt $lines.Count; $k++) {
+      [void]$res.Add($lines[$k])
+      if ($k -eq $patchIdx) { foreach ($h in $hot) { [void]$res.Add($h) } }
+    }
+    Write-Host '  [OK]   switcher/hotkeys inserted under patch:'
+  } else {
+    foreach ($l in $lines) { [void]$res.Add($l) }
+    [void]$res.Add('')
+    [void]$res.Add('patch:')
+    foreach ($h in $hot) { [void]$res.Add($h) }
+    Write-Host '  [OK]   patch: section appended'
+  }
+  $out = ($res -join "`r`n") + "`r`n"
+}
+
+if ($out -cne $old) {
+  if ($has -and -not (Test-Path -LiteralPath ($file + '.bak'))) {
+    Copy-Item -LiteralPath $file -Destination ($file + '.bak')
+    Write-Host '  [BAK]  saved as default.custom.yaml.bak'
+  }
+  [IO.File]::WriteAllText($file, $out, $utf8)
+  Write-Host '  [OK]   F4 is now a schema-menu hotkey'
+} else {
+  Write-Host '  [--]   already up to date - file untouched'
+}
+
+if ($env:RIME_NO_DEPLOY) { Write-Host '  [--]   deploy skipped'; exit 0 }
+
+$dep = ''
+$uni = @('HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*',
+         'HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*')
+foreach ($a in (Get-ItemProperty -Path $uni -ErrorAction SilentlyContinue | Where-Object { $_.DisplayName -like '*Weasel*' })) {
+  if (-not $a.InstallLocation) { continue }
+  $c = Join-Path $a.InstallLocation 'WeaselDeployer.exe'
+  if (Test-Path -LiteralPath $c) { $dep = $c; break }
+  $h2 = Get-ChildItem -Path (Join-Path $a.InstallLocation 'weasel-*\WeaselDeployer.exe') -ErrorAction SilentlyContinue | Select-Object -First 1
+  if ($h2) { $dep = $h2.FullName; break }
+}
+if (-not $dep) {
+  foreach ($r in @($env:ProgramFiles, ${env:ProgramFiles(x86)}, 'D:\Program Files', 'E:\Program Files', 'F:\Program Files')) {
+    if (-not $r) { continue }
+    $g = Join-Path $r 'Rime'
+    if (-not (Test-Path -LiteralPath $g)) { continue }
+    $h = Get-ChildItem -LiteralPath $g -Filter 'WeaselDeployer.exe' -Recurse -Depth 2 -ErrorAction SilentlyContinue | Select-Object -First 1
+    if ($h) { $dep = $h.FullName; break }
+  }
+}
+
+if ($dep) {
+  Write-Host ('  [DEP]  ' + $dep)
+  Start-Process -FilePath $dep -ArgumentList '/deploy' -Wait
+  Write-Host '  [OK]   redeployed - start typing, then press F4'
+} else {
+  Write-Host '  [WARN] WeaselDeployer.exe not found.'
+  Write-Host '         Right-click the Weasel tray icon and choose Redeploy.'
+}
+</script>
+<script type="text/plain" id="mintToneBatTpl">
+@echo off
+chcp 65001 >nul
+title Rime - tone_display {{TITLE}}
+
+set "RIME=%APPDATA%\Rime"
+if not exist "%RIME%" (
+  echo [ERROR] Rime user folder not found: %RIME%
+  echo         Install Weasel first.
+  pause & exit /b 1
+)
+
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$s=[IO.File]::ReadAllText('%~f0',[Text.Encoding]::UTF8);$m='##'+'PS'+'##';iex $s.Substring($s.IndexOf($m)+6)"
+echo.
+pause
+exit /b
+##PS##
+$ErrorActionPreference='Stop'
+$rime=$env:APPDATA+'\Rime'
+
+# ---- 1. default.custom.yaml: 清理 save_options 里的 tone_display（历史遗留）----
+# 说明：librime 里开关要「全局生效」只能靠 schema 的 reset 参数；
+#       save_options 只在「从 F4 选单切换」时写入 user.yaml，
+#       且新会话启动时不会恢复它，所以本方案不再使用 save_options，顺手清理。
+$p=Join-Path $rime 'default.custom.yaml'
+if(Test-Path $p){
+  $t=[IO.File]::ReadAllText($p)
+  $lines=$t -split "`r?`n"
+  $keyIdx=-1
+  for($i=0;$i -lt $lines.Count;$i++){ if($lines[$i] -match '^\s*["'']?switcher/save_options["'']?\s*:'){$keyIdx=$i;break} }
+  if($keyIdx -lt 0){ Write-Host '[OK] default.custom.yaml: 无 save_options，跳过' }
+  else{
+    $ind=([regex]::Match($lines[$keyIdx],'^(\s*)')).Groups[1].Value
+    $end=$keyIdx
+    for($j=$keyIdx+1;$j -lt $lines.Count;$j++){ $l=$lines[$j]; if($l.Trim() -eq ''){continue}; $li=([regex]::Match($l,'^(\s*)')).Groups[1].Value; if($li.Length -gt $ind.Length){$end=$j}else{break} }
+    $segLines=@($lines[$keyIdx..$end])
+    if(-not ($segLines | Where-Object {$_ -match 'tone_display'})){ Write-Host '[OK] default.custom.yaml: save_options 无 tone_display，跳过' }
+    else{
+      $items=@($segLines | Where-Object {$_ -match '^\s*-\s*'})
+      if($items.Count -le 1){ $kept=@() ; Write-Host '[OK] default.custom.yaml: save_options 整段移除（只有 tone_display）' }
+      else{ $kept=@($segLines | Where-Object {$_ -notmatch 'tone_display'}); Write-Host '[OK] default.custom.yaml: 已移除 save_options 里的 tone_display' }
+      $new=@()
+      if($keyIdx -gt 0){ $new+=$lines[0..($keyIdx-1)] }
+      $new+=$kept
+      if($end -lt $lines.Count-1){ $new+=$lines[($end+1)..($lines.Count-1)] }
+      [IO.File]::WriteAllText($p,($new -join "`r`n"),(New-Object Text.UTF8Encoding $false))
+    }
+  }
+}else{ Write-Host '[OK] default.custom.yaml: 不存在，跳过' }
+
+# ---- 2. 源 schema：把 tone_display 的 reset 设为 {{RST}} ----
+# 设为 1 = 每个会话强制打开（所有应用都开）；设为 0 = 每个会话强制关闭（各应用独立）。
+# 这是 librime 里唯一能让开关「全局生效」的办法，不依赖 save_options 的恢复机制。
+function Set-ToneReset($sp,$rst){
+  $t=[IO.File]::ReadAllText($sp)
+  if($t -notmatch 'name:\s*tone_display'){ return $false }
+  $sl=$t -split "`r?`n"
+  for($i=0;$i -lt $sl.Count;$i++){
+    if($sl[$i] -match '^\s*-\s*name:\s*tone_display'){
+      for($j=$i+1;$j -lt $sl.Count;$j++){
+        $l=$sl[$j]
+        if($l -match '^\s*-\s'){break}
+        if($l -match '^(\s*)#?\s*reset:\s*[01]\s*$'){
+          $nv=$matches[1]+'reset: '+$rst
+          if($l -eq $nv){ return $false }
+          $sl[$j]=$nv
+          [IO.File]::WriteAllText($sp,($sl -join "`r`n"),(New-Object Text.UTF8Encoding $false))
+          return $true
+        }
+      }
+      $ins=$i
+      for($j=$i+1;$j -lt $sl.Count;$j++){
+        if($sl[$j] -match '^\s*-\s'){break}
+        $ins=$j
+        if($sl[$j] -match '^\s*#?\s*states\s*:'){break}
+      }
+      $ind=([regex]::Match($sl[$i],'^(\s*)')).Groups[1].Value+'  '
+      $new=@(); $new+=$sl[0..$ins]; $new+=($ind+'reset: '+$rst)
+      if($ins -lt $sl.Count-1){ $new+=$sl[($ins+1)..($sl.Count-1)] }
+      [IO.File]::WriteAllText($sp,($new -join "`r`n"),(New-Object Text.UTF8Encoding $false))
+      return $true
+    }
+  }
+  return $false
+}
+$cnt=0
+Get-ChildItem -Path $rime -Filter '*.schema.yaml' | Where-Object {$_.Name -notlike 'build*'} | ForEach-Object {
+  if(Set-ToneReset $_.FullName '{{RST}}'){ Write-Host ('[OK] '+$_.Name+': reset -> {{RST}}'); $cnt++ }
+}
+if($cnt -eq 0){ Write-Host '[OK] 源 schema：reset 本来就是 {{RST}}，无需改动' }else{ Write-Host ('[OK] 源 schema：'+$cnt+' 个文件已更新') }
+
+# ---- 2b. build/ 编译产物 + build/default.yaml：同步修改，保证立即生效 ----
+# 有些机器的「重新部署」不会重建 build，服务读的是 build/ 里的文件；只改源文件不生效。
+$bd=Join-Path $rime 'build'
+if(Test-Path $bd){
+  $bp=Join-Path $bd 'default.yaml'
+  if(Test-Path $bp){
+    $lines=[IO.File]::ReadAllText($bp) -split "`r?`n"
+    $k=-1
+    for($i=0;$i -lt $lines.Count;$i++){ if($lines[$i] -match '^\s*save_options\s*:'){$k=$i;break} }
+    if($k -ge 0){
+      $ind=([regex]::Match($lines[$k],'^(\s*)')).Groups[1].Value
+      $end=$k
+      for($j=$k+1;$j -lt $lines.Count;$j++){ $l=$lines[$j]; if($l.Trim() -eq ''){continue}; $li=([regex]::Match($l,'^(\s*)')).Groups[1].Value; if($li.Length -gt $ind.Length){$end=$j}else{break} }
+      $seg=@($lines[$k..$end])
+      if(@($seg | Where-Object {$_ -match 'tone_display'}).Count -gt 0){
+        $items=@($seg | Where-Object {$_ -match '^\s*-\s*'})
+        if($items.Count -le 1){ $kept=@() } else { $kept=@($seg | Where-Object {$_ -notmatch 'tone_display'}) }
+        $new=@(); if($k -gt 0){ $new+=$lines[0..($k-1)] }; $new+=$kept
+        if($end -lt $lines.Count-1){ $new+=$lines[($end+1)..($lines.Count-1)] }
+        [IO.File]::WriteAllText($bp,($new -join "`r`n"),(New-Object Text.UTF8Encoding $false))
+        Write-Host '[OK] build/default.yaml: 已移除 save_options 里的 tone_display'
+      }else{ Write-Host '[OK] build/default.yaml: save_options 无 tone_display，跳过' }
+    }
+  }
+  $bcnt=0; $bfound=0
+  Get-ChildItem $bd -Filter '*.schema.yaml' | ForEach-Object {
+    $bfound++
+    if(Set-ToneReset $_.FullName '{{RST}}'){ Write-Host ('[OK] build/'+$_.Name+': reset -> {{RST}}'); $bcnt++ }
+  }
+  if($bfound -eq 0){ Write-Host '[SKIP] build：没有编译产物 schema（首次部署后才会生成）' }
+  elseif($bcnt -eq 0){ Write-Host '[OK] build：reset 本来就是 {{RST}}，无需改动' }
+  else{ Write-Host ('[OK] build：'+$bcnt+' 个文件已更新') }
+}
+
+# ---- 3. deploy ----
+# 安装位置兼容：<root>\Rime\weasel-*\  或  <root>\weasel-*\
+function Find-Weasel($exe){
+  foreach($r in @($env:ProgramFiles,${env:ProgramFiles(x86)},'D:\Program Files','E:\Program Files','C:\Program Files','C:\Program Files (x86)')){
+    if(-not $r -or -not (Test-Path $r)){continue}
+    foreach($sub in @('Rime','')){
+      $base=if($sub){Join-Path $r $sub}else{$r}
+      if(-not (Test-Path $base)){continue}
+      $hit=Get-ChildItem $base -Filter 'weasel-*' -Directory -EA SilentlyContinue |
+            Where-Object {Test-Path (Join-Path $_.FullName $exe)} | Select-Object -First 1
+      if($hit){return (Join-Path $hit.FullName $exe)}
+    }
+  }
+  return $null
+}
+$dep=Find-Weasel 'WeaselDeployer.exe'
+if($dep){
+  Write-Host 'Redeploying...'
+  & $dep
+  if('{{RST}}' -eq '1'){ Write-Host '[OK] 完成：所有应用一律打开「声起」，重开应用也保持打开。' }
+  else{ Write-Host '[OK] 完成：各应用独立，各自按 F4 开关，互不影响。' }
+}else{ Write-Host '[WARN] WeaselDeployer.exe not found. Right-click tray -> Redeploy manually.' }
+
+# ---- 4. 确认 WeaselServer 在运行（部署通常已自动重启它）----
+# 不主动杀服务：杀掉再拉起在受限环境下容易失败，反而弄坏输入法。
+# 只在服务确实没运行时才启动，并用 UseShellExecute 让其脱离本进程。
+Start-Sleep -Seconds 3
+if(Get-Process WeaselServer -EA SilentlyContinue){
+  Write-Host '[OK] WeaselServer is running (config reloaded)'
+}else{
+  $srv=Find-Weasel 'WeaselServer.exe'
+  if($srv){
+    $psi=New-Object Diagnostics.ProcessStartInfo
+    $psi.FileName=$srv
+    $psi.WorkingDirectory=(Split-Path $srv)
+    $psi.UseShellExecute=$true
+    [Diagnostics.Process]::Start($psi) | Out-Null
+    Start-Sleep -Seconds 3
+    if(Get-Process WeaselServer -EA SilentlyContinue){ Write-Host '[OK] WeaselServer started' }
+    else{ Write-Host '[WARN] WeaselServer 未能启动。请右键托盘图标 -> 重新部署，或手动运行 WeaselServer.exe。' }
+  }else{ Write-Host '[WARN] WeaselServer.exe not found; 请手动启动小狼毫服务。' }
+}
+</script>
+<script type="text/plain" id="mintLuaFix">
+--[[
+	错音错字提示。
+	示例：「给予」的正确读音是 ji yu，当用户输入 gei yu 时，在候选项的 comment 显示正确读音
+	示例：「按耐」的正确写法是「按捺」，当用户输入「按耐」时，在候选项的 comment 显示正确写法
+
+	为了让这个 Lua 同时适配全拼与双拼，使用 `spelling_hints` 生成的 comment（全拼拼音）作为通用的判断条件。
+	感谢大佬@[Shewer Lu](https://github.com/shewer)提供的思路。
+	
+	容错词在 dicts/rime_ice.others.dict.yaml 中，定期同步 雾凇拼音 ，有新增建议可以在 雾凇拼音 地址提个 issue（嘿嘿）
+--]]
+
+local M = {}
+
+local tone_map = {
+    ["ā"] = "a", ["á"] = "a", ["ǎ"] = "a", ["à"] = "a",
+    ["ō"] = "o", ["ó"] = "o", ["ǒ"] = "o", ["ò"] = "o",
+    ["ē"] = "e", ["é"] = "e", ["ě"] = "e", ["è"] = "e",
+    ["ī"] = "i", ["í"] = "i", ["ǐ"] = "i", ["ì"] = "i",
+    ["ū"] = "u", ["ú"] = "u", ["ǔ"] = "u", ["ù"] = "u",
+    ["ǖ"] = "v", ["ǘ"] = "v", ["ǚ"] = "v", ["ǜ"] = "v", ["ü"] = "v",
+}
+
+local function compact_code(code)
+    code = code:gsub(utf8.charpattern, function(char)
+        return tone_map[char] or char
+    end)
+    return code:gsub("[ '`]", "")
+end
+
+function M.init(env)
+    local config = env.engine.schema.config
+    local delimiter = config:get_string('speller/delimiter')
+    env.name_space = env.name_space:gsub('^*', '')
+    if delimiter and #delimiter > 0 and delimiter:sub(1,1) ~= ' ' then
+        env.delimiter = delimiter:sub(1,1)
+    end
+    M.style = '{comment}'
+    M.corrections = {
+        -- 错音
+        ["hun dun"] = { text = "馄饨", comment = "hún tun" },
+        ["zhu jiao"] = { text = "主角", comment = "zhǔ jué" },
+        ["jiao se"] = { text = "角色", comment = "júe sè" },
+        ["chi pi sa"] = { text = "吃比萨", comment = "chī bǐ sà" },
+        ["pi sa bing"] = { text = "比萨饼", comment = "bǐ sà bǐng" },
+        ["shui fu"] = { text = "说服", comment = "shuō fú" },
+        ["dao hang"] = { text = "道行", comment = "dào héng" },
+        ["mo yang"] = { text = "模样", comment = "mú yàng" },
+        ["you mo you yang"] = { text = "有模有样", comment = "yǒu mú yǒu yàng" },
+        ["yi mo yi yang"] = { text = "一模一样", comment = "yī mú yī yàng" },
+        ["zhuang mo zuo yang"] = { text = "装模作样", comment = "zhuāng mú zuò yàng" },
+        ["ren mo gou yang"] = { text = "人模狗样", comment = "rén mú góu yàng" },
+        ["mo ban"] = { text = "模板", comment = "mú bǎn" },
+        ["a mi tuo fo"] = { text = "阿弥陀佛", comment = "ē mí tuó fó" },
+        ["na mo a mi tuo fo"] = { text = "南无阿弥陀佛", comment = "nā mó ē mí tuó fó" },
+        ["nan wu a mi tuo fo"] = { text = "南无阿弥陀佛", comment = "nā mó ē mí tuó fó" },
+        ["nan wu e mi tuo fo"] = { text = "南无阿弥陀佛", comment = "nā mó ē mí tuó fó" },
+        ["gei yu"] = { text = "给予", comment = "jǐ yǔ" },
+        ["bin lang"] = { text = "槟榔", comment = "bīng láng" },
+        ["zhang bai zhi"] = { text = "张柏芝", comment = "zhāng bó zhī" },
+        ["teng man"] = { text = "藤蔓", comment = "téng wàn" },
+        ["nong tang"] = { text = "弄堂", comment = "lòng táng" },
+        ["xin kuan ti pang"] = { text = "心宽体胖", comment = "xīn kūan tǐ pán" },
+        ["mai yuan"] = { text = "埋怨", comment = "mán yuàn" },
+        ["xu yu wei she"] = { text = "虚与委蛇", comment = "xū yǔ wēi yí" },
+        ["mu na"] = { text = "木讷", comment = "mù nè" },
+        ["du le le"] = { text = "独乐乐", comment = "dú yuè lè" },
+        ["zhong le le"] = { text = "众乐乐", comment = "zhòng yuè lè" },
+        ["xun ma"] = { text = "荨麻", comment = "qián má" },
+        ["qian ma zhen"] = { text = "荨麻疹", comment = "xún má zhěn" },
+        ["mo ju"] = { text = "模具", comment = "mú jù" },
+        ["cao zhi"] = { text = "草薙", comment = "cǎo tì" },
+        ["cao zhi jing"] = { text = "草薙京", comment = "cǎo tì jīng" },
+        ["cao zhi jian"] = { text = "草薙剑", comment = "cǎo tì jiàn" },
+        ["jia ping ao"] = { text = "贾平凹", comment = "jià píng wā" },
+        ["xue fo lan"] = { text = "雪佛兰", comment = "xuě fú lán" },
+        ["qiang jin"] = { text = "强劲", comment = "qiáng jìng" },
+        ["tong ti"] = { text = "胴体", comment = "dòng tǐ" },
+        ["li neng kang ding"] = { text = "力能扛鼎", comment = "lì néng gāng dǐng" },
+        ["ya lv jiang"] = { text = "鸭绿江", comment = "yā lù jiāng" },
+        ["da fu bian bian"] = { text = "大腹便便", comment = "dà fù pián pián" },
+        ["ka bo zi"] = { text = "卡脖子", comment = "qiǎ bó zi" },
+        ["zhi sheng"] = { text = "吱声", comment = "zī shēng" },
+        ["chan he"] = { text = "掺和", comment = "chān huo" },
+        ["can huo"] = { text = "掺和", comment = "chān huo" },
+        ["can he"] = { text = "掺和", comment = "chān huo" },
+        ["cheng zhi"] = { text = "称职", comment = "chèn zhí" },
+        ["luo shi fen"] = { text = "螺蛳粉", comment = "luó sī fěn" },
+        ["tiao huan"] = { text = "调换", comment = "diào huàn" },
+        ["tai xing shan"] = { text = "太行山", comment = "tài háng shān" },
+        ["jie si di li"] = { text = "歇斯底里", comment = "xiē sī dǐ lǐ" },
+        ["nuan he"] = { text = "暖和", comment = "nuǎn huo" },
+        ["mo ling liang ke"] = { text = "模棱两可", comment = "mó léng liǎng kě" },
+        ["pan yang hu"] = { text = "鄱阳湖", comment = "pó yáng hú" },
+        ["bo jing"] = { text = "脖颈", comment = "bó gěng" },
+        ["bo jing er"] = { text = "脖颈儿", comment = "bó gěng er" },
+        ["jie zha"] = { text = "结扎", comment = "jié zā" },
+        ["hai shen wei"] = { text = "海参崴", comment = "hǎi shēn wǎi" },
+        ["hou pu"] = { text = "厚朴", comment = "hòu pò " },
+        ["da wan ma"] = { text = "大宛马", comment = "dà yuān mǎ" },
+        ["ci ya"] = { text = "龇牙", comment = "zī yá" },
+        ["ci zhe ya"] = { text = "龇着牙", comment = "zī zhe yá" },
+        ["ci ya lie zui"] = { text = "龇牙咧嘴", comment = "zī yá liě zuǐ" },
+        ["tou pi xue"] = { text = "头皮屑", comment = "tóu pi xiè" },
+        ["liu an shi"] = { text = "六安市", comment = "lù ān shì" },
+        ["liu an xian"] = { text = "六安县", comment = "lù ān xiàn" },
+        ["an hui sheng liu an shi"] = { text = "安徽省六安市", comment = "ān huī shěng lù ān shì" },
+        ["an hui liu an"] = { text = "安徽六安", comment = "ān huī lù ān" },
+        ["an hui liu an shi"] = { text = "安徽六安市", comment = "ān huī lù ān shì" },
+        ["nan jing liu he"] = { text = "南京六合", comment = "nán jīng lù hé" },
+        ["nan jing shi liu he"] = { text = "南京六合区", comment = "nán jīng lù hé qū" },
+        ["nan jing shi liu he qu"] = { text = "南京市六合区", comment = "nán jīng shì lù hé qū" },
+        ["nuo da"] = { text = "偌大", comment = "偌(ruò)大" },
+        ["yin jiu zhi ke"] = { text = "饮鸩止渴", comment = "饮鸩(zhèn)止渴" },
+        ["yin jiu jie ke"] = { text = "饮鸩解渴", comment = "饮鸩(zhèn)解渴" },
+        ["gong shang jiao zhi yu"] = { text = "宫商角徵羽", comment = "宫商角(jué)徵羽" },
+        -- 错字
+        ["pu jie"] = { text = "扑街", comment = "仆街" },
+        ["pu gai"] = { text = "扑街", comment = "仆街" },
+        ["pu jie zai"] = { text = "扑街仔", comment = "仆街仔" },
+        ["pu gai zai"] = { text = "扑街仔", comment = "仆街仔" },
+        ["ceng jin"] = { text = "曾今", comment = "曾经" },
+        ["an nai"] = { text = "按耐", comment = "按捺(nà)" },
+        ["an nai bu zhu"] = { text = "按耐不住", comment = "按捺(nà)不住" },
+        ["bie jie"] = { text = "别介", comment = "别价(jie)" },
+        ["beng jie"] = { text = "甭介", comment = "甭价(jie)" },
+        ["xue mai pen zhang"] = { text = "血脉喷张", comment = "血脉贲(bēn)张 | 血脉偾(fèn)张" },
+        ["qi ke fu"] = { text = "契科夫", comment = "契诃(hē)夫" },
+        ["zhao cha"] = { text = "找茬", comment = "找碴" },
+        ["zhao cha er"] = { text = "找茬儿", comment = "找碴儿" },
+        ["da jia lai zhao cha"] = { text = "大家来找茬", comment = "大家来找碴" },
+        ["da jia lai zhao cha er"] = { text = "大家来找茬儿", comment = "大家来找碴儿" },
+        ["cou huo"] = { text = "凑活", comment = "凑合(he)" },
+        ["ju hui"] = { text = "钜惠", comment = "巨惠" },
+        ["mo xie zuo"] = { text = "魔蝎座", comment = "摩羯(jié)座" },
+        ["pi sa"] = { text = "披萨", comment = "比(bǐ)萨" },
+    }
+    M.corrections_by_code = {}
+    for code, correction in pairs(M.corrections) do
+        M.corrections_by_code[compact_code(code)] = correction
+    end
+end
+
+-- super_preedit 使用主翻译器的 spelling_hints 作为带调拼音数据。
+-- 未命中纠错时，仅隐藏这些类型的拼音注释；其他 translator 的 comment 默认透传。
+-- 改动（Rime Skin Studio）：置空后 phrase/sentence/user_phrase 类型的
+-- 拼音注音不再被隐藏，候选词旁始终显示注音；纠错提示不受影响。
+-- 想恢复原版行为，把下面三个 true 加回去即可（或用备份 corrector_filter.lua.bak 还原）。
+local hidden_comment_types = {
+    -- phrase = true,
+    -- sentence = true,
+    -- user_phrase = true,
+}
+
+local function update_comment(cand, env)
+    local pinyin = cand.comment
+    if not pinyin or #pinyin == 0 then
+        return
+    end
+
+    if env.delimiter then
+        pinyin = pinyin:gsub(env.delimiter, ' ')
+    end
+
+    local genuine = cand:get_genuine()
+    local correction = M.corrections[pinyin] or M.corrections_by_code[compact_code(pinyin)]
+    if not correction then
+        local preedit = genuine.preedit
+        if preedit and #preedit > 0 then
+            correction = M.corrections_by_code[compact_code(preedit)]
+        end
+    end
+    if not correction then
+        local context_input = env.engine.context.input
+        if context_input and #context_input > 0 then
+            correction = M.corrections_by_code[compact_code(context_input)]
+        end
+    end
+    if correction and cand.text == correction.text then
+        local target_comment = '[' .. correction.comment .. ']'
+        genuine.comment = M.style:gsub("{comment}", target_comment)
+
+        local seg = env.engine.context.composition:back()
+        seg.tags = seg.tags + Set({ "correntor" })
+        return
+    end
+
+    if not hidden_comment_types[cand.type] then
+        return
+    end
+
+    if env.engine.context:get_option("tone_display") then
+        genuine.comment = M.style:gsub("{comment}", pinyin)
+    else
+        genuine.comment = ""
+    end
+end
+
+function M.func(input, env)
+    for cand in input:iter() do
+        update_comment(cand, env)
+        yield(cand)
+    end
+end
+
+return M
+</script>
+<script>
+"use strict";
+
+/* 页面自身的原始 HTML 快照（此刻 DOM 刚解析完、还没有任何动态改动）。
+   「导出含字体的网页」会以它为蓝本注入内嵌字体，产出可离线/可部署的单文件。 */
+const PRISTINE_HTML = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+
+/* =========================================================
+   1. 数据模型
+   ========================================================= */
+const COLOR_DEFS = [
+  // [key, 标签, 说明, 默认RGB, 默认alpha]
+  ["back_color",                  "候选窗底色",  "未高亮区域的背景",           "#F7F7F8", 255],
+  ["border_color",                "边框颜色",    "与底色相同即无边框",         "#E3E3E6", 255],
+  ["shadow_color",                "阴影颜色",    "用 α 控制深浅",              "#000000",  42],
+  ["text_color",                  "编码文字",    "已输入的拼音",               "#1B1B1F", 255],
+  ["hilited_text_color",          "高亮编码文字","正在编辑的那一段",           "#0A62C2", 255],
+  ["hilited_back_color",          "高亮编码底",  "编码高亮段背景",             "#E6EEF9", 255],
+  ["candidate_text_color",        "候选词文字",  "普通候选项",                 "#1B1B1F", 255],
+  ["label_color",                 "序号颜色",    "普通候选项的 1. 2. 3.",      "#8A8A93", 255],
+  ["comment_text_color",          "注音/注解",   "候选词后面的小字",           "#9A9AA3", 255],
+  ["hilited_candidate_text_color","选中词文字",  "当前高亮候选项文字",         "#FFFFFF", 255],
+  ["hilited_candidate_back_color","选中词背景",  "当前高亮候选项底色",         "#0A62C2", 255],
+  ["hilited_candidate_label_color","选中词序号", "当前高亮候选项的序号",       "#FFFFFF", 255],
+  ["hilited_comment_text_color",  "选中词注音",  "高亮项后面的小字",           "#C9DCF5", 255],
+  ["nextpage_color",              "翻页提示",    "下一页箭头 ›",              "#9A9AA3", 255],
+  ["prevpage_color",              "回页提示",    "上一页箭头 ‹",              "#9A9AA3", 255]
+];
+
+const LAYOUT_DEFS = [
+  ["cornerRadius",       8,    "corner_radius"],
+  ["hilitedCornerRadius",6,    "hilited_corner_radius"],
+  ["borderWidth",        1,    "border_width"],
+  ["marginX",           12,    "margin_x"],
+  ["marginY",            8,    "margin_y"],
+  ["candidateSpacing",  16,    "candidate_spacing"],
+  ["spacing",           10,    "spacing"],
+  ["hiliteSpacing",      4,    "hilite_spacing"],
+  ["hilitePaddingX",     6,    "hilite_padding_x"],
+  ["hilitePaddingY",     4,    "hilite_padding_y"],
+  ["minWidth",         160,    "min_width"],
+  ["shadowRadius",       6,    "shadow_radius"],
+  ["shadowOffsetX",      0,    "shadow_offset_x"],
+  ["shadowOffsetY",      2,    "shadow_offset_y"]
+];
+
+/* ---------- 预设主题 ---------- */
+const PRESETS = [
+  {
+    id:"xxd_millennial", group:"pink", schemeId:"xxd_millennial", author:"xxd", name:"千禧粉",
+    layout:{cornerRadius:10,hilitedCornerRadius:6,borderWidth:1,marginX:12,marginY:8,
+            candidateSpacing:16,spacing:8,hiliteSpacing:4,hilitePaddingX:6,hilitePaddingY:4,
+            minWidth:160,shadowRadius:8,shadowOffsetX:0,shadowOffsetY:2},
+    font:{face:"Microsoft YaHei",point:12,labelFace:"",labelPoint:9,commentFace:"",commentPoint:10},
+    flags:{horizontal:true,inlinePreedit:true,verticalText:false},
+    colors:{
+      back_color:["#F6F1EE",255], border_color:["#EAE5E2",255], shadow_color:["#000000",32],
+      text_color:["#392B2C",255], hilited_text_color:["#3D2E2F",255], hilited_back_color:["#F3C6C8",255],
+      candidate_text_color:["#3D2E2F",255], label_color:["#806B6C",255], comment_text_color:["#806B6C",255],
+      hilited_candidate_text_color:["#783639",255], hilited_candidate_back_color:["#F3C6C8",255], hilited_candidate_label_color:["#783639",255],
+      hilited_comment_text_color:["#8E5053",255], nextpage_color:["#806B6C",255], prevpage_color:["#806B6C",255]
+    }
+  },
+  {
+    id:"xxd_millennial_night", group:"pink", schemeId:"xxd_millennial_night", author:"xxd", name:"千禧粉 · 夜色",
+    layout:{cornerRadius:10,hilitedCornerRadius:6,borderWidth:1,marginX:12,marginY:8,
+            candidateSpacing:16,spacing:8,hiliteSpacing:4,hilitePaddingX:6,hilitePaddingY:4,
+            minWidth:160,shadowRadius:8,shadowOffsetX:0,shadowOffsetY:2},
+    font:{face:"Microsoft YaHei",point:12,labelFace:"",labelPoint:9,commentFace:"",commentPoint:10},
+    flags:{horizontal:true,inlinePreedit:true,verticalText:false},
+    colors:{
+      back_color:["#1A1415",255], border_color:["#282223",255], shadow_color:["#000000",100],
+      text_color:["#D4CECF",255], hilited_text_color:["#D9D4D5",255], hilited_back_color:["#F3C6C8",255],
+      candidate_text_color:["#E9E7E7",255], label_color:["#AA9D9D",255], comment_text_color:["#AA9D9D",255],
+      hilited_candidate_text_color:["#783639",255], hilited_candidate_back_color:["#F3C6C8",255], hilited_candidate_label_color:["#783639",255],
+      hilited_comment_text_color:["#8E5053",255], nextpage_color:["#AA9D9D",255], prevpage_color:["#AA9D9D",255]
+    }
+  },
+];
+
+/* ---------- 系列配色生成器 ----------
+   两条路线：
+     高级灰              仍按「色相 + HSL 公式」生成（红橙黄绿青蓝紫 7 色）
+     莫兰迪/马卡龙/多巴胺  改用真实色卡里的具名色（每系列 12 色，见下方 NAMED_PALETTES）
+   具名色的做法：拿它的 HSL 当「锚点」——
+     背景/边框  取同一色相的极浅色调（饱和度按系列封顶）
+     高亮块     把锚点色收进该系列舒适的「明度 × 饱和度」区间
+     高亮字     按高亮块的相对亮度自动选深字或白字，保证任何一色都可读
+   这样既是色卡上那个颜色，整块主题又协调（不会出现灰底配荧光字）。 */
+function hsl2hex(h,s,l){
+  s/=100; l/=100;
+  const k = n => (n + h/30) % 12;
+  const a = s * Math.min(l, 1-l);
+  const f = n => l - a * Math.max(-1, Math.min(k(n)-3, Math.min(9-k(n), 1)));
+  return "#" + [f(0),f(8),f(4)].map(x=>Math.round(x*255).toString(16).padStart(2,"0")).join("").toUpperCase();
+}
+/* 统一版式：所有预设共用同一套尺寸，避免「换个预设窗口大小就变」 */
+const STD_LAYOUT = {cornerRadius:10,hilitedCornerRadius:6,borderWidth:1,marginX:12,marginY:8,
+  candidateSpacing:16,spacing:8,hiliteSpacing:4,hilitePaddingX:6,hilitePaddingY:4,
+  minWidth:160,shadowRadius:8,shadowOffsetX:0,shadowOffsetY:2};
+const STD_FONT = {face:"Microsoft YaHei",point:12,labelFace:"",labelPoint:9,commentFace:"",commentPoint:10};
+const STD_FLAGS = {horizontal:true,inlinePreedit:true,verticalText:false};
+
+/** #RRGGBB → [h(0-360), s(0-100), l(0-100)] */
+function hex2hsl(hex){
+  const c = hex2rgb(hex).map(v=>v/255);
+  const mx = Math.max(c[0],c[1],c[2]), mn = Math.min(c[0],c[1],c[2]), d = mx-mn;
+  const l = (mx+mn)/2;
+  let h = 0, s = 0;
+  if(d > 1e-6){
+    s = l > .5 ? d/(2-mx-mn) : d/(mx+mn);
+    h = mx===c[0] ? (c[1]-c[2])/d + (c[1]<c[2] ? 6 : 0)
+      : mx===c[1] ? (c[2]-c[0])/d + 2 : (c[0]-c[1])/d + 4;
+    h *= 60;
+  }
+  return [h, s*100, l*100];
+}
+/** WCAG 相对亮度：判断高亮块上该压深色字还是浅色字 */
+function relLum(hex){
+  const c = hex2rgb(hex).map(v=>{ v/=255; return v <= .03928 ? v/12.92 : Math.pow((v+.055)/1.055, 2.4); });
+  return .2126*c[0] + .7152*c[1] + .0722*c[2];
+}
+const clampv = (v,a,b)=> v<a ? a : v>b ? b : v;
+/** WCAG 对比度 */
+function contrastRatio(a,b){
+  const x = relLum(a), y = relLum(b);
+  return (Math.max(x,y)+.05) / (Math.min(x,y)+.05);
+}
+/** 高亮块上的两个字色：主字（候选词）与注释字。
+ *  以前用固定明度，碰上「中等偏暗」的高亮块会写出 2.5:1 的糊字
+ *  （随机色相一摇就撞上）。现在先比纯黑/纯白哪边更亮，再沿那一脉
+ *  从强到柔找出第一个达标的明度——主字要 4.5:1，注释字要 3:1 且比主字柔，
+ *  这样既不会糊，主次也还分得开。 */
+function blockInks(hiHex, h, hiS){
+  /* 首元素是「最亮」的一档：#000000 / #FFFFFF 保证任何色相的块都够 4.5:1
+     （中等明度的高亮块只有纯黑纯白才够，带色相的近黑近白会差一点点）。 */
+  const darks  = ["#000000","#111111"].concat([10,14,18,24].map(l=>hsl2hex(h, Math.min(hiS,30), l)));
+  const lights = ["#FFFFFF"].concat([98,94,90,84].map(l=>hsl2hex(h, Math.min(hiS,45), l)));
+  const seq = contrastRatio(darks[0],hiHex) >= contrastRatio(lights[0],hiHex) ? darks : lights;
+  const other = seq === darks ? lights : darks;
+  const firstAt = (arr,t)=>{ for(const c of arr){ if(contrastRatio(c,hiHex) >= t) return c; } return null; };
+  const main = firstAt(seq,4.5) || firstAt(other,4.5) || seq[0];
+  let sub = main;
+  for(let i=1;i<seq.length;i++){                       // 能柔就柔，柔到 3:1 为止
+    if(contrastRatio(seq[i],hiHex) >= 3.0) sub = seq[i]; else break;
+  }
+  return [main, sub];
+}
+
+/* ---------- 夜间派生 ----------
+   参考千禧粉 → 千禧粉·夜色的映射方式：
+     底色/边框压成「同色相的近黑」（千禧粉夜底 #1A1415 仍带粉调），
+     文字/序号/注音/箭头提亮成浅灰系，阴影加重，
+     强调色（高亮块和它上面的字）在深色环境下仍可读就原样保留——
+     这样任何主题一键得到气质一致的夜色版，而不是生硬的反色。 */
+function toNightColors(colors){
+  const out = {};
+  COLOR_DEFS.forEach(([k])=>{ out[k] = { rgb: colors[k].rgb, a: colors[k].a }; });
+  /* 夜底的色相：优先取强调色（高亮块）的色相——千禧粉官方夜色正是这么做的，
+     底色 #1A1415、文字 #D4CECF 全带 350° 的粉调而不是背景的暖黄调；
+     强调色没彩度（白/灰块）才退回背景色偏。 */
+  const [ha, sa] = hex2hsl(colors.hilited_candidate_back_color.rgb);
+  const [hb, sb] = hex2hsl(colors.back_color.rgb);
+  const H = sa >= 6 ? ha : (sb >= 4 ? hb : ha);
+  const C = (s,l)=>hsl2hex(H, s, l);
+
+  out.back_color   = { rgb: C(clampv(sb, 8, 16), 9),  a:255 };
+  out.border_color = { rgb: C(8, 15),  a:255 };
+  out.shadow_color = { rgb:"#000000",  a: Math.max(colors.shadow_color.a, 100) };
+  out.text_color           = { rgb: C(6, 82), a:255 };
+  out.candidate_text_color = { rgb: C(4, 91), a:255 };
+  out.label_color          = { rgb: C(7, 64), a:255 };
+  out.comment_text_color   = { rgb: C(7, 64), a:255 };
+  out.nextpage_color       = { rgb: C(7, 64), a:255 };
+  out.prevpage_color       = { rgb: C(7, 64), a:255 };
+
+  /* 高亮块上的字：仍达标就保留原强调色，不达标才换成该块的可读墨色 */
+  [["hilited_text_color","hilited_back_color",4.5],
+   ["hilited_comment_text_color","hilited_back_color",3],
+   ["hilited_candidate_text_color","hilited_candidate_back_color",4.5],
+   ["hilited_candidate_label_color","hilited_candidate_back_color",4.5],
+   ["hilited_comment_text_color","hilited_candidate_back_color",3]
+  ].forEach(([fk,bk,minR])=>{
+    if(contrastRatio(colors[fk].rgb, colors[bk].rgb) < minR){
+      const [bh,bs] = hex2hsl(colors[bk].rgb);
+      out[fk] = { rgb: blockInks(colors[bk].rgb, bh, bs)[minR >= 4.5 ? 0 : 1], a:255 };
+    }
+  });
+  return out;
+}
+
+function genPreset(group, key, cn, hue, P){
+  const C = (h,s,l,a)=>[hsl2hex(h,s,l), a===undefined?255:a];
+  return {
+    id: group+"_"+key, group: group, schemeId: group+"_"+key, name: P.label+" · "+cn, short: cn,
+    layout: STD_LAYOUT,
+    font: STD_FONT,
+    flags: STD_FLAGS,
+    colors:{
+      back_color:                  C(hue,P.bs,96),
+      border_color:                C(hue,P.bs*0.9,91),
+      shadow_color:                C(hue,30,30,26),
+      text_color:                  C(hue,10,26),
+      hilited_text_color:          C(hue,P.hs,30),
+      hilited_back_color:          C(hue,P.hs,P.hb),
+      candidate_text_color:        C(hue,10,26),
+      label_color:                 C(hue,8,55),
+      comment_text_color:          C(hue,8,64),
+      hilited_candidate_text_color:C(hue,P.hs,30),
+      hilited_candidate_back_color:C(hue,P.hs,P.hb),
+      hilited_candidate_label_color:C(hue,P.hs,30),
+      hilited_comment_text_color:  C(hue,P.hs*0.8,40),
+      nextpage_color:              C(hue,8,64),
+      prevpage_color:              C(hue,8,64)
+    }
+  };
+}
+
+/* ---------- 具名色卡 ----------
+   色值取自公开色卡，中文名沿用通行叫法：
+     莫兰迪  ysdaima 莫兰迪色卡 / DKFile 色彩美学 / 莫兰迪色号整理
+     马卡龙  Pastel 色卡（ysdaima / seerking）+ 马卡龙色系常用色
+     多巴胺  ysdaima 多巴胺配色色卡 + 多巴胺穿搭常用色
+   卡片上只显示颜色名，悬停看「系列 · 颜色名 #HEX」。 */
+const NAMED_PALETTES = {
+  mori:[
+    ["雾霾蓝","98A9BD","haze_blue"],  ["灰豆绿","A5B4A6","pea_green"],
+    ["藕荷粉","D4B0B5","lotus_pink"], ["燕麦色","DED7C6","oat"],
+    ["淡漠灰","B8B8B0","calm_gray"],  ["灰紫",  "B4A7C7","gray_purple"],
+    ["鼠尾草绿","9CAF88","sage"],     ["干燥玫瑰","C9A4A0","dried_rose"],
+    ["摩卡慕斯","A5937F","mocha"],    ["石板蓝","6E7F9C","slate_blue"],
+    ["香草黄","F3E5AB","vanilla"],    ["陶土红","BC8E87","clay_red"]
+  ],
+  mac:[
+    ["千禧粉","FFD1DC","candy_pink"],  ["薄荷绿","AAF0D1","mint"],
+    ["薰衣草紫","E6E6FA","lavender"],  ["婴儿蓝","89CFF0","baby_blue"],
+    ["樱花粉","F7CEE0","sakura"],      ["鹅黄",  "FFFACD","gosling"],
+    ["蜜桃橙","FFE5B4","peach"],       ["青瓷绿","ACE1AF","celadon"],
+    ["冰蓝色","AFEEEE","ice_blue"],    ["紫丁香","C8A2C8","lilac"],
+    ["玫瑰石英","F7CAC9","rose_quartz"],["杏色","FBCEB1","apricot"]
+  ],
+  dopa:[
+    ["热粉色","FF69B4","hot_pink"],     ["亮橙色","FF5E0E","bright_orange"],
+    ["柠檬黄","FFDA00","lemon"],        ["荧光绿","33FF33","neon_green"],
+    ["克莱因蓝","002FA7","klein_blue"], ["电光紫","8F00FF","electric_purple"],
+    ["荧光蓝","15F4EE","neon_blue"],    ["芭比粉","E0218A","barbie_pink"],
+    ["树莓红","E30B5C","raspberry"],    ["宝蓝色","3366FF","royal_blue"],
+    ["查特酒绿","7FFF00","chartreuse"], ["落日橙","FD5E53","sunset_orange"]
+  ]
+};
+
+/* 各系列的派生参数：
+   backS 背景饱和度上限 / backL 背景明度 / bdL 边框明度
+   hiS 高亮块饱和度区间 / hiL 高亮块明度区间（下限放宽是为了让克莱因蓝这类
+       本来就深的锚点保持原样，不被强行提亮）/ inkS 正文字饱和度
+   softS 次要字饱和度 / shadowA 阴影透明度 */
+const SERIES_STYLE = {
+  gray:{ label:"高级灰", bs:18, hs:30, hb:84, backS:16, backL:96.5, bdL:90.5,
+         hiS:[24,34],  hiL:[78,86], inkS:10, softS:8,  shadowA:34 },
+  mori:{ label:"莫兰迪", backS:24, backL:96.5, bdL:91,
+         hiS:[18,30],  hiL:[64,80], inkS:12, softS:9,  shadowA:32 },
+  mac: { label:"马卡龙", backS:68, backL:96,   bdL:91,
+         hiS:[58,84],  hiL:[70,80], inkS:16, softS:10, shadowA:26 },
+  dopa:{ label:"多巴胺", backS:55, backL:96,   bdL:90,
+         hiS:[82,100], hiL:[30,64], inkS:22, softS:14, shadowA:30 }
+};
+
+/** 由「锚点色的 HSL」派生出整套配色 —— 具名色卡与「完全随机」共用这一套规则。
+ *  gkey 决定派生取向（高级灰/莫兰迪/马卡龙/多巴胺），opt.group 可覆盖所属分组。 */
+function genFromAnchor(gkey, cn, key, anchor, opt){
+  opt = opt || {};
+  const ST  = SERIES_STYLE[gkey];
+  const neutral = anchor.s < 6;                             // 锚点本身是灰 → 派生色也保持灰
+  const h  = neutral ? 0 : anchor.h;
+  const C  = (s,l,a)=>[hsl2hex(h, neutral?0:s, l), a===undefined?255:a];
+  const bs  = Math.min(neutral ? 0 : anchor.s, ST.backS);
+  const hiS = neutral ? 0 : clampv(anchor.s, ST.hiS[0], ST.hiS[1]);
+  const hiL = clampv(anchor.l, ST.hiL[0], ST.hiL[1]);
+  const hiHex = hsl2hex(h, hiS, hiL);
+  const [hiInk, hiInk2] = blockInks(hiHex, h, hiS);         // 高亮块上的主字 / 注释字
+  const ink   = hsl2hex(h, neutral?0:ST.inkS, 24);
+  const soft  = hsl2hex(h, neutral?0:ST.softS, 56);
+  const soft2 = hsl2hex(h, neutral?0:ST.softS, 64);
+  const grp = opt.group || gkey;
+  return {
+    id: grp+"_"+key, group: grp, schemeId: grp+"_"+key,
+    name: (opt.title || ST.label)+" · "+cn, short: cn,
+    hex: opt.hex || hiHex, style: gkey,
+    layout: STD_LAYOUT,
+    font: STD_FONT,
+    flags: STD_FLAGS,
+    colors:{
+      back_color:                   C(bs, ST.backL),
+      border_color:                 C(bs*0.9, ST.bdL),
+      shadow_color:                 C(26, 25, ST.shadowA),
+      text_color:                   [ink,255],
+      hilited_text_color:           [hiInk,255],
+      hilited_back_color:           [hiHex,255],
+      candidate_text_color:         [ink,255],
+      label_color:                  [soft,255],
+      comment_text_color:           [soft2,255],
+      hilited_candidate_text_color: [hiInk,255],
+      hilited_candidate_back_color: [hiHex,255],
+      hilited_candidate_label_color:[hiInk,255],
+      hilited_comment_text_color:   [hiInk2,255],
+      nextpage_color:               [soft2,255],
+      prevpage_color:               [soft2,255]
+    }
+  };
+}
+
+/** 具名色卡：把色卡上的颜色当锚点，交给上面那套派生规则 */
+function genNamedPreset(gkey, cn, key, rawHex){
+  const hex = "#" + rawHex;
+  const [h0, s0, l0] = hex2hsl(hex);
+  return genFromAnchor(gkey, cn, key, { h:h0, s:s0, l:l0 }, { hex: hex });
+}
+
+/* ---------- 预设之外的「完全随机」 ----------
+   和上面的系列预设不一样：色相取 0-359 全域（不落在预设那 7 个色相上），
+   取向（灰调/莫兰迪/马卡龙/多巴胺）随机抽，锚点的明度与彩度在该取向的
+   安全区间里再抖一抖 —— 所以每次摇出来的都是预设里没有的一套。
+   派生规则复用 genFromAnchor，高亮字仍按 WCAG 自动选深浅，随机也不会糊。
+   名字按「冷暖色相 + 明度彩度」现取：雾蓝、深藕、艳橘、月白…… */
+const FREE_CAP = 9;                    // 只留最近 9 套，方便对着一排挑
+const FREE_PRESETS = [];
+let freeSeq = 0, freeSeeded = false;
+
+const FREE_HUE_BANDS = [
+  [10,"红"],[26,"橘红"],[40,"橘"],[50,"杏"],[58,"黄"],[72,"黄绿"],[100,"嫩绿"],
+  [135,"绿"],[165,"青碧"],[190,"天青"],[210,"青蓝"],[230,"蓝"],[252,"靛蓝"],
+  [272,"紫"],[298,"丁香"],[322,"紫红"],[342,"品红"],[357,"绯红"]
+];
+function freeHueName(h){
+  let name = FREE_HUE_BANDS[0][1], best = 999;
+  FREE_HUE_BANDS.forEach(([c,b])=>{
+    const d = Math.min(Math.abs(c-h), 360-Math.abs(c-h));   // 色相是环，按环形距离取最近的色名
+    if(d < best){ best = d; name = b; }
+  });
+  return name;
+}
+/** 色相 + 明度 + 彩度 → 中文色名 */
+function freeColorName(h, s, l){
+  if(s < 14){                                   // 几乎没有彩度 → 纯灰一脉
+    if(l >= 93) return "月白";
+    if(l >= 84) return "浅灰";
+    if(l >= 72) return "素灰";
+    if(l >= 58) return "烟灰";
+    if(l >= 42) return "中灰";
+    if(l >= 28) return "深灰";
+    if(l >= 16) return "暗灰";
+    return "墨灰";
+  }
+  const base = freeHueName(h);
+  const pre =
+    s < 30  ? "雾" :                            // 低彩度 → 雾霾感
+    l >= 88 ? "淡" : l >= 78 ? "浅" : l >= 68 ? "柔" :
+    l >= 48 ? (s >= 84 ? "艳" : "正") :
+    l >= 34 ? "深" : l >= 22 ? "暗" : "墨";
+  return pre + base;
+}
+/** 摇一个候选（不入列表）：随机取向 × 随机色相 × 区间内随机明度彩度 */
+function makeFreePreset(){
+  const styles = ["gray","mori","mac","dopa"];
+  const gkey   = styles[Math.floor(Math.random()*styles.length)];
+  const ST     = SERIES_STYLE[gkey];
+  /* 两次随机取大再取小（三角分布）：更容易摇到区间两端，
+     避免所有颜色都挤在中间那一档，出来的色系才拉得开。 */
+  const band = ([a,b])=>{
+    const r = (Math.random() + Math.random()) / 2;
+    return a + (b-a) * r;
+  };
+  const h = Math.random()*360;
+  const s = clampv(band(ST.hiS) + (Math.random()*14-7), 0, 100);
+  const l = clampv(band(ST.hiL) + (Math.random()*8-4), 6, 96);
+  const p = genFromAnchor(gkey, freeColorName(h,s,l), String(++freeSeq), { h:h, s:s, l:l },
+                          { group:"free", title:"完全随机" });
+  p.hex = p.colors.hilited_candidate_back_color[0];   // 卡片/悬停显示高亮块那个色
+  return p;
+}
+/** 摇一套新的并立即套用；连点即换一套 */
+function rollFreePreset(){
+  const seen = new Set(FREE_PRESETS.map(p=>p.hex));
+  let p = makeFreePreset();
+  for(let i=0; i<8 && seen.has(p.hex); i++) p = makeFreePreset();   // 手气重复就再摇
+  FREE_PRESETS.unshift(p);
+  while(FREE_PRESETS.length > FREE_CAP) FREE_PRESETS.pop();
+  applyPreset(p);
+  return p;
+}
+
+const HUES = [
+  ["red","红",0],["orange","橙",28],["yellow","黄",52],["green","绿",125],
+  ["cyan","青",180],["blue","蓝",222],["purple","紫",285]
+];
+HUES.forEach(([ek,cn,hue])=>PRESETS.push(genPreset("gray",ek,cn,hue,SERIES_STYLE.gray)));
+Object.keys(NAMED_PALETTES).forEach(gkey=>{
+  NAMED_PALETTES[gkey].forEach(([cn,raw,key])=>PRESETS.push(genNamedPreset(gkey,cn,key,raw)));
+});
+
+/* ---------- 初始状态 ---------- */
+function clonePreset(p){
+  const s = JSON.parse(JSON.stringify(p));
+  const colors = {};
+  COLOR_DEFS.forEach(([k])=>{
+    const v = s.colors[k];
+    if(Array.isArray(v))         colors[k] = { rgb: v[0], a: v[1] };   // ["#RRGGBB", alpha]
+    else if(typeof v === "string") colors[k] = { rgb: v, a: 255 };      // "#RRGGBB"
+    else                          colors[k] = { rgb: "#888888", a: 255 };
+  });
+  return {
+    meta:{ id: p.schemeId || "my_skin", name:p.name, author: p.author || "" },
+    font: s.font,
+    flags:{ horizontal:s.flags.horizontal, inlinePreedit:s.flags.inlinePreedit, verticalText:s.flags.verticalText, vertL2R:!!s.flags.vertL2R, showComment:s.flags.showComment !== false },
+    layout: s.layout,
+    colors: colors,
+    presetId: p.id,
+    schemaId: ""                     // 仅用于生成「注音补丁」，不写进 weasel.custom.yaml；留空则按方案类型取默认
+  };
+}
+let state = clonePreset(PRESETS[0]);
+
+/* =========================================================
+   2. 颜色工具：0xAABBGGRR (BGR!) <-> #RRGGBB
+   ========================================================= */
+function hex2rgb(hex){
+  let h = String(hex).replace("#","").trim();
+  if(h.length===3) h = h.split("").map(c=>c+c).join("");
+  if(!/^[0-9a-fA-F]{6}$/.test(h)) return [0,0,0];
+  return [parseInt(h.slice(0,2),16), parseInt(h.slice(2,4),16), parseInt(h.slice(4,6),16)];
+}
+function rgb2hex(r,g,b){
+  return "#" + [r,g,b].map(x=>Math.max(0,Math.min(255,Math.round(x))).toString(16).padStart(2,"0")).join("").toUpperCase();
+}
+function pad2(n){ return n.toString(16).padStart(2,"0").toUpperCase(); }
+
+/** 内部 {rgb:'#RRGGBB', a:0-255} → Rime 的 0x 字面量（BGR 顺序） */
+function toRimeColor(c){
+  const [r,g,b] = hex2rgb(c.rgb);
+  const a = c.a===undefined ? 255 : c.a;
+  if(a >= 255) return "0x" + pad2(b) + pad2(g) + pad2(r);          // 0xBBGGRR
+  return "0x" + pad2(a) + pad2(b) + pad2(g) + pad2(r);             // 0xAABBGGRR
+}
+/** Rime 的 0x 字面量 → 内部 {rgb, a} */
+function fromRimeColor(v){
+  let h = String(v).trim().replace(/^0x/i,"").replace(/^#/,"").replace(/["']/g,"");
+  if(h.length===6){
+    const b=parseInt(h.slice(0,2),16), g=parseInt(h.slice(2,4),16), r=parseInt(h.slice(4,6),16);
+    if([r,g,b].some(isNaN)) return null;
+    return { rgb: rgb2hex(r,g,b), a:255 };
+  }
+  if(h.length===8){
+    const a=parseInt(h.slice(0,2),16), b=parseInt(h.slice(2,4),16), g=parseInt(h.slice(4,6),16), r=parseInt(h.slice(6,8),16);
+    if([a,r,g,b].some(isNaN)) return null;
+    return { rgb: rgb2hex(r,g,b), a:a };
+  }
+  if(h.length===4){ // 0xabgr
+    const a=parseInt(h[0]+h[0],16), b=parseInt(h[1]+h[1],16), g=parseInt(h[2]+h[2],16), r=parseInt(h[3]+h[3],16);
+    return { rgb: rgb2hex(r,g,b), a:a };
+  }
+  if(h.length===3){ // 0xbgr
+    const b=parseInt(h[0]+h[0],16), g=parseInt(h[1]+h[1],16), r=parseInt(h[2]+h[2],16);
+    return { rgb: rgb2hex(r,g,b), a:255 };
+  }
+  return null;
+}
+function rgbaCss(c){
+  const [r,g,b] = hex2rgb(c.rgb);
+  const a = c.a===undefined ? 255 : c.a;
+  return `rgba(${r},${g},${b},${(a/255).toFixed(3)})`;
+}
+
+/* =========================================================
+   3. 路径读写
+   ========================================================= */
+function getPath(obj, path){
+  return path.split(".").reduce((o,k)=> (o==null?o:o[k]), obj);
+}
+function setPath(obj, path, val){
+  const ks = path.split(".");
+  const last = ks.pop();
+  let cur = obj;
+  ks.forEach(k=>{ if(typeof cur[k]!=="object"||cur[k]===null) cur[k]={}; cur = cur[k]; });
+  cur[last] = val;
+}
+
+/* =========================================================
+   4. 渲染：预设卡片
+   ========================================================= */
+const $ = s => document.querySelector(s);
+
+const PRESET_GROUPS = [
+  { key:"pink", label:"千禧粉 · 2 色" },
+  { key:"gray", label:"高级灰 · 红橙黄绿青蓝紫", rand:true },
+  { key:"mori", label:"莫兰迪 · 12 色卡", rand:true },
+  { key:"mac",  label:"马卡龙 · 12 色卡", rand:true },
+  { key:"dopa", label:"多巴胺 · 12 色卡", rand:true },
+  { key:"free", label:"完全随机 · 预设之外", free:true }
+];
+/* 每个系列最后一次「随机一色」摇到的颜色名，用来回填按钮文案 */
+const randPick = {};
+
+function presetCard(p){
+  const pick = c => Array.isArray(c) ? c[0] : c;
+  const back = pick(p.colors.back_color);
+  const bd   = pick(p.colors.border_color);
+  const txt  = pick(p.colors.candidate_text_color);
+  const hi   = pick(p.colors.hilited_candidate_back_color);
+  const hitx = pick(p.colors.hilited_candidate_text_color);
+  const tip  = p.hex
+    ? `${p.name} ${p.hex}${p.group==="free" ? `（${SERIES_STYLE[p.style].label}取向）` : ""}`
+    : p.name;
+  const el = document.createElement("div");
+  el.className = "preset" + (state.presetId===p.id ? " on":"");
+  el.innerHTML = `
+      <div class="pbar" style="background:${back};border:1px solid ${bd}">
+        <b style="background:${txt};opacity:.5"></b>
+        <b style="background:${hi};width:24px;height:13px"></b>
+        <b style="background:${hitx};opacity:.85"></b>
+      </div>
+      <div class="pname" title="${tip}">${p.short || p.name}</div>`;
+  el.onclick = ()=>{ applyPreset(p); };
+  return el;
+}
+
+/** 在本系列里随机挑一个具名色并套用（连点即换一色） */
+function applyRandomPreset(gkey){
+  const list = PRESETS.filter(p=>p.group===gkey);
+  if(!list.length) return;
+  const roll = ()=>list[Math.floor(Math.random()*list.length)];
+  let p = roll();
+  for(let i=0; i<10 && list.length>1 && state.presetId===p.id; i++) p = roll();   // 尽量别摇到当前这个
+  randPick[gkey] = p.short || p.name;
+  applyPreset(p);            // 内部会 renderPresets()，按钮文案由 randPick 重建
+}
+
+function renderPresets(){
+  const box = $("#presets");
+  box.innerHTML = "";
+  PRESET_GROUPS.forEach(g=>{
+    const isFree = !!g.free;
+    if(isFree && !freeSeeded){                    // 首次渲染先摆一张「没套用」的样例，否则这一行是空的
+      freeSeeded = true;
+      FREE_PRESETS.push(makeFreePreset());
+    }
+    const list = isFree ? FREE_PRESETS : PRESETS.filter(p=>p.group===g.key);
+    if(!isFree && !list.length) return;
+    const t = document.createElement("div");
+    t.className = "pgroup";
+    const lab = document.createElement("span");
+    lab.textContent = g.label;
+    t.appendChild(lab);
+    t.appendChild(Object.assign(document.createElement("i"), {className:"pline"}));
+    if(isFree){
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "prand";
+      b.title = `每次摇出一套预设里没有的配色（色相/明度/彩度全随机，最多留最近 ${FREE_CAP} 套）`;
+      b.textContent = FREE_PRESETS.some(p=>p.id === state.presetId) ? "🎲 再摇一套" : "🎲 摇一套新的";
+      b.onclick = ()=>rollFreePreset();
+      t.appendChild(b);
+    } else if(g.rand){
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "prand";
+      b.title = "在本系列色卡里随机挑一个颜色";
+      b.textContent = randPick[g.key] ? "🎲 " + randPick[g.key] : "🎲 随机一色";
+      b.onclick = ()=>applyRandomPreset(g.key);
+      t.appendChild(b);
+    }
+    box.appendChild(t);
+    if(isFree){
+      const hint = document.createElement("div");
+      hint.className = "pfreshint";
+      hint.textContent = `上面每个系列都是固定色卡；这一行是你现摇的——色相不在预设里，每次都不一样，` +
+        `点卡片即套用（摇到的会依次排在最前，最多留最近 ${FREE_CAP} 套）。`;
+      box.appendChild(hint);
+    }
+    const grid = document.createElement("div");
+    grid.className = "pgrid";
+    list.forEach(p=>grid.appendChild(presetCard(p)));
+    box.appendChild(grid);
+  });
+}
+function applyPreset(p){
+  /* 预设只管「皮肤」（配色/版式/字号），不能动用户选好的字体——
+     否则点一下预设就把 font_face 冲回微软雅黑，是之前「字体设了又没生效」的元凶之一。 */
+  const keep = {
+    face: state.font.face,
+    labelFace: state.font.labelFace,
+    commentFace: state.font.commentFace,
+    schemaId: state.schemaId
+  };
+  state = clonePreset(p);
+  state.font.face = keep.face || state.font.face;
+  state.font.labelFace = keep.labelFace || "";
+  state.font.commentFace = keep.commentFace || "";
+  if(keep.schemaId) state.schemaId = keep.schemaId;
+  syncFormFromState();
+  renderColors();      // ← 之前漏了这一步：预设换配色后「配色」栏的取色器/α/HEX 还停在旧值
+  renderPresets();
+  renderAll();
+  /* 换了预设就退出夜间态：预设自带日夜两版（如千禧粉/千禧粉·夜色），
+     用户点了哪个就是哪个，避免「点日间预设却还套着夜色」的错乱 */
+  if(NIGHT.on){ NIGHT.on = false; NIGHT.day = null; updateNightBtn(); }
+}
+
+/* ---------- 夜间按钮 ----------
+   一键把当前主题转成夜色（参考千禧粉·夜色的派生方式），再点一下还原。
+   开启时顺手把预览画布切成深色，光标行也会按深色画布渲染。 */
+const NIGHT = { on:false, day:null };   // day: 开夜色前的 {colors, name}，用于还原
+function setNight(on){
+  if(on === NIGHT.on) return;
+  if(on){
+    NIGHT.day = { colors: JSON.parse(JSON.stringify(state.colors)), name: state.meta.name };
+    state.colors = toNightColors(state.colors);
+    if(!/夜/.test(state.meta.name)) state.meta.name += " · 夜";
+  }else if(NIGHT.day){
+    state.colors = NIGHT.day.colors;
+    state.meta.name = NIGHT.day.name;
+  }
+  NIGHT.on = on;
+  setCanvasBg(on ? "dark" : "light");
+  syncFormFromState();
+  renderColors();
+  renderAll();
+  updateNightBtn();
+}
+function updateNightBtn(){
+  const b = $("#btnNight"); if(!b) return;
+  b.classList.toggle("on", NIGHT.on);
+  b.textContent = NIGHT.on ? "☀️ 日间" : "🌙 夜间";
+  b.title = NIGHT.on ? "点一下还原日间配色" : "把当前主题一键转成夜色（参考千禧粉·夜色的派生方式）";
+}
+
+/* ---------- 内置字体快捷卡 ----------
+   只保留这一张预设卡。字体文件受版权保护，工具不内置，也找不到可离线分发的镜像；
+   name/alt 是字体的系统族名候选——装完之后系统里登记的族名常是「汉仪夏日体W」，
+   西文族名 HYXiaRiTiW。点卡片时用检测到的真实族名写入 font_face，避免小狼毫匹配不上。
+   其余字体一律走「载入字体文件」，载入即新建卡片，不做名称匹配。 */
+const DISPLAY_FONTS = [
+  { name:"汉仪夏日体", alt:["汉仪夏日体W","HYXiaRiTiW"], note:"俏皮手写圆体",
+    url:"https://www.hanyi.com.cn/productdetail.php?id=642" }
+];
+
+/* 已从本地文件载入的字体族名（仅本页预览有效，不写入系统） */
+const loadedFonts = new Set();
+
+/* 族名 → 字体二进制（Blob），供「导出含字体的网页」内嵌使用 */
+const fontBlobs = new Map();
+
+/* ---------------- 字体持久化：IndexedDB ----------------
+   本地载入的字体会存进浏览器数据库，下次打开自动恢复。
+   注意这是「按浏览器+来源」隔离的：换浏览器、换设备、换网址都读不到，
+   部署到线上后仍需重新载入一次，或改用「导出含字体的网页」。 */
+const FONT_DB = "rime_skin_studio", FONT_STORE = "fonts";
+function idbOpen(){
+  return new Promise((res, rej)=>{
+    if(!window.indexedDB) return rej(new Error("IndexedDB 不可用"));
+    const rq = indexedDB.open(FONT_DB, 1);
+    rq.onupgradeneeded = ()=>{
+      const db = rq.result;
+      if(!db.objectStoreNames.contains(FONT_STORE)) db.createObjectStore(FONT_STORE, {keyPath:"family"});
+    };
+    rq.onsuccess = ()=>res(rq.result);
+    rq.onerror = ()=>rej(rq.error || new Error("数据库打开失败"));
+  });
+}
+function idbTx(mode, fn){
+  return idbOpen().then(db=>new Promise((res, rej)=>{
+    let rq;
+    try{
+      const tx = db.transaction(FONT_STORE, mode);
+      rq = fn(tx.objectStore(FONT_STORE));
+      tx.oncomplete = ()=>{ const r = rq ? rq.result : undefined; try{db.close();}catch(e){} res(r); };
+      tx.onerror = ()=>{ try{db.close();}catch(e){} rej(tx.error); };
+    }catch(e){ try{db.close();}catch(e2){} rej(e); }
+  }));
+}
+const idbPut   = rec => idbTx("readwrite", st=>st.put(rec));
+const idbDel   = fam => idbTx("readwrite", st=>st.delete(fam));
+const idbAll   = ()  => idbTx("readonly",  st=>st.getAll());
+const idbClear = ()  => idbTx("readwrite", st=>st.clear());
+let idbBroken = false;
+
+/* 启动时把上次保存的字体装回来 */
+async function restoreSavedFonts(){
+  if(idbBroken) return;
+  let recs = [];
+  try{ recs = await idbAll(); }
+  catch(e){ idbBroken = true; return; }
+  if(!Array.isArray(recs) || !recs.length) return;
+  let n = 0;
+  for(const r of recs){
+    if(!r || !r.family || !r.blob) continue;
+    try{
+      const face = new FontFace(r.family, await r.blob.arrayBuffer());
+      await face.load();
+      document.fonts.add(face);
+      loadedFonts.add(r.family);
+      fontBlobs.set(r.family, r.blob);
+      const alts = Array.isArray(r.alts) ? r.alts.filter(Boolean) : [];
+      const card = DISPLAY_FONTS.find(f=>f.name===r.family || (f.alt||[]).indexOf(r.family)>=0);
+      if(!card){
+        DISPLAY_FONTS.push({
+          name:r.family, custom:true, alt:alts,
+          note:"本地已保存", src:r.fileName || "从浏览器恢复"
+        });
+      }else if(alts.length){
+        const uniqed = [];
+        alts.concat(card.alt||[]).forEach(x=>{ if(x && uniqed.indexOf(x) < 0) uniqed.push(x); });
+        card.alt = uniqed;
+      }
+      n++;
+    }catch(e){}
+  }
+  if(n){ renderFontChips(); renderAll(); }
+}
+const fontCard = ok => DISPLAY_FONTS.some(ok);
+
+/* ---- 解析字体文件的 name 表，取出全部候选族名 ----
+   支持 ttf / otf / ttc（TTC 取第一个子字体）；
+   woff / woff2 是压缩格式读不到名字，primary 返回 null，由调用方回退成文件名。
+
+   同一个字体在文件里通常登记着好几套名字，小狼毫是按「族名」匹配的：
+     中文族名       方正FW轻吟体 简 B      (name id 1/16, lang 0x804/0x404/0x1004/0xC04)
+     西文族名       FZFW Qing Yin Ti Jian B  (name id 1/16, lang 0x409)
+     PostScript 名  FZFWQingYinTiJianB    (name id 6)
+   全部列进 font_face 回退链，命中的概率最高，而且链上指向的都是同一个字体。
+   返回 { primary, cn:[], en:[], ps:[] }。 */
+function readFontNames(buf){
+  const out = { primary:null, cn:[], en:[], ps:[] };
+  let recs = null, decode = null;
+  try{
+    const dv = new DataView(buf);
+    let base = 0;
+    if(dv.getUint32(0) === 0x74746366) base = dv.getUint32(12);   // 'ttcf'
+    const ver = dv.getUint32(base);
+    if(ver === 0x774F4646 || ver === 0x774F4632) return out;       // wOFF / wOF2
+    const numTables = dv.getUint16(base + 4);
+    if(numTables <= 0 || numTables > 512) return out;
+    let nameOff = 0;
+    for(let i=0;i<numTables;i++){
+      const p = base + 12 + i*16;
+      if(dv.getUint32(p) === 0x6E616D65){ nameOff = dv.getUint32(p + 8); break; }  // 'name'
+    }
+    if(!nameOff) return out;
+    const count = dv.getUint16(nameOff + 2);
+    if(count <= 0 || count > 4096) return out;
+    const strBase = nameOff + dv.getUint16(nameOff + 4);
+    recs = [];
+    for(let i=0;i<count;i++){
+      const r = nameOff + 6 + i*12;
+      recs.push({
+        plat: dv.getUint16(r), lang: dv.getUint16(r+4), id: dv.getUint16(r+6),
+        len: dv.getUint16(r+8), off: dv.getUint16(r+10)
+      });
+    }
+    decode = rec=>{
+      const b = new Uint8Array(buf, strBase + rec.off, rec.len);
+      if(rec.plat === 3 || rec.plat === 0){          // UTF-16BE
+        let s = "";
+        for(let i=0;i+1<b.length;i+=2) s += String.fromCharCode((b[i]<<8)|b[i+1]);
+        return s;
+      }
+      let s = "";                                     // Mac Roman 近似
+      for(let i=0;i<b.length;i++) s += String.fromCharCode(b[i]);
+      return s;
+    };
+  }catch(e){ return out; }
+  const clean = s => String(s||"").replace(/\0/g,"").replace(/[\s\u3000]+/g," ").trim();
+  const uniq  = arr=>{
+    const o = [];
+    arr.forEach(x=>{ if(x && o.indexOf(x) < 0) o.push(x); });
+    return o;
+  };
+  /* 只取 Windows 平台的记录：Mac 平台按 MacRoman 解中文会出乱码 */
+  const pick = (id, langs)=>{
+    const hit = recs.filter(r=>r.plat===3 && r.id===id && (!langs || langs.indexOf(r.lang)>=0));
+    return hit.map(r=>clean(decode(r)));
+  };
+  try{
+    const CN = [0x804,0x404,0x1004,0xC04];        // 简中 / 繁中 / 新加坡 / 香港
+    out.cn = uniq(pick(1,CN).concat(pick(16,CN)));
+    out.en = uniq(pick(1,[0x409]).concat(pick(16,[0x409])));
+    out.ps = uniq(pick(6));
+    out.primary = out.cn[0] || out.en[0] || uniq(pick(1).concat(pick(4)))[0] || null;
+  }catch(e){}
+  return out;
+}
+/* 只要一个主名的兼容入口 */
+function readFontName(buf){ return readFontNames(buf).primary; }
+
+/* 安装检测：canvas 测宽比对。
+   不用 document.fonts.check —— 它对未安装字体常因回退而误报 true。 */
+const _fcv = document.createElement("canvas");
+const _fctx = (_fcv && _fcv.getContext) ? _fcv.getContext("2d") : null;
+
+function fontInstalled(name){
+  if(loadedFonts.has(name)) return "loaded";
+  if(!_fctx || !_fctx.measureText) return null;   // 环境不支持检测
+  try{
+    const probe = "字Aa漢国1";
+    const w = f=>{ _fctx.font = "48px " + f; return _fctx.measureText(probe).width; };
+    // 同一字体分别挂 monospace / sans-serif 回退测量：
+    // 只要有一组宽度与"纯回退字体"不同，就说明该字体真实生效
+    return ["monospace","sans-serif"].some(r=>Math.abs(w('"'+name+'", '+r) - w(r)) > 0.5);
+  }catch(e){ return null; }
+}
+function detectFont(f){
+  const cands = [f.name].concat(f.alt||[]);
+  for(const n of cands){ if(loadedFonts.has(n)) return { st:"loaded", family:n }; }
+  const res = cands.map(n=>fontInstalled(n));
+  const i = res.indexOf(true);
+  if(i>=0) return { st:"ok", family:cands[i] };
+  if(res.every(r=>r===null)) return { st:"unknown", family:f.name };
+  return { st:"miss", family:f.name };
+}
+
+/* ---- 载入任意字体文件 ----
+   ingestFontFile：单个文件 → 解析真实族名 → FontFace 注册 → 生成卡片
+   loadFontFiles ：批量（多选/拖拽），最后一个自动应用到预览
+   注意：只在本页生效，不写入系统；小狼毫要用仍需在系统里安装该字体。 */
+async function ingestFontFile(file){
+  const buf = await file.arrayBuffer();
+  const names = readFontNames(buf);
+  const stem = String(file.name||"").replace(/\.[^.]+$/,"").replace(/[\r\n\t]+/g," ").trim();
+  const family = (names.primary || stem || "未命名字体").trim();
+  const face = new FontFace(family, buf);
+  await face.load();
+  document.fonts.add(face);
+  loadedFonts.add(family);
+  const blob = new Blob([buf], {type: file.type || "font/ttf"});
+  fontBlobs.set(family, blob);
+  /* 文件里读出的其他名字（西文族名 / PostScript 名 / 其他本地化名）全部记到卡片上，
+     生成 font_face 时连同主名一起写成回退链——链上都是同一个字体。 */
+  const alts = [];
+  [].concat(names.en, names.ps, names.cn).forEach(n=>{
+    n = String(n||"").replace(/["'\\<>]/g,"").trim();
+    if(n && n !== family && alts.indexOf(n) < 0) alts.push(n);
+  });
+  try{ await idbPut({ family, fileName: file.name || "", blob, alts }); }catch(e){ idbBroken = true; }
+  const same   = DISPLAY_FONTS.find(f=>f.name===family);
+  const altHit = DISPLAY_FONTS.find(f=>(f.alt||[]).indexOf(family) >= 0);
+  if(same || altHit){
+    const card = same || altHit;
+    card.src = file.name;
+    const uniqed = [];
+    alts.concat(card.alt||[]).forEach(n=>{ if(n && uniqed.indexOf(n) < 0) uniqed.push(n); });
+    if(uniqed.length) card.alt = uniqed;
+  }else{
+    DISPLAY_FONTS.push({
+      name: family, custom: true, src: file.name, alt: alts,
+      note: "本机载入" + (names.primary ? (alts.length ? " · 含西文名" : "") : " · 取文件名")
+    });
+  }
+  return family;
+}
+function pickFontFiles(cb){
+  const inp = document.createElement("input");
+  inp.type = "file";
+  inp.multiple = true;
+  inp.accept = ".ttf,.otf,.ttc,.woff,.woff2";
+  inp.onchange = ()=>cb(Array.from(inp.files||[]));
+  inp.click();
+}
+async function loadFontFiles(files){
+  const list = Array.from(files||[]).filter(Boolean);
+  if(!list.length) return;
+  const done = [], errs = [];
+  for(const f of list){
+    try{ done.push(await ingestFontFile(f)); }
+    catch(e){ errs.push((f.name||"文件") + " — " + ((e && e.message) || e)); }
+  }
+  if(done.length){
+    const last = done[done.length-1];
+    const hit = DISPLAY_FONTS.find(f=>f.name===last || (f.alt||[]).indexOf(last)>=0);
+    applyFontFamily(hit ? fontFaceChain(hit) : last);
+  }
+  renderFontChips(); renderPresets(); renderAll();
+  if(errs.length && typeof alert === "function") alert("以下字体载入失败：\n" + errs.join("\n"));
+}
+function applyFontFamily(name){
+  state.font.face = name;
+  state.presetId = null;
+  const inp = document.querySelector('[data-path="font.face"]');
+  if(inp) inp.value = name;
+  renderFaceChain();
+}
+
+/* ---- 生成「名称回退链」 ----
+   小狼毫 0.15.0 起 font_face 支持 ASCII 逗号分隔的字体回退，从左往右依次尝试；
+   每一项还可以写成「字体名:起始码点:结束码点」，把某个码点区间指派给该字体
+   （WeaselUI/d2d.cpp 的 SetFontFallback：主字体名被设成不存在的 _InvalidFontName_，
+   所有字体都靠这条映射链提供，所以链的先后顺序 + 区间语法都是确定生效的）。
+   同一个字体在系统里可能登记着好几套名字，例如：
+     中文族名  方正FW轻吟体 简 B
+     西文族名  FZFW Qing Yin Ti Jian B
+     PostScript 名  FZFWQingYinTiJianB
+   这些都是「同一个字体」的名字，全列进去命中率最高。
+   载入过字体文件的，别名从文件 name 表里精确读出；只装了系统字体的，
+   用检测到的真实族名打头（如汉仪夏日体 → 汉仪夏日体W）。
+
+   链首额外挂一组「码点区间」指向 Segoe UI Emoji：中文体普遍缺 emoji 的组合码点
+   U+FE0F（变体选择符）和 U+20E3（组合键帽符）——候选里那个 8️⃣ 就是
+   「8 + FE0F + 20E3」。如果只把 Segoe UI Emoji 挂在链尾，主字体会先用自己
+   的字形接管数字 8，于是键帽框和数字落进两个不同字体、框叠不到数字上，
+   看上去就是一个空方框。所以这几个码点必须显式交给 Segoe UI Emoji 且排在最前。
+   同时把 ASCII 数字 0-9 / # / * 一并交给它，键帽 base 才不会又被主字体抢走。
+   注意：逗号后不要加空格——小狼毫按逗号切分后不保证裁剪首尾空格，
+   带空格会让字体名匹配不上（链上除第一项外的字体都会静默失效）。 */
+const EMOJI_RANGES = ["23:23","2A:2A","30:39","FE0F:FE0F","20E3:20E3"]
+  .map(r=>"Segoe UI Emoji:"+r).join(",");
+const isEmojiItem = x => /^Segoe UI Emoji:[0-9a-fA-F]+:[0-9a-fA-F]+$/.test(String(x).trim());
+/* 去掉链首那组 emoji 码点区间，只留下「真·字体名」，供界面判断用 */
+function stripEmojiRanges(s){
+  return String(s||"").split(/[,，]/).map(x=>x.trim()).filter(x=>x && !isEmojiItem(x));
+}
+/* 导出 YAML 时兜底：即使 font_face 是用户手填的单字体名，也把 emoji 码点区间补到最前，
+   否则候选里的 8️⃣ 又会变回空心方框。顺带把逗号后的空格规范化掉。 */
+function ensureEmojiRanges(face){
+  const items = String(face||"").split(/[,，]/).map(x=>x.trim()).filter(Boolean);
+  if(!items.length) return "";
+  const missing = EMOJI_RANGES.split(",").filter(r=>items.indexOf(r)<0);
+  return missing.length ? missing.concat(items).join(",") : items.join(",");
+}
+function fontFaceChain(f){
+  const out = [];
+  const push = n=>{
+    n = String(n==null?"":n).replace(/["'\\<>]/g,"").trim();
+    if(n && out.indexOf(n) < 0) out.push(n);
+  };
+  const d = detectFont(f);
+  push(d.family);              // 系统里真实生效的那个名字，放最前
+  (f.alt||[]).forEach(push);   // 同一字体的西文名 / PostScript 名 / 其他本地化名
+  push(f.name);                // 卡片名兜底
+  return [EMOJI_RANGES].concat(out).join(",");
+}
+
+/* 在字体输入框下方显示「当前字体会写成什么」，避免黑盒 */
+function renderFaceChain(){
+  const box = document.getElementById("faceChain");
+  if(!box) return;
+  const cur = String(state.font.face||"").trim();
+  if(!cur){ box.textContent = ""; return; }
+  const names = stripEmojiRanges(cur);
+  const known = DISPLAY_FONTS.find(f=>names.indexOf(f.name)>=0 || (f.alt||[]).some(a=>names.indexOf(a)>=0));
+  if(names.length > 1){
+    box.innerHTML = `当前写入 YAML 的 <code>font_face</code> 是一条<b>回退链</b>：` +
+      `开头 <code>Segoe UI Emoji:23:23…20E3:20E3</code> 这组<b>码点区间</b>专管 emoji（候选里的 8️⃣ 是数字 + <code>U+20E3</code> 键帽框，` +
+      `中文体普遍没有这个码点，不显式指派就会渲染成空心方框）；后面几项是同一字体的中文族名 / 西文族名 / PostScript 名。` +
+      `小狼毫从左往右依次尝试，先命中者生效：<code>${cur}</code>` +
+      (known ? `　点一下「${known.name}」卡片可重新生成这条链。` : "");
+  }else if(known){
+    box.innerHTML = `点「${known.name}」卡片会自动填入完整回退链：<code>${fontFaceChain(known)}</code>`;
+  }else{
+    box.innerHTML = `当前是单字体 <code>${cur}</code>。若小狼毫重新部署后字体没变，先核对系统「字体设置」里的准确名称；` +
+      `把该字体的 ttf / otf 文件拖进下面的卡片区载入一次，工具会读出它的中文名和西文名，自动拼成回退链。`;
+  }
+}
+function dropCustomFont(f){
+  const i = DISPLAY_FONTS.indexOf(f);
+  if(i >= 0) DISPLAY_FONTS.splice(i, 1);
+  loadedFonts.delete(f.name);
+  fontBlobs.delete(f.name);
+  idbDel(f.name).catch(()=>{});
+  try{
+    const kill = [];
+    document.fonts.forEach(ff=>{ if(ff.family === f.name) kill.push(ff); });
+    kill.forEach(ff=>{ try{ document.fonts.delete(ff); }catch(e){} });
+  }catch(e){}
+  if(stripEmojiRanges(state.font.face).indexOf(f.name)>=0) applyFontFamily("Microsoft YaHei");
+  renderFontChips(); renderPresets(); renderAll();
+}
+
+/* ---------------- 导出「含字体的网页」 ----------------
+   把当前用到的字体以 base64 内嵌进一份完整的单文件 HTML。
+   浏览器安全模型不允许部署后的页面去读你本机的字体文件，所以
+   「只有本地能预览、上线后字体消失」是必然的——把字体烤进 HTML 才能解决。
+   顺带把当前调好的皮肤状态一起注入，导出后打开就是你看到的样子。 */
+function blob2dataURL(blob){
+  return new Promise((res, rej)=>{
+    const r = new FileReader();
+    r.onload = ()=>res(r.result);
+    r.onerror = ()=>rej(r.error);
+    r.readAsDataURL(blob);
+  });
+}
+function usedFontFamilies(){
+  const raw = [state.font.face, state.font.labelFace, state.font.commentFace]
+      .filter(Boolean).join(",");
+  // 链首那组 emoji 码点区间不是字体名，先剔除再去重
+  const out = [];
+  stripEmojiRanges(raw).map(x=>x.replace(/['"\\<>]/g,"").trim())
+      .filter(Boolean).forEach(n=>{ if(out.indexOf(n) < 0) out.push(n); });
+  return out;
+}
+async function buildEmbeddedHTML(){
+  let picks = usedFontFamilies().filter(n=>fontBlobs.has(n));
+  if(!picks.length) picks = Array.from(fontBlobs.keys());
+  if(!picks.length) return null;
+  const rules = [], fontInfo = [];
+  for(const fam of picks){
+    const url = await blob2dataURL(fontBlobs.get(fam));
+    rules.push(`@font-face{font-family:'${fam.replace(/['"\\]/g,"")}';src:url(${url});font-display:swap}`);
+    /* 别名一并带过去：在导出的网页里点字体卡，生成的 font_face 仍是完整的中英文回退链 */
+    const card = DISPLAY_FONTS.find(f=>f.name===fam);
+    fontInfo.push({
+      name: fam,
+      alts: (card && Array.isArray(card.alt) ? card.alt : []).filter(a=>a && a !== fam)
+    });
+  }
+  const inject =
+    `<style id="__embedded_fonts">\n${rules.join("\n")}\n</style>\n` +
+    `<script>window.__EMBED_EXTRAS__=${JSON.stringify({fonts:fontInfo, state:state})};<` + `/script>\n`;
+  // 注入到真正的 </head> 之前（取第一处即可：head 里的内容不含该字符串）
+  const at = PRISTINE_HTML.indexOf("</head>");
+  const html = at > 0
+    ? PRISTINE_HTML.slice(0, at) + inject + PRISTINE_HTML.slice(at)
+    : inject + PRISTINE_HTML;
+  return { html, picks };
+}
+async function exportEmbeddedHTML(){
+  const built = await buildEmbeddedHTML();
+  if(!built){
+    alert("还没有载入任何字体文件。\n\n先点「＋ 载入字体文件」选一个 ttf / otf，再导出。\n（如果字体已经装进系统、只想生成配置文件，直接用「下载 weasel.custom.yaml」即可。）");
+    return;
+  }
+  toast("正在打包字体，文件较大请稍等…");
+  const blob = new Blob([built.html], {type:"text/html;charset=utf-8"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "rime-skin-studio-embedded.html";
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 900);
+  toast(`已导出 · 内嵌 ${built.picks.length} 款字体 · 约 ${(blob.size/1048576).toFixed(1)} MB`);
+}
+
+function renderFontChips(){
+  const box = $("#fontChips");
+  if(!box) return;
+  box.innerHTML = "";
+  const cur = (stripEmojiRanges(state.font.face)[0] || "").trim();
+  DISPLAY_FONTS.forEach(f=>{
+    const d = detectFont(f);
+    const ok = (d.st==="ok" || d.st==="loaded");
+    const el = document.createElement("div");
+    el.className = "fchip" + ((cur===f.name || cur===d.family) ? " on":"")
+                 + (ok ? "" : " miss") + (f.custom ? " cust" : "");
+    const dotCls = d.st==="loaded" ? " loc" : d.st==="ok" ? " ok" : "";
+    const chain = fontFaceChain(f);
+    const dotTip = d.st==="loaded" ? "已可用（本页载入或本地已保存）。点卡片会把整套名称回退链写入 font_face"
+                 : d.st==="ok"     ? `系统已安装，点卡片会把整套名称回退链写入 font_face（首选「${d.family}」）`
+                 : d.st==="unknown"? "本环境无法检测，可点「载入字体文件」直接预览"
+                 :                   "系统未检测到，点「载入字体文件」可立即预览效果；若其实装了却没识别到，仍可直接点卡片写入回退链";
+    const real = (d.family && d.family !== f.name) ? d.family : "";
+    const sub = f.custom
+      ? `${f.name} · ${f.note}`
+      : `${f.name}${real ? " → "+real : ""} · ${f.note}`;
+    el.innerHTML = `
+      <span class="dot${dotCls}" title="${dotTip}"></span>
+      ${f.custom ? `<button class="fdel" type="button" title="从列表移除（不影响系统字体）">×</button>` : ""}
+      <div class="fs" style="font-family:'${f.name}'">夏天你好 Aa</div>
+      <div class="fn">${sub}</div>
+      ${ok ? "" : `<button class="fload" type="button">载入字体文件</button>`}`;
+    el.title = `${f.name}${f.alt?"（"+f.alt.join(" / ")+"）":""}\n${f.custom?f.note+" · 来自 "+f.src:f.note}\n${dotTip}\n\n将写入 font_face：\n${chain}`;
+    el.onclick = ()=>{ applyFontFamily(chain); renderPresets(); renderFontChips(); renderAll(); };
+    const btn = el.querySelector ? el.querySelector(".fload") : null;
+    if(btn) btn.onclick = ev=>{
+      if(ev && ev.stopPropagation) ev.stopPropagation();
+      pickFontFiles(files=>loadFontFiles(files));
+    };
+    const del = el.querySelector ? el.querySelector(".fdel") : null;
+    if(del) del.onclick = ev=>{
+      if(ev && ev.stopPropagation) ev.stopPropagation();
+      dropCustomFont(f);
+    };
+    box.appendChild(el);
+  });
+}
+
+/* ---------------- 生成「注音补丁」（输入方案级） ----------------
+   皮肤层管不了注解的有无：注解由方案的 translator 产生（spelling_hints 决定给哪些候选
+   配注音，always_show_comments 决定「编码==注解」时是否隐藏），而 Lua 过滤器还可能把
+   注解整个清空。这些键都属于【输入方案】，必须另存为 <方案id>.custom.yaml ——
+   写进 weasel.custom.yaml 无效，粘进 xxx.schema.yaml 同样无效（Rime 只在 .custom.yaml
+   里处理 patch:）。薄荷/万象这类方案靠 corrector_filter.lua 清空注解，YAML 层面无解。 */
+const SCH_FALLBACK = { std:"luna_pinyin_simp", mint:"rime_mint_flypy" };
+let schFamily = "std";
+try{ const v = localStorage.getItem("rss_family"); if(v === "std" || v === "mint") schFamily = v; }catch(e){}
+let schTone = "global";
+try{ const v = localStorage.getItem("rss_tone"); if(v === "indep" || v === "global") schTone = v; }catch(e){}
+
+function schemaIdClean(){
+  const raw = String(state.schemaId || "").trim();
+  return raw.replace(/[\\/:*?"<>|\s]/g, "") || SCH_FALLBACK[schFamily] || "luna_pinyin_simp";
+}
+function schemaPatchName(){
+  if(schFamily === "mint"){
+    return schTone === "global" ? "声全局.bat" : "声独立.bat";
+  }
+  return schemaIdClean() + ".custom.yaml";
+}
+function syncSegSchema(){
+  document.querySelectorAll("#segSchema button").forEach(x=>x.classList.toggle("on", x.dataset.fam === schFamily));
+  const inp = document.querySelector('[data-path="schemaId"]');
+  if(inp) inp.placeholder = SCH_FALLBACK[schFamily] || "luna_pinyin_simp";
+  const t = schFamily === "mint" ? (schTone === "global" ? "声全局.bat" : "声独立.bat") : "注音补丁";
+  const b1 = document.querySelector("#btnCopyPatch"), b2 = document.querySelector("#btnDlPatch");
+  if(b1) b1.textContent = "复制" + t;
+  if(b2) b2.textContent = "下载" + t;
+  const b3 = document.querySelector("#btnDlLua");
+  if(b3) b3.style.display = schFamily === "mint" ? "" : "none";
+  const b4 = document.querySelector("#btnDlBat");
+  if(b4) b4.style.display = schFamily === "mint" ? "" : "none";
+  const rt = document.getElementById("rowTone");
+  if(rt) rt.style.display = schFamily === "mint" ? "" : "none";
+  document.querySelectorAll("#segTone button").forEach(x=>x.classList.toggle("on", x.dataset.tone === schTone));
+}
+function setSchFamily(f){
+  schFamily = (f === "mint") ? "mint" : "std";
+  try{ localStorage.setItem("rss_family", schFamily); }catch(e){}
+  syncSegSchema(); updatePatchTip();
+}
+function setSchTone(t){
+  schTone = (t === "indep") ? "indep" : "global";
+  try{ localStorage.setItem("rss_tone", schTone); }catch(e){}
+  syncSegSchema(); updatePatchTip();
+}
+function buildSchemaPatch(){
+  const id = schemaIdClean();
+  const L = [];
+  const P = s=>L.push(s);
+  P("# ─────────────────────────────────────────────");
+  if(schFamily === "mint"){
+    P("# 候选词注音 · 操作说明（薄荷拼音 / 万象拼音）");
+    P("# 由「Rime Skin Studio」生成");
+  }else{
+    P("# 候选词注音（注解）补丁 · 由「Rime Skin Studio」生成");
+    P("# 另存为新文件：" + id + ".custom.yaml，放进 %APPDATA%\\Rime\\");
+    P("# 然后右键任务栏小狼毫图标 →「重新部署」");
+  }
+  P("#");
+  P("# 机制（依据 librime src/rime/gear/script_translator.cc）：");
+  P("#   · 注音文字 = 把候选词的【编码】交给词库解码得到的音节串");
+  P("#     —— 词库里没有读音的条目（自造短语、Emoji、符号）注定没有注音");
+  P("#   · spelling_hints = 编码不超过几个音节的候选才配注音（默认 0 = 全都不配）");
+  P("#   · always_show_comments = 强行显示；否则「注解 == 输入编码」时会被隐藏");
+  P("#   注音的正则格式见 translator/comment_format（可给注音套括号等样式）。");
+  P("# ─────────────────────────────────────────────");
+
+  if(schFamily === "mint"){
+    return getMintToneBat(schTone);
+  }
+
+  P("");
+  P("patch:");
+  P("  # ① 给候选词配注音（8 = 编码不超过 8 个音节的候选都显示，可改 1-10）");
+  P("  translator/spelling_hints: 8");
+  P("  # ② 关键：强制一直显示，覆盖「编码 == 注解就隐藏」的默认行为");
+  P('  "translator/always_show_comments": true');
+  P("  # ③ 雾凇拼音(rime_ice)本来就有上面两个键，真正吃掉注音的是它的 corrector.lua——");
+  P("  #    这个键让 corrector 保留拼音注解（非雾凇方案没人读它，写了也无害）：");
+  P('  "translator/keep_comments": true');
+  P("");
+  P("# 给注音套样式（可选，默认无括号）。注意雾凇拼音的 corrector.lua 依赖默认的");
+  P("# [ ] 标记做判断，雾凇用户别动下面这两行：");
+  P("# translator/comment_format:");
+  P('#   - "xform/^/〔/"');
+  P('#   - "xform/$/〕/"');
+  P("");
+  P("# 五笔 / 仓颉等码表方案：注解显示的是字根编码，同样受上面两个键影响。");
+  P("# 想彻底关掉注解，把 spelling_hints 改成 0。");
+  P("#");
+  P("# 照做后仍无注音，按顺序查：");
+  P("#   ① 文件名是否等于方案的 schema_id（打开 xxx.schema.yaml 第一行就是它，");
+  P("#      不一定和文件名同）；② 文件放在 %APPDATA%\\Rime\\ 而不是程序目录；");
+  P("#      ③ 方案里若有 Lua 形式的 corrector 过滤器，它会清空注解——见界面");
+  P("#      「薄荷 / 万象」那一档；④ 词库里确实没有该条目的读音（自造词、Emoji）。");
+  return L.join("\n");
+}
+function updatePatchTip(){
+  const tip = document.getElementById("patchTip");
+  if(!tip) return;
+  const id = schemaIdClean();
+  if(schFamily === "mint"){
+    tip.innerHTML = `注音被 <code>corrector_filter.lua</code> 清空了，YAML 补丁无能为力。推荐做法：` +
+      `先用 <b>「⤓ 下载 F4 热键脚本」</b>把 <b>F4</b> 设成方案选单热键（Rime 1.13 默认没绑），` +
+      `再在打字时按 <b>F4</b>（或默认的 <b>Ctrl+反引号</b>）呼出方案选单 → 选「声起」，注音立即常显，` +
+      `错音错字提示照常保留。代价：输入区会变成带调全拼（薄荷的设计）。<br>` +
+      `（若下面选了<b>全局打开</b>并运行脚本，「声起」会在所有应用自动打开，这一步就不用手动做了。）<br>` +
+      `不想让输入区变带调，再考虑 <b>「⤓ 下载注音修复 Lua」</b>（动 Lua，不改设置）。<br>` +
+      `<b>声开关行为</b>（当前：${schTone === "global" ? "<b>全局打开</b>" : "各应用独立"}）：` +
+      `点「下载${schTone === "global" ? "声全局.bat" : "声独立.bat"}」得到一键脚本，拷到<b>任意电脑</b>双击即可——` +
+      `它把所有方案的 <code>tone_display</code> 的 <code>reset</code> 写成 <b>${schTone === "global" ? "1" : "0"}</b>（源文件 + build 一起改）后重新部署，幂等可重复运行。<br>` +
+      `<b>为什么不用 save_options：</b>librime 里 <code>save_options</code> 只在「从 F4 选单切换」时写入 <code>user.yaml</code>，` +
+      `<b>新会话启动时不会恢复它</b>，所以做不到跨应用；开关要真正「全局生效」只能写 <code>reset</code> 参数。<br>` +
+      `两个 bat 互为逆操作：${schTone === "global" ? "想各应用独立就切到「各应用独立」再下载声独立.bat" : "想所有应用一律打开就切到「全局打开」再下载声全局.bat"}。`;
+    return;
+  }
+  tip.innerHTML = `将生成 <code>${id}.custom.yaml</code>，放进 <code>%APPDATA%\\Rime\\</code> 后重新部署。<br>` +
+    `方案 ID 取的是 <code>xxx.schema.yaml</code> 里的 <code>schema_id</code>（不一定等于文件名）。` +
+    `不确定类型就先用这一档；若照做后仍无注音，再点「薄荷 / 万象」看看说明。`;
+}
+
+/* =========================================================
+   5. 渲染：颜色列表
+   ========================================================= */
+function renderColors(){
+  const box = $("#colorList");
+  box.innerHTML = "";
+  COLOR_DEFS.forEach(([key,label,desc])=>{
+    const c = state.colors[key];
+    const row = document.createElement("div");
+    row.className = "crow";
+    row.innerHTML = `
+      <input type="color" value="${c.rgb}" data-ckey="${key}">
+      <div class="cinfo">
+        <div class="cname">${label} <span class="ckey">${key}</span></div>
+        <div class="cctl">
+          <input class="chex" value="${c.rgb}" data-chex="${key}" spellcheck="false" title="${desc}">
+          <label class="ca" title="透明度 α 0-255（255 为不透明）">
+            <span>α</span>
+            <input type="range" min="0" max="255" step="1" value="${c.a}" data-ca="${key}">
+            <span data-caout="${key}">${c.a}</span>
+          </label>
+        </div>
+      </div>
+      <code class="cbgr" data-cbgr="${key}">${toRimeColor(c)}</code>`;
+    box.appendChild(row);
+  });
+}
+function updateColorRow(key){
+  const c = state.colors[key];
+  const q = sel => document.querySelector(`[data-${sel}="${key}"]`);
+  const sw = q("ckey"); if(sw) sw.value = c.rgb;
+  const hex = q("chex"); if(hex) hex.value = c.rgb;
+  const rng = q("ca"); if(rng && document.activeElement!==rng) rng.value = c.a;
+  const out = q("caout"); if(out) out.textContent = c.a;
+  const bgr = q("cbgr"); if(bgr) bgr.textContent = toRimeColor(c);
+}
+
+/* =========================================================
+   6. 渲染：表单 ← state
+   ========================================================= */
+const FORM_MAP = [
+  ["font.face","meta"],["font.point"],["font.labelFace"],["font.labelPoint"],["font.commentFace"],["font.commentPoint"],
+  ["flags.horizontal"],["flags.inlinePreedit"],["flags.verticalText"],["flags.vertL2R"],["flags.showComment"],
+  ["layout.cornerRadius"],["layout.hilitedCornerRadius"],["layout.borderWidth"],
+  ["layout.marginX"],["layout.marginY"],["layout.candidateSpacing"],["layout.spacing"],
+  ["layout.hiliteSpacing"],["layout.hilitePaddingX"],["layout.hilitePaddingY"],["layout.minWidth"],
+  ["layout.shadowRadius"],["layout.shadowOffsetX"],["layout.shadowOffsetY"],
+  ["meta.id"],["meta.name"],["meta.author"],["schemaId"]
+];
+function syncFormFromState(){
+  document.querySelectorAll("[data-path]").forEach(el=>{
+    const p = el.getAttribute("data-path");
+    const v = getPath(state, p);
+    if(v===undefined) return;
+    if(el.type==="checkbox") el.checked = !!v;
+    else el.value = v;
+  });
+  document.querySelectorAll("[data-out]").forEach(el=>{
+    el.textContent = getPath(state, el.getAttribute("data-out"));
+  });
+  if(typeof syncSegLayout==="function") syncSegLayout();
+  if(typeof syncSegSchema==="function") syncSegSchema();
+  if(typeof renderFaceChain==="function") renderFaceChain();
+  if(typeof updatePatchTip==="function") updatePatchTip();
+}
+
+/* =========================================================
+   7. 渲染：预览
+   ========================================================= */
+const PREEDIT_PLAIN = "hao";
+const PREEDIT_HI    = "ni";
+/* 候选样例：每个都带注音，方便看清「注音字号/颜色/对齐」的实际效果。
+   真实小狼毫里注音内容由输入方案的 translator 提供，不显示见下方补丁说明。 */
+const CANDIDATES = [
+  { label:"1.", text:"你好",  comment:"nǐ hǎo" },
+  { label:"2.", text:"尼豪",  comment:"ní háo" },
+  { label:"3.", text:"拟好",  comment:"nǐ hǎo" },
+  { label:"4.", text:"你",    comment:"nǐ" },
+  { label:"5.", text:"泥",    comment:"ní" },
+  { label:"6.", text:"腻",    comment:"nì" }
+];
+const PT2PX = 4/3; // 1pt ≈ 1.333px @96dpi
+
+function renderPreview(){
+  const c = state.colors, L = state.layout, F = state.font;
+  const horiz = state.flags.horizontal;
+  const vertText = state.flags.verticalText;
+  const l2r = !!state.flags.vertL2R;
+  const inline = state.flags.inlinePreedit;
+  const showCmt = state.flags.showComment !== false;   // 关闭＝隐藏候选词旁的注解
+  const mode = vertText ? "vtext" : (horiz ? "horiz" : "vert");
+
+  const fpx  = (F.point||15) * PT2PX;
+  const lpx  = (F.labelPoint||F.point||15) * PT2PX;
+  const mpx  = (F.commentPoint||F.point||15) * PT2PX;
+  // 支持 "A, B" 字体回退链：逐段清洗后分别加引号，并去重；
+  // 「字体名:起始码点:结束码点」是给小狼毫用的区间语法，CSS 里无效，只取字体名部分
+  // （链首那 5 段区间都指向 Segoe UI Emoji，去重后只会剩一个）。
+  const cssFont = s => {
+    const seen = [];
+    String(s||"").split(/[,，]/)
+      .map(x=>x.replace(/['"\\<>]/g,"").trim().split(":")[0].trim())
+      .filter(Boolean).forEach(n=>{ if(seen.indexOf(n)<0) seen.push(n); });
+    return seen.join("','") || "Microsoft YaHei";
+  };
+  const fface = cssFont(F.face);
+  const lface = cssFont(F.labelFace || F.face);
+  // 注音一律用西文字体渲染：拼音声调字母（ǎ ǒ ǐ ǚ… Latin Ext-B）很多中文字体
+  // 缺字形，浏览器会抓别的字体顶上，造成「某些注音莫名其妙变粗」。整条注音统一
+  // 用西文字体，永不忽粗忽细；拼音是辅助信息，标准西文反而更清晰易读。
+  const mface = "Segoe UI','Microsoft YaHei";
+
+  const shadow = c.shadow_color.a > 0
+    ? `${L.shadowOffsetX}px ${L.shadowOffsetY}px ${L.shadowRadius}px ${rgbaCss(c.shadow_color)}`
+    : "none";
+
+  /* 小狼毫实际内边距 = max(|margin|, hilite_padding)（WeaselUI Layout 构造函数）。
+     当 hilite_padding ≥ margin 时高亮块顶满窗口边缘，即「天圆地方」效果 */
+  const mx = Math.max(Math.abs(L.marginX), L.hilitePaddingX);
+  const my = Math.max(Math.abs(L.marginY), L.hilitePaddingY);
+  const padX = L.hilitePaddingX, padY = L.hilitePaddingY;
+
+  /* --- 编码串 --- */
+  function preeditHTML(){
+    return `<span style="color:${rgbaCss(c.hilited_text_color)};background:${rgbaCss(c.hilited_back_color)};border-radius:3px;padding:0 1px">${PREEDIT_HI}</span><span style="color:${rgbaCss(c.text_color)}">${PREEDIT_PLAIN}</span>`;
+  }
+
+  /* --- 候选项 ---
+     高亮块 = 内容矩形向外扩 hilite_padding（源码 InflateRect），
+     这里用负 margin 外扩、窗口 overflow:hidden 裁切来复现 */
+  const candsHTML = CANDIDATES.map((cd,i)=>{
+    const on = i===0;
+    const bg = on ? rgbaCss(c.hilited_candidate_back_color) : "transparent";
+    const tx = on ? rgbaCss(c.hilited_candidate_text_color) : rgbaCss(c.candidate_text_color);
+    const lb = on ? rgbaCss(c.hilited_candidate_label_color) : rgbaCss(c.label_color);
+    const cm = on ? rgbaCss(c.hilited_comment_text_color) : rgbaCss(c.comment_text_color);
+    const radius = on ? L.hilitedCornerRadius : 0;
+    return `<div class="cand" style="background:${bg};border-radius:${radius}px;margin:-${padY}px -${padX}px;padding:${padY}px ${padX}px;gap:${L.hiliteSpacing}px">
+      <span class="cmain" style="gap:${L.hiliteSpacing}px">
+        <span class="lb" style="color:${lb};font-family:'${lface}';font-size:${lpx}px">${cd.label}</span>
+        <span class="tx" style="color:${tx};font-family:'${fface}';font-size:${fpx}px">${cd.text}</span>
+      </span>
+      ${(showCmt && cd.comment)?`<span class="cm" style="color:${cm};font-family:'${mface}';font-size:${mpx}px">${cd.comment}</span>`:""}
+    </div>`;
+  }).join("");
+
+  /* --- 翻页箭头（对应源码 page indicator）---
+     inline_preedit 时不显示（源码 _CalcPageIndicator 在 inline 下尺寸为 0）；
+     横排/竖排候选：编码行右侧同一行；竖排文字：候选块一侧、‹ › 纵向堆叠 */
+  const pagerH = `<span class="pg" style="font-size:${mpx}px;font-family:'${fface}';gap:${L.hiliteSpacing}px">
+      <span style="color:${rgbaCss(c.prevpage_color)}">‹</span>
+      <span style="color:${rgbaCss(c.nextpage_color)}">›</span>
+    </span>`;
+  const pagerV = `<span class="pg" style="font-size:${mpx}px;font-family:'${fface}';flex-direction:column;gap:${L.hiliteSpacing}px">
+      <span style="color:${rgbaCss(c.prevpage_color)}">‹</span>
+      <span style="color:${rgbaCss(c.nextpage_color)}">›</span>
+    </span>`;
+
+  let inner = "";
+  if(mode==="vtext"){
+    /* 竖排文字（VHorizontalLayout）：候选内文字竖排、候选横向多列；
+       默认从右往左排（vertical_text_left_to_right: false），preedit 竖排靠反向一侧 */
+    const cands = `<div class="cands" style="gap:${L.candidateSpacing}px;flex-direction:${l2r?"row":"row-reverse"}">${candsHTML}</div>`;
+    const preCol = inline ? "" : `
+      <div style="display:flex;flex-direction:column;align-items:center;gap:${L.spacing}px">
+        <div class="preedit" style="font-family:'${fface}';font-size:${fpx}px">${preeditHTML()}</div>
+        ${pagerV}
+      </div>`;
+    inner = `<div style="display:flex;align-items:stretch;gap:${L.spacing}px;flex-direction:${l2r?"row":"row-reverse"}">${cands}${preCol}</div>`;
+  } else {
+    /* 横排 / 竖排候选：编码行在上，翻页箭头同行靠右；编码行与候选区之间隔 spacing */
+    const preRow = inline ? "" : `
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:${L.spacing}px">
+        <div class="preedit" style="font-family:'${fface}';font-size:${fpx}px">${preeditHTML()}</div>
+        ${pagerH}
+      </div>`;
+    inner = `${preRow}<div class="cands" style="gap:${L.candidateSpacing}px;flex-direction:${mode==="vert"?"column":"row"}">${candsHTML}</div>`;
+  }
+
+  const windowHTML = `
+    <div class="ime ${mode}" style="
+        min-width:${L.minWidth}px;
+        background:${rgbaCss(c.back_color)};
+        border:${L.borderWidth}px solid ${rgbaCss(c.border_color)};
+        border-radius:${L.cornerRadius}px;
+        padding:${my}px ${mx}px;
+        box-shadow:${shadow};
+      ">${inner}
+    </div>`;
+
+  /* --- 光标处模拟（inline_preedit 时，窗口内无编码行与箭头） ---
+     光标行画在画布上而不是候选窗里，而主题的「编码文字」色是按窗底设计的——
+     夜色主题的浅灰落在浅色画布上就看不见了。按实测对比度兜底：
+     与画布对比不足 3:1 就退回画布正文的深/浅灰，保证模拟行始终可读；
+     候选窗内的颜色不受影响，所见即所得。 */
+  const cvDark = $("#canvas").classList.contains("dark");
+  const cvHex  = cvDark ? "#16181d" : "#f0f1f4";
+  const editorInk = cvDark ? "#c9ccd4" : "#3a3d44";
+  const plainInk = contrastRatio(c.text_color.rgb, cvHex) >= 3 ? rgbaCss(c.text_color) : editorInk;
+  const hiTxtInk = contrastRatio(c.hilited_text_color.rgb, c.hilited_back_color.rgb) >= 3
+    ? rgbaCss(c.hilited_text_color) : editorInk;
+  const editorHTML = inline
+    ? `<div class="editorline">今天天气不错 <span style="color:${hiTxtInk};background:${rgbaCss(c.hilited_back_color)};border-radius:3px;padding:0 1px">${PREEDIT_HI}</span><span style="color:${plainInk}">${PREEDIT_PLAIN}</span><span style="border-left:1.5px solid currentColor;margin-left:1px"></span></div>`
+    : `<div class="editorline" style="opacity:.35">今天天气不错</div>`;
+
+  $("#simwrap").innerHTML = editorHTML + windowHTML;
+
+  /* 竖排：测量最宽的「序号+词」块统一 min-width，让注音列右对齐（对应源码 comment_shift_width） */
+  if(mode==="vert" && typeof window.requestAnimationFrame==="function"){
+    window.requestAnimationFrame(()=>{
+      const cands = document.querySelector("#simwrap .cands");
+      if(!cands) return;
+      let w = 0;
+      cands.querySelectorAll(".cmain").forEach(el=>{
+        w = Math.max(w, el.getBoundingClientRect().width / (zoom||1));
+      });
+      if(w>0) cands.style.setProperty("--cw", (Math.ceil(w)+1)+"px");
+    });
+  }
+}
+
+/* =========================================================
+   8. 渲染：YAML 输出
+   ========================================================= */
+function q(s){ return `"${String(s).replace(/"/g,'\\"')}"`; }
+
+function buildYaml(){
+  const L = state.layout, F = state.font, c = state.colors;
+  const lines = [];
+  const P = (s="")=>lines.push(s);
+
+  P("# ─────────────────────────────────────────────");
+  P("# 小狼毫皮肤 · 由「Rime Skin Studio」生成");
+  P("# 保存为 %APPDATA%\\Rime\\weasel.custom.yaml（UTF-8 无 BOM）");
+  P("# 然后右键任务栏小狼毫图标 →「重新部署」");
+  P("# 注意：颜色为 0xAABBGGRR（蓝-绿-红 顺序），不是常见的 RGB");
+  P("#");
+  P("# ⚠ 如果用户文件夹里已经有 weasel.custom.yaml（小狼毫自己生成过，里面有");
+  P("#   customization: 和 app_options:），不要整个覆盖！只把下面 patch: 段");
+  P("#   的内容合并进已有文件即可。一个 custom 文件里只能有一个 patch: 段，且必须顶格。");
+  P("#");
+  P("# 字体不生效的排查顺序：① 名称要和系统「字体设置」里的字体名称一字不差");
+  P("#   （小狼毫支持逗号回退链，中英文名一起写最保险）② 文件位置必须是 %APPDATA%\\Rime");
+  P("#   ③ UTF-8 无 BOM、缩进用空格不用 Tab、冒号后要有空格 ④ 必须重新部署，");
+  P("#   仍不生效就先「结束算法服务」+ 删掉 %APPDATA%\\Rime\\build 再部署 ⑤ 看 weasel.log。");
+  P("# ─────────────────────────────────────────────");
+  P("");
+  P("patch:");
+  P("  style:");
+  P(`    color_scheme: ${state.meta.id || "my_skin"}`);
+  P(`    font_face: ${q(ensureEmojiRanges(F.face || "Microsoft YaHei"))}`);
+  P(`    font_point: ${F.point}`);
+  if(F.labelFace)   P(`    label_font_face: ${q(F.labelFace)}`);
+  P(`    label_font_point: ${F.labelPoint}`);
+  if(F.commentFace) P(`    comment_font_face: ${q(F.commentFace)}`);
+  if(state.flags.showComment !== false){
+    P(`    comment_font_point: ${F.commentPoint}`);
+  }else{
+    P(`    comment_font_point: 0   # 0 = 不显示候选词旁的注解（注音）`);
+    P(`    # ↑ 这是隐藏注音的官方做法。若仍能看到残留，说明是方案层的提示码，`);
+    P(`    #   可在该方案 .custom.yaml 里加 translator/comment_format: ["xform/^.*$//"]`);
+    P(`    #   （五笔/仓颉的编码提示另有开关：spelling_hints: 0）`);
+  }
+  P(`    horizontal: ${state.flags.horizontal}`);
+  P(`    inline_preedit: ${state.flags.inlinePreedit}`);
+  if(state.flags.verticalText) P(`    vertical_text: ${state.flags.verticalText}`);
+  if(state.flags.verticalText && state.flags.vertL2R) P(`    vertical_text_left_to_right: true`);
+  P("");
+  P("    layout:");
+  P(`      min_width: ${L.minWidth}`);
+  P(`      border_width: ${L.borderWidth}`);
+  P(`      margin_x: ${L.marginX}`);
+  P(`      margin_y: ${L.marginY}`);
+  P(`      corner_radius: ${L.cornerRadius}`);
+  P(`      hilited_corner_radius: ${L.hilitedCornerRadius}`);
+  P(`      spacing: ${L.spacing}`);
+  P(`      candidate_spacing: ${L.candidateSpacing}`);
+  P(`      hilite_spacing: ${L.hiliteSpacing}`);
+  P(`      hilite_padding_x: ${L.hilitePaddingX}`);
+  P(`      hilite_padding_y: ${L.hilitePaddingY}`);
+  P(`      shadow_radius: ${L.shadowRadius}`);
+  P(`      shadow_offset_x: ${L.shadowOffsetX}`);
+  P(`      shadow_offset_y: ${L.shadowOffsetY}`);
+  P("");
+  P("  # 用 \"/+\" 合并进已有配色，避免覆盖掉内置方案");
+  P('  "preset_color_schemes/+":');
+  P(`    ${state.meta.id || "my_skin"}:`);
+  P(`      name: ${q(state.meta.name || "我的皮肤")}`);
+  if(state.meta.author) P(`      author: ${q(state.meta.author)}`);
+  P("");
+  COLOR_DEFS.forEach(([key,label])=>{
+    P(`      ${key}: ${toRimeColor(c[key])}   # ${label}`);
+  });
+  P("");
+  return lines.join("\n");
+}
+
+/* YAML 高亮（轻量） */
+function highlightYaml(text){
+  const esc = s => s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  return esc(text).split("\n").map(line=>{
+    const ci = line.indexOf("#");
+    let code = line, cmt = "";
+    if(ci >= 0){ code = line.slice(0,ci); cmt = line.slice(ci); }
+    code = code.replace(/^(\s*)([A-Za-z_"'\/][^:]*?)(:)(?=\s|$)/, (m,sp,k,c)=>`${sp}<span class="key">${k}</span>${c}`);
+    code = code.replace(/\b(0x[0-9A-Fa-f]{6,8})\b/g, '<span class="num">$1</span>');
+    code = code.replace(/\b(true|false)\b/g, '<span class="num">$1</span>');
+    code = code.replace(/: (-?\d+)\s*$/, ': <span class="num">$1</span>');
+    code = code.replace(/(:\s*)("([^"]*)")/g, '$1<span class="str">$2</span>');
+    return code + (cmt?`<span class="cmt">${cmt}</span>`:"");
+  }).join("\n");
+}
+
+function renderOutput(){
+  const y = buildYaml();
+  $("#code").innerHTML = highlightYaml(y);
+  return y;
+}
+
+/* =========================================================
+   9. 汇总渲染
+   ========================================================= */
+function renderAll(){
+  renderPreview();
+  renderOutput();
+}
+
+/* =========================================================
+   10. 事件绑定
+   ========================================================= */
+document.addEventListener("input", e=>{
+  const t = e.target;
+
+  // 颜色 swatch / hex / alpha
+  const ckey = t.getAttribute("data-ckey");
+  if(ckey){ state.colors[ckey].rgb = t.value.toUpperCase(); updateColorRow(ckey); state.presetId=null; renderPresets(); renderAll(); return; }
+
+  const chex = t.getAttribute("data-chex");
+  if(chex){
+    const v = t.value.trim();
+    if(/^#?[0-9a-fA-F]{6}$/.test(v)){ state.colors[chex].rgb = (v[0]==="#"?"#":"#")+v.replace("#","").toUpperCase(); updateColorRow(chex); state.presetId=null; renderPresets(); renderAll(); }
+    return;
+  }
+  const ca = t.getAttribute("data-ca");
+  if(ca){ state.colors[ca].a = +t.value; updateColorRow(ca); state.presetId=null; renderPresets(); renderAll(); return; }
+
+  // 通用路径
+  const path = t.getAttribute("data-path");
+  if(path){
+    let v;
+    if(t.type==="checkbox") v = t.checked;
+    else if(t.type==="range" || t.type==="number") v = +t.value;
+    else v = t.value;
+    setPath(state, path, v);
+    // 同步数值输出
+    const o = document.querySelector(`[data-out="${path}"]`);
+    if(o) o.textContent = v;
+    // 字体/布局改动时取消预设高亮
+    if(path.startsWith("layout.")||path.startsWith("font.")||path.startsWith("flags.")){ state.presetId=null; renderPresets(); }
+    if(path==="font.face" || path==="font.labelFace" || path==="font.commentFace") renderFaceChain();
+    if(path==="schemaId") updatePatchTip();
+    renderAll();
+  }
+});
+
+// hex 输入框失焦时回填合法值
+document.addEventListener("blur", e=>{
+  const k = e.target.getAttribute && e.target.getAttribute("data-chex");
+  if(k){ const c = state.colors[k]; e.target.value = c.rgb; }
+}, true);
+
+// 分段控件
+function syncSegLayout(){
+  const m = state.flags.verticalText ? "vtext" : (state.flags.horizontal ? "horiz" : "vert");
+  document.querySelectorAll("#segLayout button").forEach(x=>x.classList.toggle("on", x.dataset.layout===m));
+  const h = document.querySelector('[data-path="flags.horizontal"]');
+  const v = document.querySelector('[data-path="flags.verticalText"]');
+  if(h) h.checked = state.flags.horizontal;
+  if(v) v.checked = state.flags.verticalText;
+}
+$("#segLayout").addEventListener("click", e=>{
+  const b = e.target.closest("button"); if(!b) return;
+  const m = b.dataset.layout;
+  state.flags.horizontal   = (m !== "vert");
+  state.flags.verticalText = (m === "vtext");
+  syncSegLayout();
+  renderAll();
+});
+function setCanvasBg(mode){
+  $("#canvas").classList.toggle("dark", mode==="dark");
+  $("#segCanvas").querySelectorAll("button").forEach(x=>x.classList.toggle("on",x.dataset.canvas===mode));
+}
+$("#segCanvas").addEventListener("click", e=>{
+  const b = e.target.closest("button"); if(!b) return;
+  setCanvasBg(b.dataset.canvas);
+});
+$("#btnNight").addEventListener("click", ()=>setNight(!NIGHT.on));
+// 注音补丁：方案类型分段控件
+if($("#segSchema")){
+  $("#segSchema").addEventListener("click", e=>{
+    const b = e.target.closest("button"); if(!b) return;
+    setSchFamily(b.dataset.fam);
+  });
+  syncSegSchema();
+}
+// 注音补丁：声开关行为分段控件
+if($("#segTone")){
+  $("#segTone").addEventListener("click", e=>{
+    const b = e.target.closest("button"); if(!b) return;
+    setSchTone(b.dataset.tone);
+  });
+}
+
+// 缩放
+let zoom = 1;
+function setZoom(z){
+  zoom = Math.max(.5, Math.min(2.5, z));
+  $("#simwrap").style.transform = `scale(${zoom})`;
+  $("#zoomVal").textContent = Math.round(zoom*100)+"%";
+}
+$("#btnZoomIn").onclick  = ()=>setZoom(zoom+0.1);
+$("#btnZoomOut").onclick = ()=>setZoom(zoom-0.1);
+
+// 复制
+function toast(msg){
+  const t = $("#toast"); t.textContent = msg; t.classList.add("on");
+  clearTimeout(t._h); t._h = setTimeout(()=>t.classList.remove("on"), 1800);
+}
+function copyText(text, okMsg){
+  const ok = okMsg || "已复制到剪贴板";
+  if(navigator.clipboard && window.isSecureContext){
+    navigator.clipboard.writeText(text).then(()=>toast(ok), ()=>fallbackCopy(text, ok));
+  } else fallbackCopy(text, ok);
+}
+function copyYaml(){ copyText(buildYaml(), "已复制 weasel.custom.yaml 内容"); }
+function fallbackCopy(text, okMsg){
+  const ta = document.createElement("textarea");
+  ta.value = text; ta.style.position="fixed"; ta.style.left="-9999px";
+  document.body.appendChild(ta); ta.select();
+  try{ document.execCommand("copy"); toast(okMsg || "已复制到剪贴板"); }catch(err){ toast("复制失败，请手动选择"); }
+  document.body.removeChild(ta);
+}
+function downloadText(text, filename){
+  const blob = new Blob([text], {type:"text/yaml;charset=utf-8"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 800);
+  toast("已下载 " + filename);
+}
+$("#btnCopy").onclick = copyYaml;
+$("#btnCopy2").onclick = copyYaml;
+
+// 下载
+$("#btnDownload").onclick = ()=>downloadText(buildYaml(), "weasel.custom.yaml");
+
+// 注音补丁（方案级）
+$("#btnCopyPatch").onclick = ()=>copyText(buildSchemaPatch(), "已复制注音" + (schFamily==="mint"?"说明":"补丁") + "内容");
+$("#btnDlPatch").onclick   = ()=>downloadText(buildSchemaPatch(), schemaPatchName());
+/* 薄荷/万象：下载已修好的 corrector_filter.lua（内嵌于本页，见 #mintLuaFix） */
+function getMintLua(){
+  const el = document.getElementById("mintLuaFix");
+  return el ? el.textContent.replace(/^\r?\n/, "") : "";
+}
+$("#btnDlLua").onclick = ()=>downloadText(getMintLua(), "corrector_filter.lua");
+/* 一键修复 .bat：给 default.custom.yaml 补 F4 方案选单热键（不动 Lua） */
+function getMintBat(){
+  const el = document.getElementById("mintBatFix");
+  return el ? el.textContent.replace(/^\r?\n/, "").replace(/\r?\n/g, "\r\n") : "";
+}
+/* 声开关一键切换 bat：tone=global→声全局.bat（reset:1，所有应用一律打开），
+   indep→声独立.bat（reset:0，各应用独立）。只改 schema 的 reset 参数（源 + build）+ 部署，幂等，任意电脑双击即生效。
+   依据：librime 中开关要「全局生效」只能靠写 reset；save_options 只在「从 F4 选单切换」时写入 user.yaml，
+   且新会话启动时不恢复，故本方案不使用 save_options。 */
+function getMintToneBat(tone){
+  const el = document.getElementById("mintToneBatTpl");
+  if(!el) return "";
+  let s = el.textContent.replace(/^\r?\n/, "");
+  const map = tone === "global"
+    ? { "{{TITLE}}":"全局打开", "{{RST}}":"1" }
+    : { "{{TITLE}}":"各应用独立", "{{RST}}":"0" };
+  Object.keys(map).forEach(k => { s = s.split(k).join(map[k]); });
+  return s.replace(/\r?\n/g, "\r\n");
+}
+$("#btnDlBat").onclick = ()=>downloadText(getMintBat(), "修复F4热键.bat");
+
+// 重置
+$("#btnReset").onclick = ()=>{
+  state = clonePreset(PRESETS[0]);
+  syncFormFromState(); renderColors(); renderPresets(); renderAll(); toast("已重置");
+};
+
+/* ---------------- 导入 ---------------- */
+$("#btnImport").onclick = ()=>{ $("#modal").classList.add("on"); $("#impMsg").textContent=""; $("#impText").focus(); };
+$("#btnImpCancel").onclick = ()=> $("#modal").classList.remove("on");
+$("#modal").addEventListener("click", e=>{ if(e.target.id==="modal") $("#modal").classList.remove("on"); });
+
+/* 极简 YAML 解析（仅支持 缩进字典 + 标量） */
+function parseSimpleYaml(text){
+  const root = {};
+  const stack = [{indent:-1, obj:root}];
+  text.split(/\r?\n/).forEach(raw=>{
+    if(!raw.trim() || /^\s*#/.test(raw)) return;
+    const indent = raw.match(/^\s*/)[0].replace(/\t/g,"  ").length;
+    let line = raw.trim();
+    line = line.replace(/\s+#.*$/,"");            // 去行尾注释
+    const m = line.match(/^("([^"]*)"|'([^']*)'|[^:]+):(.*)$/);
+    if(!m) return;
+    let key = (m[2]!==undefined?m[2]:(m[3]!==undefined?m[3]:m[1])).trim();
+    const rest = m[4];
+    while(stack.length>1 && indent <= stack[stack.length-1].indent) stack.pop();
+    const parent = stack[stack.length-1].obj;
+    if(rest==="" || rest===undefined){          // 子字典
+      const child = {};
+      parent[key] = child;
+      stack.push({indent, obj:child});
+    } else {
+      let v = rest.trim();
+      v = v.replace(/^["']|["']$/g,"");
+      if(v==="true"||v==="false") parent[key] = (v==="true");
+      else if(/^-?\d+$/.test(v)) parent[key] = +v;
+      else parent[key] = v;
+    }
+  });
+  return root;
+}
+
+$("#btnImpOk").onclick = ()=>{
+  const msg = $("#impMsg");
+  const text = $("#impText").value;
+  if(!text.trim()){ msg.className="msg err"; msg.textContent="内容是空的。"; return; }
+  let data;
+  try{ data = parseSimpleYaml(text); }
+  catch(err){ msg.className="msg err"; msg.textContent="解析失败："+err.message; return; }
+  const patch = data.patch || data;
+  let hits = 0;
+
+  const style = patch.style || {};
+  const layout = style.layout || {};
+
+  const bind = {
+    "font_face":"font.face", "font_point":"font.point",
+    "label_font_face":"font.labelFace", "label_font_point":"font.labelPoint",
+    "comment_font_face":"font.commentFace",
+    "horizontal":"flags.horizontal", "inline_preedit":"flags.inlinePreedit",
+    "vertical_text":"flags.verticalText", "vertical_text_left_to_right":"flags.vertL2R"
+  };
+  Object.entries(bind).forEach(([k,p])=>{
+    if(style[k]!==undefined){ setPath(state,p,style[k]); hits++; }
+  });
+  // comment_font_point: 0 表示「隐藏注音」，记成开关而不是字号
+  if(style.comment_font_point!==undefined){
+    const cp = +style.comment_font_point;
+    if(cp > 0){ setPath(state,"font.commentPoint",cp); setPath(state,"flags.showComment",true); }
+    else      { setPath(state,"flags.showComment",false); }
+    hits++;
+  }
+  const lbind = {
+    "min_width":"layout.minWidth","border_width":"layout.borderWidth","margin_x":"layout.marginX",
+    "margin_y":"layout.marginY","corner_radius":"layout.cornerRadius",
+    "hilited_corner_radius":"layout.hilitedCornerRadius","spacing":"layout.spacing",
+    "candidate_spacing":"layout.candidateSpacing","hilite_spacing":"layout.hiliteSpacing",
+    "hilite_padding_x":"layout.hilitePaddingX","hilite_padding_y":"layout.hilitePaddingY",
+    "shadow_radius":"layout.shadowRadius","shadow_offset_x":"layout.shadowOffsetX",
+    "shadow_offset_y":"layout.shadowOffsetY"
+  };
+  Object.entries(lbind).forEach(([k,p])=>{
+    if(layout[k]!==undefined){ setPath(state,p,layout[k]); hits++; }
+  });
+  // 兼容 hilite_padding（同时设定 x/y）
+  if(layout.hilite_padding!==undefined){
+    setPath(state,"layout.hilitePaddingX",layout.hilite_padding);
+    setPath(state,"layout.hilitePaddingY",layout.hilite_padding);
+    hits++;
+  }
+
+  // 配色方案
+  const schemes = patch.preset_color_schemes || patch["preset_color_schemes/+"] || {};
+  const names = Object.keys(schemes);
+  let usedScheme = style.color_scheme;
+  let scheme = null;
+  if(usedScheme && schemes[usedScheme]) scheme = schemes[usedScheme];
+  else if(names.length) scheme = schemes[names[0]];
+
+  if(scheme){
+    const usedId = (usedScheme && schemes[usedScheme]) ? usedScheme : names[0];
+    state.meta.id = usedId;
+    if(scheme.name) state.meta.name = scheme.name;
+    if(scheme.author) state.meta.author = scheme.author;
+    COLOR_DEFS.forEach(([key])=>{
+      if(scheme[key]!==undefined){
+        const parsed = fromRimeColor(scheme[key]);
+        if(parsed){ state.colors[key] = parsed; hits++; }
+      }
+    });
+    // hilited_candidate_label_color 的别名
+    if(scheme.hilited_label_color!==undefined){
+      const p2 = fromRimeColor(scheme.hilited_label_color);
+      if(p2){ state.colors.hilited_candidate_label_color = p2; hits++; }
+    }
+  }
+
+  state.presetId = null;
+  syncFormFromState(); renderColors(); renderPresets(); renderAll();
+
+  if(hits===0){ msg.className="msg err"; msg.textContent="没识别到可用的设置，请检查缩进是否为两空格、结构是否为 patch: → style: / preset_color_schemes:"; }
+  else {
+    msg.className="msg ok";
+    msg.textContent=`已读取 ${hits} 项设置${scheme?`，配色方案「${state.meta.name}」`:(usedScheme?`（未找到配色 ${usedScheme} 的定义）`:"")}。`;
+    setTimeout(()=>$("#modal").classList.remove("on"), 900);
+  }
+};
+
+/* =========================================================
+   11. 启动
+   ========================================================= */
+/* 导出的「含字体的网页」会注入 __EMBED_EXTRAS__：内嵌字体名 + 导出时的皮肤状态，
+   让任何打开这份 HTML 的人（包括部署到线上之后）看到的就是导出时的样子 */
+(function(){
+  const ex = window.__EMBED_EXTRAS__;
+  if(!ex) return;
+  try{
+    if(ex.state && ex.state.colors && ex.state.font){
+      state = JSON.parse(JSON.stringify(ex.state));
+      state.flags = state.flags || {};
+      state.layout = state.layout || {};
+    }
+  }catch(e){}
+  if(Array.isArray(ex.fonts)){
+    /* 兼容两种格式：旧的导出文件是 ["字体名", …]，新的带别名 [{name, alts}, …] */
+    ex.fonts.forEach(item=>{
+      const n = typeof item === "string" ? item : (item && item.name);
+      if(!n) return;
+      const alts = (typeof item === "string" ? [] : ((item && item.alts) || [])).filter(Boolean);
+      loadedFonts.add(n);
+      const card = DISPLAY_FONTS.find(f=>f.name===n || (f.alt||[]).indexOf(n)>=0);
+      if(!card){
+        DISPLAY_FONTS.push({ name:n, custom:true, alt:alts, note:"已内嵌在本页", src:"内嵌" });
+      }else if(alts.length){
+        const uniqed = [];
+        alts.concat(card.alt||[]).forEach(x=>{ if(x && uniqed.indexOf(x) < 0) uniqed.push(x); });
+        card.alt = uniqed;
+      }
+    });
+  }
+})();
+
+renderColors();
+renderPresets();
+renderFontChips();
+syncFormFromState();
+setZoom(1.2);
+renderAll();
+/* 载入字体：按钮 + 拖拽到卡片区 */
+(function(){
+  const bf = $("#btnLoadFont");
+  if(bf) bf.onclick = ()=>pickFontFiles(files=>loadFontFiles(files));
+  const be = $("#btnExportFont");
+  if(be) be.onclick = ()=>exportEmbeddedHTML();
+  const bc = $("#btnClearFonts");
+  if(bc) bc.onclick = async ()=>{
+    if(typeof confirm === "function" &&
+       !confirm("清空本机浏览器里保存的所有字体？\n\n不影响系统里安装的字体，也不影响已下载的配置文件。")) return;
+    try{ await idbClear(); }catch(e){}
+    fontBlobs.clear(); loadedFonts.clear();
+    for(let i=DISPLAY_FONTS.length-1;i>=0;i--){ if(DISPLAY_FONTS[i].custom) DISPLAY_FONTS.splice(i,1); }
+    renderFontChips(); renderPresets(); renderAll(); toast("已清空保存的字体");
+  };
+  const zone = $("#fontChips");
+  if(!zone || !zone.addEventListener) return;
+  ["dragenter","dragover"].forEach(t=>zone.addEventListener(t, e=>{
+    e.preventDefault();
+    if(e.dataTransfer) e.dataTransfer.dropEffect = "copy";
+    zone.classList.add("drop");
+  }));
+  ["dragleave","drop"].forEach(t=>zone.addEventListener(t, e=>{
+    e.preventDefault();
+    zone.classList.remove("drop");
+    if(t === "drop" && e.dataTransfer && e.dataTransfer.files) loadFontFiles(e.dataTransfer.files);
+  }));
+})();
+// 字体列表就绪后刷新安装状态圆点；再恢复上次保存的本地字体
+if(document.fonts && document.fonts.ready && document.fonts.ready.then){
+  document.fonts.ready.then(()=>renderFontChips());
+}
+restoreSavedFonts();
+</script>
+</body>
+</html>
