@@ -667,10 +667,6 @@
 
         <p class="pl-note">
           薄荷默认「薄荷拼音」，另含小鹤双拼、地球拼音、98/86 五笔，Windows / macOS / Linux / iOS / Android 通用，并配有完整中文文档。
-          <b>关于「会不会自动是最新版」</b>：官网、GitHub Releases、薄荷的镜像 zip（走滚动 <code>latest</code> 标签）这三处永远指向最新；
-          小狼毫的「直链 / 加速镜像」是带版本号的文件名，页面每次打开会向 GitHub 查一次最新版并自动改写链接，
-          查不到（离线或接口不通）就用内置的 v0.17.4 兜底，链接照样能下。
-          「加速镜像」由第三方代理提供，随时可能失效，请优先使用官网或 GitHub 官方发布页。
         </p>
       </div>
     </div>
@@ -719,6 +715,12 @@
           <div class="lbl">候选词字体<small>支持回退链：字体A, 字体B</small></div>
           <input type="text" data-path="font.face" list="fontlist" placeholder="Microsoft YaHei">
         </div>
+        <div class="fhint" id="fontDl" style="margin:-2px 0 8px">
+          <b>🎨 字体推荐与下载</b>（都是官网，个人非商用免费，商用请买授权）：<br>
+          　· 方正字库：<a href="https://www.foundertype.com/index.php/FontInfo/ductdetail/id/6752" target="_blank" rel="noopener">逸漫宋</a> ｜ <a href="https://www.foundertype.com/index.php/FontInfo/ductdetail.html?id=221" target="_blank" rel="noopener">水云简体</a> ｜ <a href="https://www.foundertype.com/index.php/FontInfo/ductdetail/id/4981.html" target="_blank" rel="noopener">FW筑紫A圆</a> ｜ <a href="https://www.foundertype.com/index.php/FontInfo/ductdetail/id/4985.html" target="_blank" rel="noopener">FW轻吟体</a><br>
+          　· 造字工房：<a href="https://www.makefont.com/font-1787.html" target="_blank" rel="noopener">舒雅体</a> ｜ <a href="https://www.makefont.com/font-1658.html" target="_blank" rel="noopener">锦华体</a> ｜ <a href="https://www.makefont.com/font-1726.html" target="_blank" rel="noopener">简韵体</a> ｜ <a href="https://www.makefont.com/font-1565.html" target="_blank" rel="noopener">悦圆体</a><br>
+          　· 汉仪字库：<a href="https://www.hanyi.com.cn/productdetail.php?id=642" target="_blank" rel="noopener">夏日体W</a>
+        </div>
         <div class="fhint" id="faceChain" style="margin:-2px 0 8px"></div>
         <div class="fontbar">
           <button id="btnLoadFont" type="button">＋ 载入字体文件</button>
@@ -758,21 +760,9 @@
           <div class="sw"><input type="checkbox" data-path="flags.showComment"><i></i></div>
           <span class="val" style="min-width:auto;font-family:inherit;color:var(--text-3);font-size:11px">comment_font_point</span>
         </div>
-        <div class="fhint" style="margin:2px 0 10px">
-          这个开关只管<b>皮肤层</b>的显隐（关闭＝写入 <code>comment_font_point: 0</code>）。<br>
-          <b>注意</b>：关掉它会把<b>所有</b>候选词注解一起隐藏 —— 包括<b>错音错字提示</b>（如 按耐 → 按捺(nà)）。想省地方就把字号调小，别关这个开关。<br>
-          <b>打开开关依然看不到注音，不是皮肤的问题</b>：注解文字由<b>输入方案</b>产生——把候选词的编码交给<b>词库</b>解码得到的读音（自造短语、Emoji 这类没读音的条目注定没有注音）；而且 Rime 默认在「编码 == 注解」时<b>自动隐藏注解</b>，拼音方案的编码本身就是拼音，所以原生方案默认永远看不到注音。必须在方案里显式打开，见下面。
-        </div>
 
         <div class="fixbox">
           <div class="fixt">让注音真正显示出来（方案级补丁，必须做这一步）</div>
-          <div class="fhint" style="margin:2px 0 0">
-            注解文字由<b>输入方案</b>产生，皮肤只能管它的<b>字号和颜色</b>。而且 Rime 默认在「编码 == 注解」时自动隐藏注解——拼音方案的编码本身就是拼音，所以原生方案默认<b>永远看不到注音</b>。
-          </div>
-          <div class="fixwarn">
-            ⚠ <b>必须另存为一个新文件</b>：<code>&lt;方案ID&gt;.custom.yaml</code>，放进 <code>%APPDATA%\Rime\</code>。<br>
-            <b>把 <code>patch:</code> 段粘进 <code>xxx.schema.yaml</code> 里是完全无效的</b>——Rime 只在 <code>.custom.yaml</code> 里处理 <code>patch:</code>，粘进方案文件等于没写。
-          </div>
           <div class="row" style="margin:9px 0 4px">
             <div class="lbl">输入方案 ID<small>看用户文件夹里的 xxx.schema.yaml</small></div>
             <input type="text" data-path="schemaId" list="schemalist" placeholder="luna_pinyin_simp">
@@ -815,25 +805,7 @@
           <option value="Segoe UI"><option value="Consolas"><option value="Noto Color Emoji">
         </datalist>
         <div class="fnote">
-          <b>字体写了却没变？按这个顺序查</b>（按命中率排序）：<br>
-          <b>① 名称必须和系统里一字不差</b>：<code>Microsoft YaHei UI</code> 和 <code>Microsoft YaHei</code> 是两个字体。
-          正确做法是在系统「字体设置」里看字体的<b>字体名称</b>，不是文件名。工具会自动填入<b>回退链</b>，把<b>同一个字体</b>登记的几个名字全列上
-          （例 <code>汉仪夏日体W, HYXiaRiTiW</code>；载入过字体文件的还会带上它的西文族名与 PostScript 名，例
-          <code>方正FW轻吟体 简 B, FZFW Qing Yin Ti Jian B</code>），小狼毫从左往右依次尝试、先命中者生效——<b>不用自己纠结写中文名还是英文名</b>，
-          关键是别写错，链上也不会串到别的字体去。<br>
-          <b>①′ 版本前提</b>：逗号回退链是 <b>weasel 0.15.0</b> 起才支持的。更老的版本会把整串当成<i>一个</i>字体名，反而导致字体完全不生效——
-          托盘图标右键能看到版本号，太老就升级，或把 <code>font_face</code> 改成单个名字。<br>
-          <b>② 文件位置</b>：必须放 <code>%APPDATA%\Rime\weasel.custom.yaml</code>（托盘图标右键 →「用户文件夹」），<b>不能</b>放在程序安装目录。<br>
-          <b>③ 别覆盖已有文件</b>：如果那个文件已经存在（小狼毫自己生成过，里面有 <code>customization:</code> 和 <code>app_options:</code>），不要整个覆盖，只把 <code>patch:</code> 段合并进去。一个文件里只能有<b>一个</b> <code>patch:</code> 段且必须顶格。<br>
-          <b>④ 编码与格式</b>：保存为 <b>UTF-8 无 BOM</b>；缩进只能用空格、不能用 Tab；冒号后面必须有一个空格。<br>
-          <b>⑤ 必须重新部署</b>：托盘图标右键 →「重新部署」。还不生效就先「结束算法服务」，删掉 <code>%APPDATA%\Rime\build</code> 文件夹，再重新部署。<br>
-          <b>⑥ 看日志</b>：用户文件夹里的 <code>weasel.log</code>，搜 <code>error</code> / <code>warning</code> 能看到具体哪行配置出错。<br>
-          <b>另外</b>：字体本身要先<b>装进系统</b>（选中字体文件 → 右键 →「为所有用户安装」），皮肤只能调用系统里已装的字体。<br>
-          <b>网页部署后字体不显示</b>：浏览器不允许网页读你本机的字体文件。点<b>「⤓ 导出含字体的网页」</b>生成内嵌字体的单文件 HTML，部署那一份就行。<br>
-          <b>圆点</b>：<span style="color:#31a24c">●</span> 系统已装 ｜ <span style="color:#2f7fe0">●</span> 已载入/已保存 ｜ <span style="color:#d8dbe0">●</span> 未装。汉仪夏日体个人非商用免费下载：<a href="https://www.hanyi.com.cn/productdetail.php?id=642" target="_blank" rel="noopener">汉仪官网 · 夏日体W</a><br>
-          <b>🎨 好看的字体哪里下</b>（都是官网，个人非商用免费，商用请买授权）：<br>
-          　· 方正字库：<a href="https://www.foundertype.com/index.php/FontInfo/ductdetail/id/6752" target="_blank" rel="noopener">逸漫宋</a> ｜ <a href="https://www.foundertype.com/index.php/FontInfo/ductdetail.html?id=221" target="_blank" rel="noopener">水云简体</a> ｜ <a href="https://www.foundertype.com/index.php/FontInfo/ductdetail/id/4981.html" target="_blank" rel="noopener">FW筑紫A圆</a> ｜ <a href="https://www.foundertype.com/index.php/FontInfo/ductdetail/id/4985.html" target="_blank" rel="noopener">FW轻吟体</a><br>
-          　· 造字工房：<a href="https://www.makefont.com/font-1787.html" target="_blank" rel="noopener">舒雅体</a> ｜ <a href="https://www.makefont.com/font-1658.html" target="_blank" rel="noopener">锦华体</a> ｜ <a href="https://www.makefont.com/font-1726.html" target="_blank" rel="noopener">简韵体</a> ｜ <a href="https://www.makefont.com/font-1565.html" target="_blank" rel="noopener">悦圆体</a>
+          <b>圆点</b>：<span style="color:#31a24c">●</span> 系统已装 ｜ <span style="color:#2f7fe0">●</span> 已载入/已保存 ｜ <span style="color:#d8dbe0">●</span> 未装
         </div>
       </div>
     </details>
@@ -3325,11 +3297,7 @@ function renderFaceChain(){
   const names = stripEmojiRanges(cur);
   const known = DISPLAY_FONTS.find(f=>names.indexOf(f.name)>=0 || (f.alt||[]).some(a=>names.indexOf(a)>=0));
   if(names.length > 1){
-    box.innerHTML = `当前写入 YAML 的 <code>font_face</code> 是一条<b>回退链</b>：` +
-      `开头 <code>Segoe UI Emoji:23:23…20E3:20E3</code> 这组<b>码点区间</b>专管 emoji（候选里的 8️⃣ 是数字 + <code>U+20E3</code> 键帽框，` +
-      `中文体普遍没有这个码点，不显式指派就会渲染成空心方框）；后面几项是同一字体的中文族名 / 西文族名 / PostScript 名。` +
-      `小狼毫从左往右依次尝试，先命中者生效：<code>${cur}</code>` +
-      (known ? `　点一下「${known.name}」卡片可重新生成这条链。` : "");
+    box.textContent = "";
   }else if(known){
     box.innerHTML = `点「${known.name}」卡片会自动填入完整回退链：<code>${fontFaceChain(known)}</code>`;
   }else{
