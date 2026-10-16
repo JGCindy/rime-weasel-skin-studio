@@ -264,6 +264,31 @@
   .fnote a:hover{border-bottom-color:var(--accent)}
   .fnote code{background:var(--line-soft);border-radius:3px;padding:0 3px;font-size:10.5px}
 
+  /* ---------- 装饰 ---------- */
+  .dchips{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:4px 0 10px}
+  .dchip{
+    border:1.5px solid var(--line);border-radius:8px;padding:7px 9px;
+    cursor:pointer;background:#fff;transition:.15s;
+  }
+  .dchip:hover{border-color:#c2c7d0;transform:translateY(-1px)}
+  .dchip.on{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+  .dchip .dn{font-size:12.5px;font-weight:500;color:var(--text)}
+  .dchip .ds{font-size:10.5px;color:var(--text-3);margin-top:2px}
+  .deconote{
+    border:1px solid #f0dfae;background:#fff8e6;border-radius:8px;
+    padding:8px 10px;font-size:11.5px;line-height:1.65;color:#7a5c14;margin:2px 0 10px;
+  }
+  .deconote b{color:#6b4d0a}
+  .deconote code{background:#f4e8c4;border-radius:3px;padding:0 3px;font-size:10.5px}
+  .lblprev{
+    display:flex;align-items:center;gap:9px;flex-wrap:wrap;
+    font-size:12.5px;color:var(--text-2);margin:6px 0 2px;
+  }
+  .lblprev .lprev{
+    display:inline-block;min-width:20px;text-align:center;
+    background:var(--line-soft);border-radius:4px;padding:1px 4px;font-size:11.5px;color:var(--text-3);
+  }
+
   /* ---------- 修复盒（方案级补丁指引） ---------- */
   .fixbox{
     border:1px solid #dfe6f2;background:#f8fafe;border-radius:9px;
@@ -643,6 +668,29 @@
         <div class="row"><div class="lbl">垂直偏移</div><input type="range" min="-20" max="20" step="1" data-path="layout.shadowOffsetY"><span class="val" data-out="layout.shadowOffsetY"></span></div>
         <div style="font-size:11.5px;color:var(--text-3);line-height:1.55;margin-top:6px">
           阴影颜色在「配色」分组里调（shadow_color 的 α 通道）。
+        </div>
+      </div>
+    </details>
+
+    <details class="group">
+      <summary><span class="ico">✨</span>装饰<span class="chev">▶</span></summary>
+      <div class="gbody">
+        <div class="deconote">
+          <b>先说清楚</b>：小狼毫的候选窗是<b>纯色平涂</b>，<b>不支持背景图片 / 渐变 / 纹理</b>——
+          这不是本工具偷懒，是引擎本身没有这类字段（已通读 Weasel 的 UI 源码确认）。
+          所以这里的「装饰」是把它<b>能画的东西</b>——圆角、内边距、边框、阴影、序号字符——
+          按某种风格一次性摆好，落到的全是<b>真机生效</b>的配置，随时可再手调。
+        </div>
+        <div class="lbl" style="margin-bottom:0">装饰风格</div>
+        <div class="dchips" id="decoChips"></div>
+        <div class="row">
+          <div class="lbl">序号格式<small>label_format</small></div>
+          <select data-path="labelFormat" id="selLabelFmt"></select>
+        </div>
+        <div class="lblprev" id="labelPrev"></div>
+        <div class="fhint" style="margin:2px 0 0">
+          序号是唯一带「符号感」的入口：模板里 <code>%s</code> 就是那个数字本身，前后可以加括号、方括号、顿号、圆点。
+          再配合<b>序号字号</b>（字体分组）和<b>序号颜色 / 选中词序号</b>（配色分组）就能做出徽章或印章的感觉。
         </div>
       </div>
     </details>
@@ -1951,6 +1999,87 @@ const STD_LAYOUT = {cornerRadius:10,hilitedCornerRadius:6,borderWidth:1,marginX:
 const STD_FONT = {face:"Microsoft YaHei",point:12,labelFace:"",labelPoint:9,commentFace:"",commentPoint:10};
 const STD_FLAGS = {horizontal:true,inlinePreedit:true,verticalText:false};
 
+/* ---------- 装饰 ----------
+   小狼毫的候选窗是「纯色平涂」，源码里没有任何图片 / 渐变 / 纹理字段
+   （WeaselUI/WeaselPanel.cpp、UIStyleSettings.cpp 全仓搜索无 background_image /
+   gradient / texture）。所以「装饰感」只能用它能画的东西拼：
+     底色与高亮块的形状（圆角 × 内边距）＋ 边框 ＋ 阴影（可当外描边/发光）＋ 序号字符
+   每个装饰只改「它自己碰得到」的字段，套用前先存快照，切换/取消时原样还原，
+   所以来回点不会把用户手调的值越改越乱。 */
+const DECO_PRESETS = [
+  {
+    id:"sticker", name:"贴纸卡片", sub:"大圆角色块 · 无边框",
+    tip:"高亮块变成一块贴纸色块，窗口靠投影浮起来",
+    layout:{cornerRadius:16, hilitedCornerRadius:14, borderWidth:0,
+            hilitePaddingX:12, hilitePaddingY:7, candidateSpacing:14,
+            marginX:10, marginY:7, shadowRadius:12, shadowOffsetX:0, shadowOffsetY:3},
+    alpha:{shadow_color:46, hilited_candidate_back_color:238}
+  },
+  {
+    id:"badge", name:"徽章印章", sub:"方角硬边 · 序号撞色",
+    tip:"全直角 + 实边框，序号用高亮色，像盖了一枚小印章",
+    layout:{cornerRadius:0, hilitedCornerRadius:0, borderWidth:2,
+            hilitePaddingX:9, hilitePaddingY:5, candidateSpacing:18,
+            marginX:12, marginY:8, shadowRadius:0, shadowOffsetX:0, shadowOffsetY:0},
+    font:{labelPoint:12},
+    tint:{border_color:["hilited_candidate_back_color", -0.12, 255],
+          label_color:   ["hilited_candidate_back_color", 0.0, 255]}
+  },
+  {
+    id:"glow", name:"柔光发光", sub:"零偏移大半径 · 彩色光晕",
+    tip:"把阴影当成彩色光晕（偏移 0 + 大半径），边框同色半透明",
+    layout:{cornerRadius:14, hilitedCornerRadius:10, borderWidth:1,
+            hilitePaddingX:8, hilitePaddingY:5, candidateSpacing:16,
+            marginX:12, marginY:8, shadowRadius:26, shadowOffsetX:0, shadowOffsetY:0},
+    alpha:{shadow_color:150, border_color:110},
+    tint:{shadow_color:["hilited_candidate_back_color", 0.0, 150],
+          border_color:["hilited_candidate_back_color", -0.2, 130]}
+  },
+  {
+    id:"glass", name:"通透玻璃", sub:"半透明底 · 柔和投影",
+    tip:"底色与高亮块都带透明，能透出后面的内容（α 就是玻璃的厚薄）",
+    layout:{cornerRadius:14, hilitedCornerRadius:10, borderWidth:1,
+            hilitePaddingX:9, hilitePaddingY:5, candidateSpacing:16,
+            marginX:12, marginY:8, shadowRadius:18, shadowOffsetX:0, shadowOffsetY:4},
+    alpha:{back_color:198, border_color:120, hilited_back_color:170,
+           hilited_candidate_back_color:196, shadow_color:60}
+  },
+  {
+    id:"line", name:"硬朗线条", sub:"零圆角 · 细边无影",
+    tip:"去掉圆角和投影，只留 1px 细边，信息密度最高",
+    layout:{cornerRadius:0, hilitedCornerRadius:0, borderWidth:1,
+            hilitePaddingX:5, hilitePaddingY:3, candidateSpacing:20,
+            marginX:14, marginY:8, shadowRadius:0, shadowOffsetX:0, shadowOffsetY:0},
+    alpha:{shadow_color:0}
+  },
+  {
+    id:"candy", name:"糖果圆润", sub:"超大圆角 · 宽内边距",
+    tip:"窗口和高亮块都做成圆润胶囊，内边距给足，最软的一档",
+    layout:{cornerRadius:22, hilitedCornerRadius:18, borderWidth:1,
+            hilitePaddingX:14, hilitePaddingY:8, candidateSpacing:16,
+            marginX:11, marginY:7, shadowRadius:16, shadowOffsetX:0, shadowOffsetY:4},
+    alpha:{shadow_color:40, hilited_candidate_back_color:235}
+  }
+];
+/* 序号格式：label_format 是 printf 式模板，%s 就是那个序号本身 */
+const LABEL_FORMATS = [
+  ["%s.",  "1. 2. 3.（默认）"],
+  ["%s",   "1 2 3（纯数字）"],
+  ["%s、", "1、2、3、"],
+  ["(%s)", "(1) (2) (3)"],
+  ["[%s]", "[1] [2] [3]"],
+  ["%s)",  "1) 2) 3)"]
+];
+function labelText(n){
+  const f = state.labelFormat || "%s.";
+  return f.replace("%s", String(n));
+}
+/** 颜色在「深/浅」方向上推一把：f>0 变亮，f<0 变深 */
+function shiftL(hex, f){
+  const [h,s,l] = hex2hsl(hex);
+  return hsl2hex(h, s, Math.max(0, Math.min(100, l + f*100)));
+}
+
 /** #RRGGBB → [h(0-360), s(0-100), l(0-100)] */
 function hex2hsl(hex){
   const c = hex2rgb(hex).map(v=>v/255);
@@ -2265,7 +2394,10 @@ function clonePreset(p){
     layout: s.layout,
     colors: colors,
     presetId: p.id,
-    schemaId: ""                     // 仅用于生成「注音补丁」，不写进 weasel.custom.yaml；留空则按方案类型取默认
+    schemaId: "",                     // 仅用于生成「注音补丁」，不写进 weasel.custom.yaml；留空则按方案类型取默认
+    labelFormat: "%s.",               // style/label_format：序号模板
+    decoId: "",                       // 当前装饰（纯前端概念，套用后落到真实字段）
+    decoUndo: null                    // 套装饰前的字段快照，用于切换/取消时还原
   };
 }
 let state = clonePreset(PRESETS[0]);
@@ -2439,13 +2571,17 @@ function applyPreset(p){
     face: state.font.face,
     labelFace: state.font.labelFace,
     commentFace: state.font.commentFace,
-    schemaId: state.schemaId
+    schemaId: state.schemaId,
+    labelFormat: state.labelFormat
   };
   state = clonePreset(p);
   state.font.face = keep.face || state.font.face;
   state.font.labelFace = keep.labelFace || "";
   state.font.commentFace = keep.commentFace || "";
   if(keep.schemaId) state.schemaId = keep.schemaId;
+  if(keep.labelFormat) state.labelFormat = keep.labelFormat;
+  /* 换预设会整体替换 layout/colors，装饰的还原快照随之失效 */
+  state.decoId = ""; state.decoUndo = null;
   syncFormFromState();
   renderColors();      // ← 之前漏了这一步：预设换配色后「配色」栏的取色器/α/HEX 还停在旧值
   renderPresets();
@@ -2470,6 +2606,7 @@ function setNight(on){
     state.meta.name = NIGHT.day.name;
   }
   NIGHT.on = on;
+  if(state.decoUndo) state.decoUndo = null;   // 夜色会整体重算颜色，旧的还原快照不再准确
   setCanvasBg(on ? "dark" : "light");
   syncFormFromState();
   renderColors();
@@ -2481,6 +2618,88 @@ function updateNightBtn(){
   b.classList.toggle("on", NIGHT.on);
   b.textContent = NIGHT.on ? "☀️ 日间" : "🌙 夜间";
   b.title = NIGHT.on ? "点一下还原日间配色" : "把当前主题一键转成夜色（参考千禧粉·夜色的派生方式）";
+}
+
+/* ---------- 装饰：套用 / 切换 / 还原 ----------
+   「装饰」本身不是小狼毫的配置项——它只是把圆角、内边距、边框、阴影、序号样式
+   按某个风格一次性摆好，落到的全是真实字段。所以：
+     套用前把要动的字段存一份快照 → 换装饰时先还原再套新的 → 点「无」还原
+   这样反复切换不会把用户自己调过的值越改越乱。 */
+function decoRestore(){
+  const snap = state.decoUndo;
+  if(!snap) return;
+  Object.entries(snap.layout).forEach(([k,v])=> state.layout[k] = v);
+  Object.entries(snap.font).forEach(([k,v])=> state.font[k] = v);
+  Object.entries(snap.colors).forEach(([k,v])=> state.colors[k] = { rgb:v.rgb, a:v.a });
+  state.decoUndo = null;
+}
+function setDeco(id){
+  decoRestore();
+  state.decoId = id || "";
+  const d = DECO_PRESETS.find(x=>x.id===id);
+  if(!d){ renderDeco(); syncFormFromState(); renderColors(); renderAll(); return; }
+  const snap = {layout:{}, font:{}, colors:{}};
+  // 1) 布局：显式给定的字段
+  Object.entries(d.layout||{}).forEach(([k,v])=>{
+    if(state.layout[k]===undefined) return;
+    snap.layout[k] = state.layout[k];
+    state.layout[k] = v;
+  });
+  // 2) 字号
+  Object.entries(d.font||{}).forEach(([k,v])=>{
+    if(state.font[k]===undefined) return;
+    snap.font[k] = state.font[k];
+    state.font[k] = v;
+  });
+  // 3) α：只改透明度，保住用户选的颜色
+  // 注意：同一个字段可能既在 α 又在取色里出现（如发光的 shadow_color），
+  //      快照只记第一次，否则后一次会把「原始值」覆盖成中间值，还原就不干净了
+  const snapColor = k => {
+    const cur = state.colors[k];
+    if(cur && !snap.colors[k]) snap.colors[k] = { rgb:cur.rgb, a:cur.a };
+  };
+  Object.entries(d.alpha||{}).forEach(([k,a])=>{
+    if(!state.colors[k]) return;
+    snapColor(k);
+    state.colors[k] = { rgb:state.colors[k].rgb, a:a };
+  });
+  // 4) 取色：从另一个颜色派生（f 为明度偏移，负值更深）
+  Object.entries(d.tint||{}).forEach(([k,[srcKey,f,a]])=>{
+    const cur = state.colors[k], src = state.colors[srcKey];
+    if(!cur || !src) return;
+    snapColor(k);
+    state.colors[k] = { rgb: f ? shiftL(src.rgb, f) : src.rgb, a:a===undefined ? src.a : a };
+  });
+  state.decoUndo = snap;
+  renderDeco();
+  syncFormFromState();
+  renderColors();
+  renderAll();
+}
+function renderDeco(){
+  const box = $("#decoChips"); if(!box) return;
+  box.innerHTML = [{id:"",name:"无装饰",sub:"手动调过的值原样还原"}].concat(DECO_PRESETS).map(d=>{
+    const on = (state.decoId||"") === d.id;
+    return `<div class="dchip${on?" on":""}" data-deco="${d.id}" title="${d.tip||""}">
+      <div class="dn">${d.name}</div><div class="ds">${d.sub}</div></div>`;
+  }).join("");
+  box.querySelectorAll("[data-deco]").forEach(el=>{
+    el.onclick = ()=> setDeco(el.getAttribute("data-deco"));
+  });
+  fillLabelOptions();
+}
+/** 序号格式下拉：选项是静态的，填一次即可（幂等） */
+function fillLabelOptions(){
+  const sel = $("#selLabelFmt"); if(!sel || sel.dataset.filled) return;
+  sel.innerHTML = LABEL_FORMATS.map(([v,d])=>`<option value="${v}">${v}　${d}</option>`).join("");
+  sel.dataset.filled = "1";
+}
+/** 序号格式的即时预览：1. 2. 3. 这类 */
+function renderLabelPreview(){
+  const box = $("#labelPrev"); if(!box) return;
+  box.innerHTML = `<span>效果</span>` +
+    [1,2,3,4,5].map(n=>`<span class="lprev">${labelText(n)}</span>`).join("") +
+    `<span style="color:var(--text-3)">← 序号显示成这样</span>`;
 }
 
 /* ---------- 内置字体快捷卡 ----------
@@ -3107,9 +3326,10 @@ const FORM_MAP = [
   ["layout.marginX"],["layout.marginY"],["layout.candidateSpacing"],["layout.spacing"],
   ["layout.hiliteSpacing"],["layout.hilitePaddingX"],["layout.hilitePaddingY"],["layout.minWidth"],
   ["layout.shadowRadius"],["layout.shadowOffsetX"],["layout.shadowOffsetY"],
-  ["meta.id"],["meta.name"],["meta.author"],["schemaId"]
+  ["meta.id"],["meta.name"],["meta.author"],["schemaId"],["labelFormat"]
 ];
 function syncFormFromState(){
+  if(typeof fillLabelOptions==="function") fillLabelOptions();
   document.querySelectorAll("[data-path]").forEach(el=>{
     const p = el.getAttribute("data-path");
     const v = getPath(state, p);
@@ -3124,6 +3344,8 @@ function syncFormFromState(){
   if(typeof syncSegSchema==="function") syncSegSchema();
   if(typeof renderFaceChain==="function") renderFaceChain();
   if(typeof updatePatchTip==="function") updatePatchTip();
+  if(typeof renderDeco==="function") renderDeco();
+  if(typeof renderLabelPreview==="function") renderLabelPreview();
 }
 
 /* =========================================================
@@ -3199,7 +3421,7 @@ function renderPreview(){
     const radius = on ? L.hilitedCornerRadius : 0;
     return `<div class="cand" style="background:${bg};border-radius:${radius}px;margin:-${padY}px -${padX}px;padding:${padY}px ${padX}px;gap:${L.hiliteSpacing}px">
       <span class="cmain" style="gap:${L.hiliteSpacing}px">
-        <span class="lb" style="color:${lb};font-family:'${lface}';font-size:${lpx}px">${cd.label}</span>
+        <span class="lb" style="color:${lb};font-family:'${lface}';font-size:${lpx}px">${labelText(i+1)}</span>
         <span class="tx" style="color:${tx};font-family:'${fface}';font-size:${fpx}px">${cd.text}</span>
       </span>
       ${(showCmt && cd.comment)?`<span class="cm" style="color:${cm};font-family:'${mface}';font-size:${mpx}px">${cd.comment}</span>`:""}
@@ -3314,10 +3536,16 @@ function buildYaml(){
     P(`#   ${_src.url}`);
     P(`#   对应其 ${_src.keys}，色值未作改动。`);
   }
+  /* 装饰风格：只是把圆角/内边距/边框/阴影/序号摆好，写清是哪种，方便回头对照 */
+  const _deco = DECO_PRESETS.find(d=>d.id===state.decoId);
+  if(_deco){
+    P("#");
+    P(`# 装饰风格：${_deco.name} —— ${_deco.tip}`);
+    P("#   （小狼毫不支持背景图 / 渐变 / 纹理：候选窗按纯色绘制，装饰全靠形状与配色）");
+  }
   P("# ─────────────────────────────────────────────");
   P("");
-  P("patch:");
-  P("  style:");
+  P("patch:");  P("  style:");
   P(`    color_scheme: ${state.meta.id || "my_skin"}`);
   P(`    font_face: ${q(ensureEmojiRanges(F.face || "Microsoft YaHei"))}`);
   P(`    font_point: ${F.point}`);
@@ -3334,6 +3562,7 @@ function buildYaml(){
   }
   P(`    horizontal: ${state.flags.horizontal}`);
   P(`    inline_preedit: ${state.flags.inlinePreedit}`);
+  P(`    label_format: ${q(state.labelFormat || "%s.")}   # 序号模板，%s = 数字本身`);
   if(state.flags.verticalText) P(`    vertical_text: ${state.flags.verticalText}`);
   if(state.flags.verticalText && state.flags.vertL2R) P(`    vertical_text_left_to_right: true`);
   P("");
@@ -3394,6 +3623,7 @@ function renderOutput(){
 function renderAll(){
   renderPreview();
   renderOutput();
+  if(typeof renderLabelPreview==="function") renderLabelPreview();
 }
 
 /* =========================================================
@@ -3628,7 +3858,8 @@ $("#btnImpOk").onclick = ()=>{
     "label_font_face":"font.labelFace", "label_font_point":"font.labelPoint",
     "comment_font_face":"font.commentFace",
     "horizontal":"flags.horizontal", "inline_preedit":"flags.inlinePreedit",
-    "vertical_text":"flags.verticalText", "vertical_text_left_to_right":"flags.vertL2R"
+    "vertical_text":"flags.verticalText", "vertical_text_left_to_right":"flags.vertL2R",
+    "label_format":"labelFormat"
   };
   Object.entries(bind).forEach(([k,p])=>{
     if(style[k]!==undefined){ setPath(state,p,style[k]); hits++; }
@@ -3686,6 +3917,8 @@ $("#btnImpOk").onclick = ()=>{
   }
 
   state.presetId = null;
+  /* 导入会覆盖布局与配色，装饰的还原快照随之失效 */
+  state.decoId = ""; state.decoUndo = null;
   syncFormFromState(); renderColors(); renderPresets(); renderAll();
 
   if(hits===0){ msg.className="msg err"; msg.textContent="没识别到可用的设置，请检查缩进是否为两空格、结构是否为 patch: → style: / preset_color_schemes:"; }
