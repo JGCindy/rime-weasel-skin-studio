@@ -289,6 +289,42 @@
     background:var(--line-soft);border-radius:4px;padding:1px 4px;font-size:11.5px;color:var(--text-3);
   }
 
+  /* ---------- 栏目导航 + 拖动排序 ---------- */
+  .gnavbar{
+    position:sticky;top:0;z-index:6;
+    padding:9px 12px 10px;margin:-1px -1px 4px;
+    background:rgba(255,255,255,.96);backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line);
+  }
+  .gnavbar .gnt{
+    display:flex;align-items:center;justify-content:space-between;
+    font-size:10.5px;color:var(--text-3);margin:0 2px 6px;letter-spacing:.3px;
+  }
+  .gnavbar .gnt b{font-weight:500;color:var(--text-2)}
+  .gnavbar .gnt .greset{
+    border:0;background:transparent;color:var(--text-3);font:inherit;
+    font-size:10.5px;cursor:pointer;padding:1px 4px;border-radius:4px;
+  }
+  .gnavbar .gnt .greset:hover{color:var(--accent);background:var(--accent-soft)}
+  .gnavwrap{display:flex;flex-wrap:wrap;gap:5px}
+  .gnav{
+    display:inline-flex;align-items:center;gap:3px;
+    border:1px solid var(--line);background:#fff;border-radius:20px;
+    padding:3px 9px;font:inherit;font-size:11.5px;color:var(--text-2);
+    cursor:pointer;transition:.14s;white-space:nowrap;
+  }
+  .gnav:hover{border-color:var(--accent);color:var(--accent)}
+  .gnav.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:500}
+  .group.dragging{opacity:.45}
+  .group.dropbefore{box-shadow:0 -3px 0 -1px var(--accent)}
+  .group.dropafter{box-shadow:0 3px 0 -1px var(--accent)}
+  /* 拖动把手：放在标题文字后面、箭头左边（用 flex order 摆位，不动原有结构） */
+  details.group>summary::after{
+    content:"⠿";order:2;color:#ccd1d9;font-size:13px;cursor:grab;
+  }
+  details.group>summary:hover::after{color:var(--text-3)}
+  details.group>summary .chev{order:3}
+
   /* ---------- 修复盒（方案级补丁指引） ---------- */
   .fixbox{
     border:1px solid #dfe6f2;background:#f8fafe;border-radius:9px;
@@ -475,8 +511,16 @@
 <main>
   <!-- ================= 控制面板 ================= -->
   <aside class="panel">
+    <!-- 栏目导航：一键跳到任意分组（同时只展开一个），栏目顺序可拖动 summary 自定义 -->
+    <div class="gnavbar">
+      <div class="gnt">
+        <b>栏目快捷跳转</b>
+        <button class="greset" id="btnGroupReset" type="button" title="恢复默认栏目顺序">↺ 默认顺序</button>
+      </div>
+      <div class="gnavwrap" id="groupNav"></div>
+    </div>
 
-    <details class="group" open>
+    <details class="group" open data-gkey="preset">
       <summary><span class="ico">🎨</span>预设主题<span class="chev">▶</span></summary>
       <div class="gbody">
         <div class="presets" id="presets"></div>
@@ -492,14 +536,14 @@
       </div>
     </details>
 
-    <details class="group" open>
+    <details class="group" open data-gkey="color">
       <summary><span class="ico">🖌️</span>配色<span class="chev">▶</span></summary>
       <div class="gbody">
         <div id="colorList"></div>
       </div>
     </details>
 
-    <details class="group" open>
+    <details class="group" open data-gkey="font">
       <summary><span class="ico">🔤</span>字体<span class="chev">▶</span></summary>
       <div class="gbody">
         <div class="row">
@@ -622,7 +666,7 @@
       </div>
     </details>
 
-    <details class="group" open>
+    <details class="group" open data-gkey="layout">
       <summary><span class="ico">📐</span>候选窗布局<span class="chev">▶</span></summary>
       <div class="gbody">
         <div class="row">
@@ -660,7 +704,7 @@
       </div>
     </details>
 
-    <details class="group">
+    <details class="group" data-gkey="shadow">
       <summary><span class="ico">🌫️</span>阴影<span class="chev">▶</span></summary>
       <div class="gbody">
         <div class="row"><div class="lbl">模糊半径</div><input type="range" min="0" max="40" step="1" data-path="layout.shadowRadius"><span class="val" data-out="layout.shadowRadius"></span></div>
@@ -672,7 +716,7 @@
       </div>
     </details>
 
-    <details class="group">
+    <details class="group" data-gkey="deco">
       <summary><span class="ico">✨</span>装饰<span class="chev">▶</span></summary>
       <div class="gbody">
         <div class="deconote">
@@ -692,10 +736,19 @@
           序号是唯一带「符号感」的入口：模板里 <code>%s</code> 就是那个数字本身，前后可以加括号、方括号、顿号、圆点。
           再配合<b>序号字号</b>（字体分组）和<b>序号颜色 / 选中词序号</b>（配色分组）就能做出徽章或印章的感觉。
         </div>
+        <div style="height:1px;background:var(--line-soft);margin:12px 0 10px"></div>
+        <div class="row">
+          <div class="lbl">序号字符集<small>α β γ · Ⅰ Ⅱ Ⅲ · 一二三</small></div>
+          <select data-path="labelCharset" id="selLabelCharset"></select>
+        </div>
+        <div class="fhint" id="charsetHint" style="margin:0 0 6px"></div>
+        <div class="fixbtns">
+          <button id="btnDlCharset" type="button">⤓ 下载序号补丁</button>
+        </div>
       </div>
     </details>
 
-    <details class="group">
+    <details class="group" data-gkey="meta">
       <summary><span class="ico">🏷️</span>方案名称<span class="chev">▶</span></summary>
       <div class="gbody">
         <div class="row"><div class="lbl">方案 ID<small>用于 color_scheme</small></div><input type="text" data-path="meta.id" placeholder="my_skin"></div>
@@ -2071,9 +2124,40 @@ const LABEL_FORMATS = [
   ["%s)",  "1) 2) 3)"]
 ];
 function labelText(n){
-  const f = state.labelFormat || "%s.";
-  return f.replace("%s", String(n));
+  const cs = (typeof LABEL_CHARSETS !== "undefined") ? LABEL_CHARSETS.find(c=>c.id===(state.labelCharset||"none")) : null;
+  const base = (cs && cs.chars && cs.chars[n-1]) || String(n);
+  return (state.labelFormat || "%s.").replace("%s", ()=>base);
 }
+/* ---------- 序号字符集（方案级）----------
+   皮肤层的 style/label_format 只能给数字套壳，换不了「数字本身」。
+   想用 α β γ / Ⅰ Ⅱ Ⅲ / 一 二 三，得靠**输入方案**的 menu/alternative_select_labels：
+     librime（src/rime_api_impl.cc）读到这个列表就把它当作每个候选位的显示字符；
+     小狼毫（RimeWithWeasel.cpp）在 select_labels 存在时也优先用它，否则才退回数字。
+   约束：列表长度必须 ≥ 候选个数（menu/page_size，默认 9~10），否则整组不生效。 */
+const LABEL_CHARSETS = [
+  {id:"none",        name:"数字（默认）",     sample:"1 2 3",       chars:null},
+  {id:"greek_lower", name:"希腊小写",         sample:"α β γ",
+   chars:["α","β","γ","δ","ε","ζ","η","θ","ι","κ"]},
+  {id:"greek_upper", name:"希腊大写",         sample:"Α Β Γ",
+   chars:["Α","Β","Γ","Δ","Ε","Ζ","Η","Θ","Ι","Κ"]},
+  {id:"roman",       name:"罗马数字",         sample:"Ⅰ Ⅱ Ⅲ",
+   chars:["Ⅰ","Ⅱ","Ⅲ","Ⅳ","Ⅴ","Ⅵ","Ⅶ","Ⅷ","Ⅸ","Ⅹ"]},
+  {id:"cjk",         name:"中文数字",         sample:"一 二 三",
+   chars:["一","二","三","四","五","六","七","八","九","十"]},
+  {id:"tiangan",     name:"天干",             sample:"甲 乙 丙",
+   chars:["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"]},
+  {id:"circled",     name:"圈码",             sample:"① ② ③",
+   chars:["①","②","③","④","⑤","⑥","⑦","⑧","⑨","⑩"]},
+  {id:"latin_upper", name:"西文大写字母",     sample:"A B C",
+   chars:["A","B","C","D","E","F","G","H","I","J"]},
+  {id:"latin_lower", name:"西文小写字母",     sample:"a b c",
+   chars:["a","b","c","d","e","f","g","h","i","j"]},
+  {id:"cyrillic",    name:"俄语大写",         sample:"А Б В",
+   chars:["А","Б","В","Г","Д","Е","Ж","З","И","К"]},
+  {id:"iroha",       name:"日文假名",         sample:"い ろ は",
+   chars:["い","ろ","は","に","ほ","へ","と","ち","り","ぬ"]}
+];
+function labelCharset(){ return LABEL_CHARSETS.find(c=>c.id===(state.labelCharset||"none")) || LABEL_CHARSETS[0]; }
 /** 颜色在「深/浅」方向上推一把：f>0 变亮，f<0 变深 */
 function shiftL(hex, f){
   const [h,s,l] = hex2hsl(hex);
@@ -2396,6 +2480,7 @@ function clonePreset(p){
     presetId: p.id,
     schemaId: "",                     // 仅用于生成「注音补丁」，不写进 weasel.custom.yaml；留空则按方案类型取默认
     labelFormat: "%s.",               // style/label_format：序号模板
+    labelCharset: "none",             // 序号字符集（方案级 menu/alternative_select_labels，仅生成补丁）
     decoId: "",                       // 当前装饰（纯前端概念，套用后落到真实字段）
     decoUndo: null                    // 套装饰前的字段快照，用于切换/取消时还原
   };
@@ -2572,7 +2657,8 @@ function applyPreset(p){
     labelFace: state.font.labelFace,
     commentFace: state.font.commentFace,
     schemaId: state.schemaId,
-    labelFormat: state.labelFormat
+    labelFormat: state.labelFormat,
+    labelCharset: state.labelCharset
   };
   state = clonePreset(p);
   state.font.face = keep.face || state.font.face;
@@ -2580,6 +2666,7 @@ function applyPreset(p){
   state.font.commentFace = keep.commentFace || "";
   if(keep.schemaId) state.schemaId = keep.schemaId;
   if(keep.labelFormat) state.labelFormat = keep.labelFormat;
+  if(keep.labelCharset) state.labelCharset = keep.labelCharset;
   /* 换预设会整体替换 layout/colors，装饰的还原快照随之失效 */
   state.decoId = ""; state.decoUndo = null;
   syncFormFromState();
@@ -2690,16 +2777,67 @@ function renderDeco(){
 }
 /** 序号格式下拉：选项是静态的，填一次即可（幂等） */
 function fillLabelOptions(){
-  const sel = $("#selLabelFmt"); if(!sel || sel.dataset.filled) return;
-  sel.innerHTML = LABEL_FORMATS.map(([v,d])=>`<option value="${v}">${v}　${d}</option>`).join("");
-  sel.dataset.filled = "1";
+  const sel = $("#selLabelFmt");
+  if(sel && !sel.dataset.filled){
+    sel.innerHTML = LABEL_FORMATS.map(([v,d])=>`<option value="${v}">${v}　${d}</option>`).join("");
+    sel.dataset.filled = "1";
+  }
+  const cs = $("#selLabelCharset");
+  if(cs && !cs.dataset.filled){
+    cs.innerHTML = LABEL_CHARSETS.map(c=>`<option value="${c.id}">${c.name}　${c.sample}</option>`).join("");
+    cs.dataset.filled = "1";
+  }
 }
-/** 序号格式的即时预览：1. 2. 3. 这类 */
+/** 序号格式 + 字符集的即时预览 */
 function renderLabelPreview(){
   const box = $("#labelPrev"); if(!box) return;
+  const cs = labelCharset();
+  /* state 被程序化改动（载入预设/装饰还原等）时，把两个下拉的显示值拉回来 */
+  const selFmt = $("#selLabelFmt");
+  if(selFmt && selFmt.value !== (state.labelFormat || "%s.")) selFmt.value = state.labelFormat || "%s.";
+  const selCs = $("#selLabelCharset");
+  if(selCs && selCs.value !== (state.labelCharset || "none")) selCs.value = state.labelCharset || "none";
   box.innerHTML = `<span>效果</span>` +
     [1,2,3,4,5].map(n=>`<span class="lprev">${labelText(n)}</span>`).join("") +
     `<span style="color:var(--text-3)">← 序号显示成这样</span>`;
+  const hint = $("#charsetHint");
+  if(hint){
+    hint.innerHTML = cs.chars
+      ? `字符集只在<b>真机</b>由输入方案提供，预览按它显示。` +
+        `把 <code>menu/alternative_select_labels</code> 写进方案的 <code>.custom.yaml</code> 才生效——` +
+        `点下面的按钮下载现成补丁（列表长度需 ≥ 候选个数，默认 9~10）。`
+      : `默认用数字 1 2 3…（同样是方案的 select_labels 决定，不装补丁就是数字）。`;
+  }
+  const btn = $("#btnDlCharset");
+  if(btn) btn.disabled = !cs.chars;
+}
+/** 方案级序号补丁（menu/alternative_select_labels 属于输入方案，不是皮肤） */
+function buildLabelCharsetPatch(){
+  const cs = labelCharset();
+  if(!cs.chars) return null;
+  const id = schemaIdClean();
+  const L = [];
+  const P = s=>L.push(s || "");
+  P("# 序号字符集补丁 · 由「Rime Skin Studio」生成");
+  P("# 另存为：" + id + ".custom.yaml，放进 %APPDATA%\\Rime\\ 后重新部署");
+  P("# ⚠ 这个文件若已存在（比如你调过别的方案设置），不要整个覆盖：");
+  P("#   只把下面 patch: 里的 menu/alternative_select_labels 合并进去，");
+  P("#   一个文件里只能有一个 patch: 段且必须顶格。");
+  P("#");
+  P("# 机制（librime src/rime_api_impl.cc + 小狼毫 RimeWithWeasel.cpp）：");
+  P("#   · menu/alternative_select_labels 逐位给出候选的显示字符；");
+  P("#     小狼毫读到它就直接用，读不到才退回数字 1 2 3…");
+  P("#   · 列表长度必须 ≥ 候选个数（menu/page_size，默认 9~10），否则整组不生效；");
+  P("#     想改候选数：在 default.custom.yaml 里写 menu/page_size: N。");
+  P("#   · 皮肤层的 style/label_format 依然管「外壳」，%s 会拿到这里的字符：");
+  P(`#     当前 label_format = ${state.labelFormat || "%s."} ，例如 ${labelText(1)} ${labelText(2)} ${labelText(3)}`);
+  P("# ─────────────────────────────────────────────");
+  P("");
+  P("patch:");
+  P("  menu/alternative_select_labels:");
+  cs.chars.forEach(ch=>P("    - " + ch));
+  P("");
+  return L.join("\n");
 }
 
 /* ---------- 内置字体快捷卡 ----------
@@ -3326,7 +3464,7 @@ const FORM_MAP = [
   ["layout.marginX"],["layout.marginY"],["layout.candidateSpacing"],["layout.spacing"],
   ["layout.hiliteSpacing"],["layout.hilitePaddingX"],["layout.hilitePaddingY"],["layout.minWidth"],
   ["layout.shadowRadius"],["layout.shadowOffsetX"],["layout.shadowOffsetY"],
-  ["meta.id"],["meta.name"],["meta.author"],["schemaId"],["labelFormat"]
+  ["meta.id"],["meta.name"],["meta.author"],["schemaId"],["labelFormat"],["labelCharset"]
 ];
 function syncFormFromState(){
   if(typeof fillLabelOptions==="function") fillLabelOptions();
@@ -3543,6 +3681,14 @@ function buildYaml(){
     P(`# 装饰风格：${_deco.name} —— ${_deco.tip}`);
     P("#   （小狼毫不支持背景图 / 渐变 / 纹理：候选窗按纯色绘制，装饰全靠形状与配色）");
   }
+  /* 序号字符集属方案级配置，皮肤文件里放不下，这里只提示一句免得白找 */
+  const _cs = labelCharset();
+  if(_cs.chars){
+    P("#");
+    P(`# 序号字符集：${_cs.name}（${_cs.chars.slice(0,5).join(" ")} …）`);
+    P(`#   这是**输入方案**的 menu/alternative_select_labels，不在本文件里——`);
+    P(`#   请用「✨ 装饰」分组里的「⤓ 下载序号补丁」生成 ${schemaIdClean()}.custom.yaml。`);
+  }
   P("# ─────────────────────────────────────────────");
   P("");
   P("patch:");  P("  style:");
@@ -3624,6 +3770,96 @@ function renderAll(){
   renderPreview();
   renderOutput();
   if(typeof renderLabelPreview==="function") renderLabelPreview();
+}
+
+/* =========================================================
+   9.5 左侧栏目：快捷跳转 + 拖动排序（顺序记在浏览器里）
+   ========================================================= */
+const GROUP_ORDER_KEY = "rss_group_order";
+const groupEls = ()=>[...document.querySelectorAll("aside.panel > details.group")];
+function saveGroupOrder(){
+  try{ localStorage.setItem(GROUP_ORDER_KEY, JSON.stringify(groupEls().map(d=>d.dataset.gkey))); }catch(e){}
+}
+function applyGroupOrder(){
+  let saved = null;
+  try{ saved = JSON.parse(localStorage.getItem(GROUP_ORDER_KEY) || "null"); }catch(e){}
+  if(!Array.isArray(saved) || !saved.length) return;
+  const aside = document.querySelector("aside.panel");
+  const all = groupEls();
+  const pick = k => all.find(d=>d.dataset.gkey===k);
+  /* 先按记忆的顺序排，未记录的（比如新加的栏目）按原有顺序接在后面 */
+  saved.forEach(k=>{ const d = pick(k); if(d) aside.appendChild(d); });
+  all.forEach(d=>aside.appendChild(d));
+}
+function renderGroupNav(){
+  const nav = $("#groupNav"); if(!nav) return;
+  nav.innerHTML = groupEls().map(d=>{
+    const s = d.querySelector("summary");
+    const ico = (s.querySelector(".ico")||{}).textContent || "";
+    const name = s.textContent.replace(ico,"").replace("▶","").trim();
+    return `<button class="gnav" type="button" data-goto="${d.dataset.gkey}">${ico} ${name}</button>`;
+  }).join("");
+  nav.querySelectorAll("[data-goto]").forEach(btn=>{
+    btn.onclick = ()=>{
+      const key = btn.getAttribute("data-goto");
+      /* 手风琴：只展开目标栏目，其余收起——省得一路往下翻还看漏 */
+      groupEls().forEach(d=>{ d.open = (d.dataset.gkey === key); });
+      const t = groupEls().find(d=>d.dataset.gkey===key);
+      if(t) t.scrollIntoView({block:"start", behavior:"smooth"});
+      nav.querySelectorAll(".gnav").forEach(x=>x.classList.toggle("on", x===btn));
+    };
+  });
+}
+function enableGroupSort(){
+  let dragKey = null;
+  groupEls().forEach(d=>{
+    const s = d.querySelector("summary");
+    s.draggable = true;
+    s.addEventListener("dragstart", e=>{
+      dragKey = d.dataset.gkey;
+      d.classList.add("dragging");
+      e.dataTransfer.effectAllowed = "move";
+      try{ e.dataTransfer.setData("text/plain", dragKey); }catch(err){}
+    });
+    s.addEventListener("dragend", ()=>{
+      d.classList.remove("dragging");
+      groupEls().forEach(x=>x.classList.remove("dropbefore","dropafter"));
+    });
+    d.addEventListener("dragover", e=>{
+      if(!dragKey || dragKey === d.dataset.gkey) return;
+      e.preventDefault();
+      const r = d.getBoundingClientRect();
+      const before = (e.clientY - r.top) < r.height / 2;
+      d.classList.toggle("dropbefore", before);
+      d.classList.toggle("dropafter", !before);
+    });
+    d.addEventListener("dragleave", ()=>{ d.classList.remove("dropbefore","dropafter"); });
+    d.addEventListener("drop", e=>{
+      e.preventDefault();
+      const before = d.classList.contains("dropbefore");
+      d.classList.remove("dropbefore","dropafter");
+      const src = groupEls().find(x=>x.dataset.gkey===dragKey);
+      if(!src || src === d) return;
+      const aside = document.querySelector("aside.panel");
+      aside.insertBefore(src, before ? d : d.nextSibling);
+      dragKey = null;
+      saveGroupOrder();
+      renderGroupNav();
+    });
+  });
+  const reset = $("#btnGroupReset");
+  if(reset){
+    reset.onclick = ()=>{
+      try{ localStorage.removeItem(GROUP_ORDER_KEY); }catch(e){}
+      const aside = document.querySelector("aside.panel");
+      /* 默认顺序＝HTML 里的原始次序 */
+      ["preset","color","font","layout","shadow","deco","meta"].forEach(k=>{
+        const d = groupEls().find(x=>x.dataset.gkey===k);
+        if(d) aside.appendChild(d);
+      });
+      renderGroupNav();
+    };
+  }
 }
 
 /* =========================================================
@@ -3785,6 +4021,11 @@ function getMintToneBat(tone){
   return s.replace(/\r?\n/g, "\r\n");
 }
 $("#btnDlBat").onclick = ()=>downloadText(getMintBat(), "修复F4热键.bat");
+$("#btnDlCharset").onclick = ()=>{
+  const s = buildLabelCharsetPatch();
+  if(!s){ alert("先在上面选一个序号字符集（α β γ / Ⅰ Ⅱ Ⅲ / 一二三 …）。"); return; }
+  downloadText(s, schemaIdClean() + ".custom.yaml");
+};
 
 /* 排障诊断脚本（内嵌于本页 #toneDiagBatTpl，与仓库里的 声全局-修复诊断.bat 内容一致）：
    诊断 → 修复 → 复核，把报告写到桌面并自动打开。参数 diag / noredeploy，环境变量 TONEDIR 可指定资料夹。 */
@@ -3969,6 +4210,10 @@ renderFontChips();
 syncFormFromState();
 setZoom(1.2);
 renderAll();
+/* 左侧栏目：先按记忆顺序排好，再建导航条与拖动排序 */
+applyGroupOrder();
+renderGroupNav();
+enableGroupSort();
 /* 载入字体：按钮 + 拖拽到卡片区 */
 (function(){
   const bf = $("#btnLoadFont");
