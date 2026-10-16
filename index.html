@@ -3533,23 +3533,12 @@ function updatePatchTip(){
   if(!tip) return;
   const id = schemaIdClean();
   if(schFamily === "mint"){
-    tip.innerHTML = `注音被 <code>corrector_filter.lua</code> 清空了，YAML 补丁无能为力。推荐做法：` +
+    tip.innerHTML =
       `先用 <b>「⤓ 下载 F4 热键脚本」</b>把 <b>F4</b> 设成方案选单热键（Rime 1.13 默认没绑），` +
-      `再在打字时按 <b>F4</b>（或默认的 <b>Ctrl+反引号</b>）呼出方案选单 → 选「声起」，注音立即常显，` +
-      `错音错字提示照常保留。代价：输入区会变成带调全拼（薄荷的设计）。<br>` +
-      `（若下面选了<b>全局打开</b>并运行脚本，「声起」会在所有应用自动打开，这一步就不用手动做了。）<br>` +
-      `不想让输入区变带调，再考虑 <b>「⤓ 下载注音修复 Lua」</b>（动 Lua，不改设置）。<br>` +
+      `再在打字时按 <b>F4</b>（或默认的 <b>Ctrl+反引号</b>）呼出方案选单 → 选「声起」，注音立即常显，错音错字提示照常保留。<br>` +
       `<b>声开关行为</b>（当前：${schTone === "global" ? "<b>全局打开</b>" : "各应用独立"}）：` +
       `点「下载${schTone === "global" ? "声全局.bat" : "声独立.bat"}」得到一键脚本，拷到<b>任意电脑</b>双击即可——` +
-      `它把所有方案的 <code>tone_display</code> 的 <code>reset</code> 写成 <b>${schTone === "global" ? "1" : "0"}</b>（源文件 + build 一起改）后重新部署，幂等可重复运行。<br>` +
-      `<b>为什么不用 save_options：</b>librime 里 <code>save_options</code> 只在「从 F4 选单切换」时写入 <code>user.yaml</code>，` +
-      `<b>新会话启动时不会恢复它</b>，所以做不到跨应用；开关要真正「全局生效」只能写 <code>reset</code> 参数。<br>` +
-      `两个 bat 互为逆操作：${schTone === "global" ? "想各应用独立就切到「各应用独立」再下载声独立.bat" : "想所有应用一律打开就切到「全局打开」再下载声全局.bat"}。<br>` +
-      `<b>换了台电脑跑完却没生效？</b>看窗口里 <code>[OK] Rime user folder:</code> 那行指的路径对不对，` +
-      `以及有没有 <code>[WARN] WeaselDeployer.exe not found</code>（没部署＝没生效）。` +
-      `排查不出就点上面的 <b>「🩺 下载排障诊断脚本」</b>，拷到那台电脑双击，` +
-      `它会把用户资料夹候选、每个方案的 <code>reset</code> 当前值、部署器路径、<code>user.yaml</code> 残留、` +
-      `<code>super_preedit.lua</code> 是否存在等写成一份报告（存到桌面并自动打开）。`;
+      `它把所有方案的 <code>tone_display</code> 的 <code>reset</code> 写成 <b>${schTone === "global" ? "1" : "0"}</b>（源文件 + build 一起改）后重新部署，幂等可重复运行。`;
     return;
   }
   tip.innerHTML = `将生成 <code>${id}.custom.yaml</code>，放进 <code>%APPDATA%\\Rime\\</code> 后重新部署。<br>` +
