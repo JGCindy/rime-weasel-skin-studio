@@ -1,12 +1,13 @@
-# <img src="favicon.svg" width="34" align="top" alt=""> 小狼毫皮肤工作室 · Rime Weasel Skin Studio
+# <img src="favicon.svg" width="34" align="top" alt=""> 小狼毫输入法皮肤可视化设置 · 小狼毫皮肤工作室
 
 > 一个零依赖的单文件网页工具：可视化调参小狼毫（Weasel）输入法皮肤，实时预览，一键生成 `weasel.custom.yaml`。
+> 搜索关键词：**小狼毫皮肤 · Rime 皮肤 · 小狼毫输入法皮肤可视化设置 · weasel.custom.yaml**。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 ![Single File](https://img.shields.io/badge/single--file-HTML-blue)
 ![No Dependencies](https://img.shields.io/badge/dependencies-none-brightgreen)
 
-![小狼毫皮肤工作室 · 主界面](docs/main.png)
+![小狼毫输入法皮肤可视化设置 · 主界面](docs/main.png)
 
 ## 👉 [点此在线使用（无需下载安装）](https://jgcindy.github.io/rime-weasel-skin-studio/)
 
@@ -275,6 +276,24 @@ rime-weasel-skin-studio/
 4. 等 30 秒～1 分钟，访问 👉 **https://jgcindy.github.io/rime-weasel-skin-studio/**
 
 之后每次 `git push`，Pages 会自动重新构建，不需要再设置。
+
+---
+
+## 被搜索引擎搜到（SEO）
+
+页面标题是 **「小狼毫输入法皮肤可视化设置 - 小狼毫皮肤 / Rime 皮肤在线编辑器」**，正文里「小狼毫皮肤」「Rime 皮肤」「weasel.custom.yaml」等关键词均有覆盖。工具自身已经做好的：
+
+- `<title>` / `meta description` / `meta keywords`（覆盖「小狼毫皮肤」「rime皮肤」「小狼毫输入法皮肤可视化设置」等词）
+- Open Graph + Twitter Card（分享到聊天软件/社交平台会带 1200×630 封面图 `docs/og-cover.png`）
+- `link rel="canonical"` 指向本站，避免多份镜像分走权重
+- schema.org 结构化数据（`WebApplication`，含别名「小狼毫皮肤工作室」等）
+- `robots.txt` + `sitemap.xml`（站点根目录）
+
+**还需要你手动做一次的**（搜索引擎不会自动来收录小站）：
+
+1. **Google**：[Google Search Console](https://search.google.com/search-console) 添加资源 → 提交 `sitemap.xml`（收录最快、对小站最友好）。
+2. **必应**：[Bing Webmaster Tools](https://www.bing.com/webmasters) 同样提交一次。
+3. **百度**：对 `github.io` 子域收录很差，基本可以不指望；想被百度搜到，需要把站点放到国内可访问的托管（如自己的域名 + 国内 CDN）后再到[百度站长平台](https://ziyuan.baidu.com/)提交。
 
 ---
 

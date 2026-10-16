@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://jgcindy.github.io/rime-weasel-skin-studio/sitemap.xml
