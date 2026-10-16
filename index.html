@@ -64,6 +64,75 @@
   .btn.night.on{background:#252a39;border-color:#252a39;color:#f2c979}
   .btn.night.on:hover{background:#2d3345;border-color:#2d3345}
 
+  /* ---------- 顶部推荐条：输入法下载 ---------- */
+  .promo{
+    background:linear-gradient(135deg,#FFF7F8 0%,#FDEAEE 52%,#FCEFF3 100%);
+    border-bottom:1px solid #F2D7DC;
+    padding:14px 20px 16px;
+  }
+  .promo-in{max-width:1360px;margin:0 auto}
+  .promo-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .promo-badge{
+    display:inline-flex;align-items:center;gap:6px;flex:none;
+    font-size:11.5px;font-weight:600;color:#B3405A;letter-spacing:.3px;
+    background:#fff;border:1px solid #F3D2D8;border-radius:999px;padding:3px 10px;
+  }
+  .promo-tog{
+    margin-left:auto;flex:none;font:inherit;font-size:11.5px;color:#A9757F;
+    background:transparent;border:1px solid transparent;border-radius:7px;
+    padding:3px 9px;cursor:pointer;transition:.15s;
+  }
+  .promo-tog:hover{background:rgba(255,255,255,.85);border-color:#F0D2D8;color:#8A4E5B}
+  /* 收起后仍保留两个主下载入口，不会「消失找不着」 */
+  .promo-mini{display:none;align-items:center;gap:7px;flex-wrap:wrap}
+  .promo-body{
+    display:grid;grid-template-columns:minmax(0,1.02fr) minmax(0,1fr);
+    gap:16px 26px;align-items:start;margin-top:11px;
+  }
+  .promo h2{margin:0 0 7px;font-size:16.5px;line-height:1.42;color:#7E2338;letter-spacing:.2px}
+  .promo p{margin:0;font-size:12.8px;line-height:1.7;color:#7A4A55;max-width:54em}
+  .promo p code{
+    font-family:var(--mono);font-size:11.5px;background:rgba(255,255,255,.85);
+    border:1px solid #F3DCE1;border-radius:4px;padding:0 4px;color:#A2394F;
+  }
+  .promo-feat{display:flex;flex-wrap:wrap;gap:6px 8px;margin:11px 0 0;padding:0;list-style:none}
+  .promo-feat li{
+    font-size:11.5px;color:#8A4E5B;background:rgba(255,255,255,.8);
+    border:1px solid #F5DCE1;border-radius:7px;padding:3px 9px;
+  }
+  .promo-feat li b{color:#B3405A;font-weight:600}
+  .pl-stack{display:grid;gap:10px}
+  .pl-card{
+    background:#fff;border:1px solid #F2D8DD;border-radius:11px;
+    padding:11px 13px 12px;box-shadow:0 2px 10px rgba(214,69,95,.07);
+  }
+  .pl-h{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:9px}
+  .pl-h .ico{font-size:15px;line-height:1}
+  .pl-h b{font-size:13.5px;color:#2A2028}
+  .pl-h em{font-style:normal;font-size:11px;color:#9A8E94;margin-left:auto;white-space:nowrap}
+  .pl-btns{display:flex;flex-wrap:wrap;gap:7px}
+  .pl-btn{
+    display:inline-flex;align-items:center;gap:5px;
+    font-size:12.5px;padding:6px 11px;border-radius:8px;text-decoration:none;
+    border:1px solid #EBD5DA;background:#FDF9FA;color:#8A4E5B;transition:.15s;
+  }
+  .pl-btn:hover{background:#FCEFF2;border-color:#E3BFC7;color:#7E2338}
+  .pl-btn.pri{
+    background:linear-gradient(135deg,#E4708A,#D6455F);border-color:#D6455F;color:#fff;
+    box-shadow:0 2px 8px rgba(214,69,95,.22);
+  }
+  .pl-btn.pri:hover{background:linear-gradient(135deg,#DE607C,#C93A54);border-color:#C93A54;color:#fff}
+  .pl-btn.alt{background:#fff;border-style:dashed;color:#9A7580}
+  .pl-btn.alt:hover{background:#FFF6F8;color:#8A4E5B}
+  .pl-note{margin:8px 0 0;font-size:11px;line-height:1.62;color:#A2909A}
+  .promo.collapsed{padding:9px 20px 10px}
+  .promo.collapsed .promo-body{display:none}
+  .promo.collapsed .promo-mini{display:flex}
+  .promo.collapsed .promo-badge{background:transparent;border-color:transparent;padding-left:0}
+  @media (max-width:1080px){
+    .promo-body{grid-template-columns:minmax(0,1fr)}
+  }
+
   /* ---------- 布局 ---------- */
   main{
     display:grid;
@@ -507,6 +576,64 @@
   <button class="btn" id="btnCopy">复制 YAML</button>
   <button class="btn primary" id="btnDownload">下载 weasel.custom.yaml</button>
 </header>
+
+<!-- ================= 顶部推荐条：输入法本体下载 ================= -->
+<section class="promo" id="promo">
+  <div class="promo-in">
+    <div class="promo-head">
+      <span class="promo-badge">🍃 推荐 · 开源输入法</span>
+      <div class="promo-mini">
+        <a class="pl-btn pri" href="https://github.com/rime/weasel/releases/download/0.17.4/weasel-0.17.4.0-installer.exe" target="_blank" rel="noopener noreferrer">⤓ 小狼毫 0.17.4</a>
+        <a class="pl-btn pri" href="https://cnb.cool/Mintimate/rime/oh-my-rime/-/releases/download/latest/oh-my-rime.zip" target="_blank" rel="noopener noreferrer">⤓ 薄荷方案 zip</a>
+      </div>
+      <button class="promo-tog" id="promoToggle" type="button" aria-expanded="true" aria-controls="promoBody">收起 ▲</button>
+    </div>
+
+    <div class="promo-body" id="promoBody">
+      <div class="promo-txt">
+        <h2>先有一副好键盘，再谈一副好皮肤</h2>
+        <p>
+          <b>小狼毫（Weasel）</b>是 <b>Rime / 中州韵</b>输入法引擎在 Windows 上的实现：免费开源、没有广告，也没有云端账号——
+          你敲下的每一个字都只留在本机。拼音、双拼、五笔、注音、仓颉、粤拼……想用哪套换哪套；
+          候选窗长什么样，全凭配置文件说了算。本工具生成的 <code>weasel.custom.yaml</code>，正是喂给它的一份配色与版式配置。
+        </p>
+        <ul class="promo-feat">
+          <li><b>免费开源</b>·GPLv3，无广告无弹窗</li>
+          <li><b>隐私优先</b>·输入内容不上传，无云端联想</li>
+          <li><b>方案自由</b>·拼音 / 双拼 / 五笔 / 注音 / 仓颉</li>
+          <li><b>外观可调</b>·配色 · 字体 · 圆角 · 阴影 —— 即本工具</li>
+        </ul>
+      </div>
+
+      <div class="pl-stack">
+        <div class="pl-card">
+          <div class="pl-h"><span class="ico">🐺</span><b>小狼毫 · Weasel</b><em>Windows 主程序 · v0.17.4</em></div>
+          <div class="pl-btns">
+            <a class="pl-btn pri" href="https://rime.im/download/" target="_blank" rel="noopener noreferrer">官网下载</a>
+            <a class="pl-btn" href="https://github.com/rime/weasel/releases" target="_blank" rel="noopener noreferrer">GitHub Releases</a>
+            <a class="pl-btn" href="https://github.com/rime/weasel/releases/download/0.17.4/weasel-0.17.4.0-installer.exe" target="_blank" rel="noopener noreferrer">v0.17.4 直链</a>
+            <a class="pl-btn alt" href="https://ghproxy.net/https://github.com/rime/weasel/releases/download/0.17.4/weasel-0.17.4.0-installer.exe" target="_blank" rel="noopener noreferrer" title="第三方加速代理，GitHub 打不开时应急用">加速镜像 ↗</a>
+          </div>
+        </div>
+
+        <div class="pl-card">
+          <div class="pl-h"><span class="ico">🍃</span><b>薄荷输入法 · oh-my-rime</b><em>一整套调好的 Rime 配置</em></div>
+          <div class="pl-btns">
+            <a class="pl-btn pri" href="https://www.mintimate.cc/" target="_blank" rel="noopener noreferrer">官网 / 教程</a>
+            <a class="pl-btn" href="https://github.com/Mintimate/oh-my-rime" target="_blank" rel="noopener noreferrer">GitHub 仓库</a>
+            <a class="pl-btn" href="https://cnb.cool/Mintimate/rime/oh-my-rime" target="_blank" rel="noopener noreferrer">镜像仓库</a>
+            <a class="pl-btn" href="https://cnb.cool/Mintimate/rime/oh-my-rime/-/releases/download/latest/oh-my-rime.zip" target="_blank" rel="noopener noreferrer">镜像直链 zip</a>
+          </div>
+        </div>
+
+        <p class="pl-note">
+          薄荷默认「薄荷拼音」，另含小鹤双拼、地球拼音、98/86 五笔，Windows / macOS / Linux / iOS / Android 通用，并配有完整中文文档。
+          上「镜像」为国内可直连的备用地址；小狼毫那条「加速镜像」由第三方代理提供，随时可能失效，请优先使用官网或 GitHub 官方发布页。
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
 
 <main>
   <!-- ================= 控制面板 ================= -->
@@ -4247,6 +4374,24 @@ if(document.fonts && document.fonts.ready && document.fonts.ready.then){
   document.fonts.ready.then(()=>renderFontChips());
 }
 restoreSavedFonts();
+
+/* ---------- 顶部推荐条：收起 / 展开（状态记在本地，收起后仍保留两个主下载入口） ---------- */
+(function(){
+  const box = document.getElementById("promo");
+  const tog = document.getElementById("promoToggle");
+  if(!box || !tog) return;
+  const KEY = "rss_promo_collapsed";
+  const setCollapsed = (on, save)=>{
+    box.classList.toggle("collapsed", on);
+    tog.textContent = on ? "展开 ▼" : "收起 ▲";
+    tog.setAttribute("aria-expanded", on ? "false" : "true");
+    if(save){ try{ localStorage.setItem(KEY, on ? "1" : "0"); }catch(e){} }
+  };
+  let saved = false;
+  try{ saved = localStorage.getItem(KEY) === "1"; }catch(e){}
+  setCollapsed(saved, false);
+  tog.addEventListener("click", ()=>setCollapsed(!box.classList.contains("collapsed"), true));
+})();
 </script>
 </body>
 </html>
