@@ -212,7 +212,7 @@ patch:
 ```
 rime-weasel-skin-studio/
 ├── index.html            # 全部代码：HTML + CSS + JS 单文件，无外部依赖（原 rime-skin-studio.html）
-├── 声全局-修复诊断.bat    # 「声」开关诊断+修复脚本（见上文「在另一台电脑上跑了却没生效？」）
+├── 声全局-修复诊断.bat    # 「声」开关诊断+修复脚本（独立排障工具，见下方说明）
 ├── docs/                 # README 里的界面截图
 ├── README.md
 └── LICENSE
