@@ -53,6 +53,10 @@
     }else{
       document.documentElement.setAttribute("data-theme", "light");
     }
+    /* 关掉过顶部 Star 条的话，首帧就别渲染它（避免闪一下又消失） */
+    if(localStorage.getItem("rss_star_hide") === "1"){
+      document.documentElement.classList.add("star-off");
+    }
   }catch(e){}
 })();
 </script>
@@ -135,6 +139,20 @@
     --promo-tog-hover-bg:rgba(255,255,255,.85);
     --promo-tog-hover-line:#F0D2D8;
     --promo-tog-hover-text:#8A4E5B;
+    /* --- 最顶部 Star 邀请条 --- */
+    --star-bg:linear-gradient(100deg,#B93B54 0%,#A62E46 52%,#8E2337 100%);
+    --star-line:#86202F;
+    --star-text:#FFFFFF;
+    --star-btn-bg:#FFFFFF;
+    --star-btn-text:#A52B43;
+    --star-btn-hover-bg:#FFF0F3;
+    --star-btn-hover-text:#82202F;
+    --star-btn-shadow:rgba(70,8,20,.3);
+    --star-num-bg:#F7DDE3;
+    --star-num-text:#8E2337;
+    --star-x:rgba(255,255,255,.72);
+    --star-x-hover:#FFFFFF;
+    --star-x-hover-bg:rgba(255,255,255,.16);
     --radius:10px;
     --mono:"JetBrains Mono","Cascadia Mono",Consolas,"SF Mono",Menlo,monospace;
   }
@@ -209,6 +227,19 @@
     --promo-tog-hover-bg:rgba(255,255,255,.08);
     --promo-tog-hover-line:#4b323a;
     --promo-tog-hover-text:#ffd8e1;
+    --star-bg:linear-gradient(100deg,#3A1C24 0%,#4B2029 52%,#5A2431 100%);
+    --star-line:#7C2A3B;
+    --star-text:#F6DDE3;
+    --star-btn-bg:#F3C3CE;
+    --star-btn-text:#5A1A28;
+    --star-btn-hover-bg:#FFDDE5;
+    --star-btn-hover-text:#3E0F1A;
+    --star-btn-shadow:rgba(0,0,0,.42);
+    --star-num-bg:rgba(255,255,255,.14);
+    --star-num-text:#FFE3E9;
+    --star-x:rgba(246,221,227,.72);
+    --star-x-hover:#FFFFFF;
+    --star-x-hover-bg:rgba(255,255,255,.1);
   }
   /* 暗色下「🌙 夜间」按钮本身是深底，补一圈描边免得糊进背景 */
   html[data-theme="dark"] .btn.night.on{background:#2f3547;border-color:#4a5270}
@@ -254,6 +285,49 @@
   /* 夜间切换钮：开启时呈深底暖字，示意「现在是夜色」 */
   .btn.night.on{background:#252a39;border-color:#252a39;color:#f2c979}
   .btn.night.on:hover{background:#2d3345;border-color:#2d3345}
+
+  /* ---------- 最顶部：GitHub Star 邀请条 ---------- */
+  .starbar{
+    background:var(--star-bg);
+    color:var(--star-text);
+    border-bottom:1px solid var(--star-line);
+    font-size:12.5px;
+  }
+  .starbar-in{
+    max-width:1360px;margin:0 auto;padding:8px 20px;
+    display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  }
+  .sb-txt{flex:1 1 300px;min-width:0;margin:0;line-height:1.55;color:var(--star-text)}
+  .sb-txt b{font-weight:600}
+  .sb-ico{margin-right:5px}
+  .sb-btn{
+    flex:none;display:inline-flex;align-items:center;gap:6px;
+    padding:5px 12px;border-radius:999px;text-decoration:none;
+    background:var(--star-btn-bg);color:var(--star-btn-text);
+    font-size:12.5px;font-weight:600;
+    box-shadow:0 1px 3px var(--star-btn-shadow);
+    transition:background .15s,color .15s,transform .15s;
+  }
+  .sb-btn:hover{background:var(--star-btn-hover-bg);color:var(--star-btn-hover-text);transform:translateY(-1px)}
+  .sb-btn svg{width:13px;height:13px;fill:currentColor;flex:none}
+  .sb-num{
+    font-variant-numeric:tabular-nums;font-size:11px;font-weight:600;line-height:1.5;
+    padding:0 5px;border-radius:999px;
+    background:var(--star-num-bg);color:var(--star-num-text);
+  }
+  .sb-x{
+    flex:none;display:inline-flex;align-items:center;justify-content:center;
+    width:24px;height:24px;border:0;border-radius:7px;background:transparent;
+    color:var(--star-x);font-size:13px;line-height:1;cursor:pointer;transition:.15s;
+  }
+  .sb-x:hover{background:var(--star-x-hover-bg);color:var(--star-x-hover)}
+  .star-off #starBar{display:none}
+  @media (max-width:640px){
+    .starbar-in{padding:7px 14px;gap:8px}
+    .sb-txt{flex:1 1 100%;font-size:12px}
+    .sb-lead,.sb-more{display:none}
+    .sb-btn{margin-left:auto}
+  }
 
   /* ---------- 顶部推荐条：输入法下载 ---------- */
   .promo{
@@ -317,6 +391,10 @@
   .pl-btn.alt:hover{background:var(--promo-btn-hover-bg);color:var(--promo-btn-text)}
   .pl-note{margin:8px 0 0;font-size:11px;line-height:1.62;color:var(--promo-note)}
   .pl-note code{font-family:var(--mono);font-size:10.5px;background:var(--promo-pill-bg);border:1px solid var(--promo-code-line);border-radius:4px;padding:0 3px;color:var(--promo-code-text)}
+  /* 推荐条底部：本项目仓库 + Star 的常驻入口（顶部 Star 条关掉后仍能找到） */
+  .pl-self{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:2px 0 0;font-size:11px;color:var(--promo-note)}
+  .pl-self a{color:var(--promo-pill-text);text-decoration:none;border-bottom:1px dotted var(--promo-pill-line)}
+  .pl-self a:hover{color:var(--promo-head);border-bottom-color:var(--promo-pill-text)}
   .promo.collapsed{padding:9px 20px 10px}
   .promo.collapsed .promo-body{display:none}
   .promo.collapsed .promo-mini{display:flex}
@@ -840,6 +918,20 @@
 </head>
 <body>
 
+<!-- ================= 最顶部：GitHub Star 邀请（可关闭，选择会记住） ================= -->
+<div class="starbar" id="starBar">
+  <div class="starbar-in">
+    <p class="sb-txt">
+      <span class="sb-ico" aria-hidden="true">⭐</span><span class="sb-lead">完全免费、没有广告、无需登录。</span>如果它帮你省下了调皮肤的工夫，<b>去 GitHub 点个 Star</b><span class="sb-more">，就是最好的支持——也能让更多人搜到它</span>。
+    </p>
+    <a class="sb-btn" id="starBtn" href="https://github.com/JGCindy/rime-weasel-skin-studio" target="_blank" rel="noopener noreferrer" aria-label="在 GitHub 上为小狼毫皮肤工作室点 Star">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.613a.75.75 0 0 1 .415 1.278l-3.045 2.97.719 4.192a.75.75 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.209-.611L7.327.668A.75.75 0 0 1 8 .25Z"/></svg>
+      <span>Star</span><span class="sb-num" id="starNum" hidden></span>
+    </a>
+    <button class="sb-x" id="starClose" type="button" title="关闭这条提示" aria-label="关闭这条提示，以后不再显示">✕</button>
+  </div>
+</div>
+
 <div class="scrim" id="scrim"></div>
 
 <header>
@@ -915,6 +1007,11 @@
 
         <p class="pl-note">
           薄荷默认「薄荷拼音」，另含小鹤双拼、地球拼音、98/86 五笔，Windows / macOS / Linux / iOS / Android 通用，并配有完整中文文档。
+        </p>
+        <p class="pl-self">
+          <span aria-hidden="true">⭐</span><span>本工具本身也开源在</span>
+          <a href="https://github.com/JGCindy/rime-weasel-skin-studio" target="_blank" rel="noopener noreferrer">GitHub · JGCindy/rime-weasel-skin-studio</a>
+          <span>· 用得顺手欢迎点个 Star</span>
         </p>
       </div>
     </div>
@@ -4798,14 +4895,60 @@ $("#btnRedo").addEventListener("click", redo);
 $("#btnDrawer").addEventListener("click", ()=>setDrawer(!document.body.classList.contains("drawer-open")));
 $("#scrim").addEventListener("click", closeDrawer);
 if(mqDark && mqDark.addEventListener) mqDark.addEventListener("change", ()=>{ if(themePref==="auto") applyTheme("auto", true); });
-/* 主区高度 = 视口 - 顶栏实际高度（顶栏在中等宽度会换成两行） */
+/* 主区高度 = 视口 - 顶栏实际高度（顶栏在中等宽度会换成两行）；顶部 Star 条关掉后要跟着重算 */
 function syncHeaderH(){
   const h = document.querySelector("header");
-  if(h) document.documentElement.style.setProperty("--header-h", h.offsetHeight + "px");
+  const bar = document.getElementById("starBar");
+  const extra = (bar && getComputedStyle(bar).display !== "none") ? bar.offsetHeight : 0;
+  const root = document.documentElement;
+  root.style.setProperty("--header-h", ((h ? h.offsetHeight : 55) + extra) + "px");
 }
-if(window.ResizeObserver){ new ResizeObserver(syncHeaderH).observe(document.querySelector("header")); }
+if(window.ResizeObserver){
+  const ro = new ResizeObserver(syncHeaderH);
+  ro.observe(document.querySelector("header"));
+  const bar = document.getElementById("starBar");
+  if(bar) ro.observe(bar);
+}
 window.addEventListener("resize", syncHeaderH);
 syncHeaderH();
+
+/* ---- 顶部 GitHub Star 条：关闭记忆 + 实时星数（6 小时缓存，失败就只显示「Star」） ---- */
+(function(){
+  const REPO = "JGCindy/rime-weasel-skin-studio";
+  const bar = document.getElementById("starBar");
+  const close = document.getElementById("starClose");
+  const num = document.getElementById("starNum");
+  if(close){
+    close.addEventListener("click", ()=>{
+      document.documentElement.classList.add("star-off");
+      try{ localStorage.setItem("rss_star_hide", "1"); }catch(e){}
+      syncHeaderH();
+    });
+  }
+  if(!bar || !num) return;
+  const paint = n=>{
+    if(typeof n === "number" && n > 0){
+      num.textContent = n >= 1000 ? (n/1000).toFixed(1).replace(/\.0$/,"") + "k" : String(n);
+      num.hidden = false;
+    }else{
+      num.hidden = true;
+    }
+  };
+  try{
+    const c = JSON.parse(localStorage.getItem("rss_star_count") || "null");
+    if(c && typeof c.n === "number" && Date.now() - c.t < 6*3600*1000) paint(c.n);
+  }catch(e){}
+  if(typeof fetch !== "function") return;
+  fetch("https://api.github.com/repos/" + REPO)
+    .then(r=>r.ok ? r.json() : null)
+    .then(d=>{
+      if(!d || typeof d.stargazers_count !== "number") return;
+      paint(d.stargazers_count);
+      try{ localStorage.setItem("rss_star_count", JSON.stringify({n:d.stargazers_count, t:Date.now()})); }catch(e){}
+    })
+    .catch(()=>{});
+})();
+
 /* 载入字体：按钮 + 拖拽到卡片区 */
 (function(){
   const bf = $("#btnLoadFont");
