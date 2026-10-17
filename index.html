@@ -43,20 +43,176 @@
 <link rel="alternate icon" href="favicon.ico" sizes="any">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="theme-color" content="#ECAFB8">
+<script>
+/* 首屏防闪白：样式表加载前先把网页主题定下来（完整逻辑在页面底部「网页主题」模块） */
+(function(){
+  try{
+    var p = localStorage.getItem("rss_theme");
+    if(p === "dark" || (p !== "light" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches)){
+      document.documentElement.setAttribute("data-theme", "dark");
+    }else{
+      document.documentElement.setAttribute("data-theme", "light");
+    }
+  }catch(e){}
+})();
+</script>
 <style>
   :root{
+    color-scheme:light;
+    /* --- 基础面 --- */
     --bg:#f4f5f7;
     --panel:#ffffff;
+    --surface:#ffffff;          /* 卡片 / 输入框 / 工具栏 */
+    --surface-2:#fafbfc;        /* 悬停、浅底块 */
+    --surface-3:#eef0f3;        /* 分段控件底、行内代码底 */
+    --surface-4:#f7f8fa;
+    --surface-hover:#f6f7f9;
+    --surface-miss:#fbfbfc;     /* 缺字字体卡 */
+    --chip-bg:#f2f3f6;          /* 键名角标 */
+    --ghost-hover:#eceef2;
+    --cust-bg:#fafcff;
+    /* --- 线 --- */
     --line:#e4e6ea;
     --line-soft:#eef0f3;
+    --line-strong:#dcdfe4;
+    --line-hover:#c9cdd6;
+    --line-hover-2:#c2c7d0;
+    --cust-line:#c9d8ee;
+    /* --- 文字 --- */
     --text:#1b1d21;
     --text-2:#5a5f6a;
     --text-3:#8b909a;
+    --text-4:#a8adb6;           /* 缺字卡的灰字 */
+    /* --- 主色 --- */
     --accent:#2f6fed;
+    --accent-strong:#245dd4;
     --accent-soft:#eaf1fe;
+    --accent-line:rgba(47,111,237,.3);
+    /* --- 语义色 --- */
+    --warn-bg:#fff8e6; --warn-line:#f0dfae; --warn-text:#7a5c14; --warn-text-b:#6b4d0a; --warn-code:#f4e8c4;
+    --info-bg:#f8fafe; --info-line:#dfe6f2; --info-text:#26497f; --info-code:#e9effa; --info-hint:#5d6b80;
+    --ok:#31a24c; --ok-text:#1a8a4a; --err:#d1362f; --err-strong:#b3261e; --err-soft:#f6dcdc;
+    --dot-off:#d8dbe0; --dot-loc:#2f7fe0;
+    --switch-off:#d6d9df;
+    --fdel:#bcc1c9;
+    --drag:#ccd1d9;
+    /* --- 浮层 / 滚动条 / toast --- */
+    --header-bg:rgba(255,255,255,.88);
+    --nav-bg:rgba(255,255,255,.96);
+    --overlay:rgba(20,22,27,.42);
+    --toast-bg:#22252b; --toast-text:#fff;
+    --scroll-thumb:#d4d7dd; --scroll-thumb-hover:#bcc0c8; --scroll-gap:#ffffff;
+    /* --- YAML 代码高亮 --- */
+    --code-text:#2b2f36; --code-bg:#fbfcfd;
+    --cmt:#98a0ad; --key:#2f6fed; --str:#a24fbf; --num:#c2571a;
+    /* --- 顶部推荐条（千禧粉） --- */
+    --promo-bg:linear-gradient(135deg,#FFF7F8 0%,#FDEAEE 52%,#FCEFF3 100%);
+    --promo-line:#F2D7DC;
+    --promo-head:#7E2338;
+    --promo-text:#7A4A55;
+    --promo-dim:#9A8E94;
+    --promo-body:#2A2028;
+    --promo-pill-text:#B3405A;
+    --promo-pill-bg:#ffffff;
+    --promo-pill-line:#F3D2D8;
+    --promo-card:#ffffff;
+    --promo-card-line:#F2D8DD;
+    --promo-chip-bg:rgba(255,255,255,.8);
+    --promo-chip-line:#F5DCE1;
+    --promo-chip-text:#8A4E5B;
+    --promo-code-bg:rgba(255,255,255,.85);
+    --promo-code-line:#F3DCE1;
+    --promo-code-text:#A2394F;
+    --promo-btn-bg:#FDF9FA;
+    --promo-btn-line:#EBD5DA;
+    --promo-btn-text:#8A4E5B;
+    --promo-btn-hover-bg:#FCEFF2;
+    --promo-btn-hover-line:#E3BFC7;
+    --promo-btn-hover-text:#7E2338;
+    --promo-alt-text:#9A7580;
+    --promo-note:#A2909A;
+    --promo-tog:#A9757F;
+    --promo-tog-hover-bg:rgba(255,255,255,.85);
+    --promo-tog-hover-line:#F0D2D8;
+    --promo-tog-hover-text:#8A4E5B;
     --radius:10px;
     --mono:"JetBrains Mono","Cascadia Mono",Consolas,"SF Mono",Menlo,monospace;
   }
+  /* 暗色主题：由页面右上角「网页主题」按钮切换，与皮肤自身的「🌙 夜间」配色无关 */
+  html[data-theme="dark"]{
+    color-scheme:dark;
+    --bg:#111318;
+    --panel:#181b21;
+    --surface:#1e222a;
+    --surface-2:#22262f;
+    --surface-3:#282d37;
+    --surface-4:#23272f;
+    --surface-hover:#262b34;
+    --surface-miss:#1c2028;
+    --chip-bg:#262b34;
+    --ghost-hover:#2a303a;
+    --cust-bg:#1d2735;
+    --line:#2c313a;
+    --line-soft:#242932;
+    --line-strong:#39404b;
+    --line-hover:#4a515e;
+    --line-hover-2:#4a515e;
+    --cust-line:#38496a;
+    --text:#e7e9ee;
+    --text-2:#aeb5c2;
+    --text-3:#89909d;
+    --text-4:#6b727e;
+    --accent:#6d9dff;
+    --accent-strong:#9dbdff;
+    --accent-soft:#22304a;
+    --accent-line:rgba(109,157,255,.36);
+    --warn-bg:#3a2f14; --warn-line:#5b4518; --warn-text:#ecce78; --warn-text-b:#f6e0a4; --warn-code:#4a3a16;
+    --info-bg:#1b2534; --info-line:#2c3d55; --info-text:#a8c8f6; --info-code:#243447; --info-hint:#9dabc0;
+    --ok:#4fbf6b; --ok-text:#61cb80; --err:#ff8078; --err-strong:#ff9a93; --err-soft:#3a2321;
+    --dot-off:#4b525e; --dot-loc:#5f9ef0;
+    --switch-off:#3d444f;
+    --fdel:#5b626e;
+    --drag:#454c58;
+    --header-bg:rgba(24,27,33,.9);
+    --nav-bg:rgba(24,27,33,.96);
+    --overlay:rgba(5,7,10,.62);
+    --toast-bg:#3b414c; --toast-text:#f2f4f8;
+    --scroll-thumb:#3c434f; --scroll-thumb-hover:#4f5765; --scroll-gap:#1e222a;
+    --code-text:#cfd5df; --code-bg:#15181d;
+    --cmt:#7d8595; --key:#7aa6ff; --str:#c98ae0; --num:#e08a4f;
+    --promo-bg:linear-gradient(135deg,#241a1e 0%,#2b1e24 52%,#251b20 100%);
+    --promo-line:#3e2a31;
+    --promo-head:#f7cfda;
+    --promo-text:#dfc0c9;
+    --promo-dim:#ab939c;
+    --promo-body:#f2e6e9;
+    --promo-pill-text:#f2aec0;
+    --promo-pill-bg:#2b1f25;
+    --promo-pill-line:#4b323a;
+    --promo-card:#241a1f;
+    --promo-card-line:#3e2a31;
+    --promo-chip-bg:rgba(255,255,255,.06);
+    --promo-chip-line:#46313a;
+    --promo-chip-text:#e8c3ce;
+    --promo-code-bg:rgba(255,255,255,.08);
+    --promo-code-line:#49333c;
+    --promo-code-text:#f5b3c4;
+    --promo-btn-bg:rgba(255,255,255,.04);
+    --promo-btn-line:#46313a;
+    --promo-btn-text:#e8c3ce;
+    --promo-btn-hover-bg:rgba(255,255,255,.10);
+    --promo-btn-hover-line:#5c414b;
+    --promo-btn-hover-text:#ffd8e1;
+    --promo-alt-text:#c2a0aa;
+    --promo-note:#ab939c;
+    --promo-tog:#c2a0aa;
+    --promo-tog-hover-bg:rgba(255,255,255,.08);
+    --promo-tog-hover-line:#4b323a;
+    --promo-tog-hover-text:#ffd8e1;
+  }
+  /* 暗色下「🌙 夜间」按钮本身是深底，补一圈描边免得糊进背景 */
+  html[data-theme="dark"] .btn.night.on{background:#2f3547;border-color:#4a5270}
+  html[data-theme="dark"] .btn.night.on:hover{background:#38405a;border-color:#5a6390}
   *{box-sizing:border-box}
   html,body{height:100%}
   body{
@@ -71,7 +227,7 @@
     position:sticky;top:0;z-index:50;
     display:flex;align-items:center;gap:14px;
     padding:12px 20px;
-    background:rgba(255,255,255,.88);
+    background:var(--header-bg);
     backdrop-filter:blur(12px);
     border-bottom:1px solid var(--line);
   }
@@ -86,81 +242,81 @@
   .btn{
     display:inline-flex;align-items:center;gap:6px;
     padding:7px 13px;border-radius:8px;border:1px solid var(--line);
-    background:#fff;color:var(--text);font-size:13px;font-family:inherit;
+    background:var(--surface);color:var(--text);font-size:13px;font-family:inherit;
     cursor:pointer;transition:.15s;white-space:nowrap;
   }
-  .btn:hover{border-color:#c9cdd6;background:#fafbfc}
+  .btn:hover{border-color:var(--line-hover);background:var(--surface-2)}
   .btn:active{transform:translateY(1px)}
   .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
-  .btn.primary:hover{background:#245dd4}
+  .btn.primary:hover{background:var(--accent-strong)}
   .btn.ghost{background:transparent;border-color:transparent;color:var(--text-2)}
-  .btn.ghost:hover{background:#eceef2;color:var(--text)}
+  .btn.ghost:hover{background:var(--ghost-hover);color:var(--text)}
   /* 夜间切换钮：开启时呈深底暖字，示意「现在是夜色」 */
   .btn.night.on{background:#252a39;border-color:#252a39;color:#f2c979}
   .btn.night.on:hover{background:#2d3345;border-color:#2d3345}
 
   /* ---------- 顶部推荐条：输入法下载 ---------- */
   .promo{
-    background:linear-gradient(135deg,#FFF7F8 0%,#FDEAEE 52%,#FCEFF3 100%);
-    border-bottom:1px solid #F2D7DC;
+    background:var(--promo-bg);
+    border-bottom:1px solid var(--promo-line);
     padding:14px 20px 16px;
   }
   .promo-in{max-width:1360px;margin:0 auto}
   .promo-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
   .promo-badge{
     display:inline-flex;align-items:center;gap:6px;flex:none;
-    font-size:11.5px;font-weight:600;color:#B3405A;letter-spacing:.3px;
-    background:#fff;border:1px solid #F3D2D8;border-radius:999px;padding:3px 10px;
+    font-size:11.5px;font-weight:600;color:var(--promo-pill-text);letter-spacing:.3px;
+    background:var(--promo-pill-bg);border:1px solid var(--promo-pill-line);border-radius:999px;padding:3px 10px;
   }
   .promo-tog{
-    margin-left:auto;flex:none;font:inherit;font-size:11.5px;color:#A9757F;
+    margin-left:auto;flex:none;font:inherit;font-size:11.5px;color:var(--promo-tog);
     background:transparent;border:1px solid transparent;border-radius:7px;
     padding:3px 9px;cursor:pointer;transition:.15s;
   }
-  .promo-tog:hover{background:rgba(255,255,255,.85);border-color:#F0D2D8;color:#8A4E5B}
+  .promo-tog:hover{background:var(--promo-tog-hover-bg);border-color:var(--promo-tog-hover-line);color:var(--promo-tog-hover-text)}
   /* 收起后仍保留两个主下载入口，不会「消失找不着」 */
   .promo-mini{display:none;align-items:center;gap:7px;flex-wrap:wrap}
   .promo-body{
     display:grid;grid-template-columns:minmax(0,1.02fr) minmax(0,1fr);
     gap:16px 26px;align-items:start;margin-top:11px;
   }
-  .promo h2{margin:0 0 7px;font-size:16.5px;line-height:1.42;color:#7E2338;letter-spacing:.2px}
-  .promo p{margin:0;font-size:12.8px;line-height:1.7;color:#7A4A55;max-width:54em}
+  .promo h2{margin:0 0 7px;font-size:16.5px;line-height:1.42;color:var(--promo-head);letter-spacing:.2px}
+  .promo p{margin:0;font-size:12.8px;line-height:1.7;color:var(--promo-text);max-width:54em}
   .promo p code{
-    font-family:var(--mono);font-size:11.5px;background:rgba(255,255,255,.85);
-    border:1px solid #F3DCE1;border-radius:4px;padding:0 4px;color:#A2394F;
+    font-family:var(--mono);font-size:11.5px;background:var(--promo-code-bg);
+    border:1px solid var(--promo-code-line);border-radius:4px;padding:0 4px;color:var(--promo-code-text);
   }
   .promo-feat{display:flex;flex-wrap:wrap;gap:6px 8px;margin:11px 0 0;padding:0;list-style:none}
   .promo-feat li{
-    font-size:11.5px;color:#8A4E5B;background:rgba(255,255,255,.8);
-    border:1px solid #F5DCE1;border-radius:7px;padding:3px 9px;
+    font-size:11.5px;color:var(--promo-chip-text);background:var(--promo-chip-bg);
+    border:1px solid var(--promo-chip-line);border-radius:7px;padding:3px 9px;
   }
-  .promo-feat li b{color:#B3405A;font-weight:600}
+  .promo-feat li b{color:var(--promo-pill-text);font-weight:600}
   .pl-stack{display:grid;gap:10px}
   .pl-card{
-    background:#fff;border:1px solid #F2D8DD;border-radius:11px;
+    background:var(--promo-card);border:1px solid var(--promo-card-line);border-radius:11px;
     padding:11px 13px 12px;box-shadow:0 2px 10px rgba(214,69,95,.07);
   }
   .pl-h{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:9px}
   .pl-h .ico{font-size:15px;line-height:1}
-  .pl-h b{font-size:13.5px;color:#2A2028}
-  .pl-h em{font-style:normal;font-size:11px;color:#9A8E94;margin-left:auto;white-space:nowrap}
+  .pl-h b{font-size:13.5px;color:var(--promo-body)}
+  .pl-h em{font-style:normal;font-size:11px;color:var(--promo-dim);margin-left:auto;white-space:nowrap}
   .pl-btns{display:flex;flex-wrap:wrap;gap:7px}
   .pl-btn{
     display:inline-flex;align-items:center;gap:5px;
     font-size:12.5px;padding:6px 11px;border-radius:8px;text-decoration:none;
-    border:1px solid #EBD5DA;background:#FDF9FA;color:#8A4E5B;transition:.15s;
+    border:1px solid var(--promo-btn-line);background:var(--promo-btn-bg);color:var(--promo-btn-text);transition:.15s;
   }
-  .pl-btn:hover{background:#FCEFF2;border-color:#E3BFC7;color:#7E2338}
+  .pl-btn:hover{background:var(--promo-btn-hover-bg);border-color:var(--promo-btn-hover-line);color:var(--promo-btn-hover-text)}
   .pl-btn.pri{
     background:linear-gradient(135deg,#E4708A,#D6455F);border-color:#D6455F;color:#fff;
     box-shadow:0 2px 8px rgba(214,69,95,.22);
   }
   .pl-btn.pri:hover{background:linear-gradient(135deg,#DE607C,#C93A54);border-color:#C93A54;color:#fff}
-  .pl-btn.alt{background:#fff;border-style:dashed;color:#9A7580}
-  .pl-btn.alt:hover{background:#FFF6F8;color:#8A4E5B}
-  .pl-note{margin:8px 0 0;font-size:11px;line-height:1.62;color:#A2909A}
-  .pl-note code{font-family:var(--mono);font-size:10.5px;background:#fff;border:1px solid #F3DCE1;border-radius:4px;padding:0 3px;color:#A2394F}
+  .pl-btn.alt{background:var(--promo-card);border-style:dashed;color:var(--promo-alt-text)}
+  .pl-btn.alt:hover{background:var(--promo-btn-hover-bg);color:var(--promo-btn-text)}
+  .pl-note{margin:8px 0 0;font-size:11px;line-height:1.62;color:var(--promo-note)}
+  .pl-note code{font-family:var(--mono);font-size:10.5px;background:var(--promo-pill-bg);border:1px solid var(--promo-code-line);border-radius:4px;padding:0 3px;color:var(--promo-code-text)}
   .promo.collapsed{padding:9px 20px 10px}
   .promo.collapsed .promo-body{display:none}
   .promo.collapsed .promo-mini{display:flex}
@@ -174,7 +330,7 @@
     display:grid;
     grid-template-columns:424px minmax(360px,1fr);
     gap:0;
-    height:calc(100vh - 55px);
+    height:calc(100vh - var(--header-h,55px));
   }
   .panel{
     overflow-y:auto;overflow-x:hidden;
@@ -183,8 +339,8 @@
     padding:0 0 60px;
   }
   .panel::-webkit-scrollbar{width:9px}
-  .panel::-webkit-scrollbar-thumb{background:#d4d7dd;border-radius:5px;border:2px solid #fff}
-  .panel::-webkit-scrollbar-thumb:hover{background:#bcc0c8}
+  .panel::-webkit-scrollbar-thumb{background:var(--scroll-thumb);border-radius:5px;border:2px solid var(--scroll-gap)}
+  .panel::-webkit-scrollbar-thumb:hover{background:var(--scroll-thumb-hover)}
 
   .stage{
     display:flex;flex-direction:column;min-width:0;overflow:hidden;
@@ -199,7 +355,7 @@
     transition:.15s;
   }
   details.group>summary::-webkit-details-marker{display:none}
-  details.group>summary:hover{background:#fafbfc}
+  details.group>summary:hover{background:var(--surface-2)}
   details.group>summary .chev{
     margin-left:auto;color:var(--text-3);font-size:10px;transition:transform .18s;
   }
@@ -210,16 +366,16 @@
   /* 配色出处署名：小字 + 左侧竖线，避免和正文提示混淆 */
   .srcnote{
     margin-top:10px;padding:7px 10px 7px 9px;
-    border-left:2px solid #dcdfe4;border-radius:0 6px 6px 0;
-    background:#fafbfc;
+    border-left:2px solid var(--line-strong);border-radius:0 6px 6px 0;
+    background:var(--surface-2);
     font-size:11px;line-height:1.6;color:var(--text-3);
   }
   .srcnote b{font-weight:600;color:var(--text-2)}
-  .srcnote a{color:#2f6fed;text-decoration:none;border-bottom:1px solid rgba(47,111,237,.3)}
-  .srcnote a:hover{border-bottom-color:#2f6fed}
+  .srcnote a{color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent-line)}
+  .srcnote a:hover{border-bottom-color:var(--accent)}
   .srcnote code{
     font-family:var(--mono);font-size:10.5px;
-    background:#eef0f3;border-radius:3px;padding:0 3px;color:var(--text-2);
+    background:var(--surface-3);border-radius:3px;padding:0 3px;color:var(--text-2);
   }
 
   /* ---------- 表单行 ---------- */
@@ -228,7 +384,7 @@
   .row .lbl small{display:block;font-size:10.5px;color:var(--text-3);line-height:1.3}
   .row input[type=text],.row input[type=number],.row select{
     flex:1;min-width:0;padding:6px 9px;font-size:12.5px;font-family:inherit;
-    border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--text);
+    border:1px solid var(--line);border-radius:7px;background:var(--surface);color:var(--text);
     transition:.15s;
   }
   .row input[type=text]:focus,.row input[type=number]:focus,.row select:focus{
@@ -244,7 +400,7 @@
   .sw{position:relative;width:38px;height:21px;flex:none;cursor:pointer}
   .sw input{position:absolute;opacity:0;width:100%;height:100%;margin:0;cursor:pointer;z-index:2}
   .sw i{
-    position:absolute;inset:0;border-radius:11px;background:#d6d9df;transition:.18s;
+    position:absolute;inset:0;border-radius:11px;background:var(--switch-off);transition:.18s;
   }
   .sw i::after{
     content:"";position:absolute;top:2.5px;left:2.5px;width:16px;height:16px;
@@ -269,12 +425,12 @@
   .cname{font-size:12.5px;color:var(--text);display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
   .ckey{
     font-family:var(--mono);font-size:9.5px;color:var(--text-3);
-    background:#f2f3f6;padding:1px 5px;border-radius:4px;
+    background:var(--chip-bg);padding:1px 5px;border-radius:4px;
   }
   .cctl{display:flex;align-items:center;gap:8px;margin-top:3px}
   .chex{
     width:78px;padding:3px 6px;font-family:var(--mono);font-size:11px;
-    border:1px solid var(--line);border-radius:5px;background:#fff;color:var(--text-2);
+    border:1px solid var(--line);border-radius:5px;background:var(--surface);color:var(--text-2);
     text-transform:uppercase;
   }
   .chex:focus{outline:none;border-color:var(--accent);color:var(--text)}
@@ -283,7 +439,7 @@
   .ca input[type=range]{flex:1;min-width:0;height:14px;accent-color:var(--accent)}
   .cbgr{
     font-family:var(--mono);font-size:10.5px;color:var(--text-3);
-    background:#f7f8fa;padding:3px 7px;border-radius:5px;white-space:nowrap;
+    background:var(--surface-4);padding:3px 7px;border-radius:5px;white-space:nowrap;
   }
 
   /* ---------- 预设 ---------- */
@@ -298,7 +454,7 @@
   .prand{
     flex:none;font:inherit;letter-spacing:.3px;cursor:pointer;white-space:nowrap;
     padding:3px 9px;border-radius:20px;border:1px solid var(--line);
-    background:#fff;color:var(--text-2);transition:.15s;
+    background:var(--surface);color:var(--text-2);transition:.15s;
   }
   .prand:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
   .prand:active{transform:scale(.96)}
@@ -309,9 +465,9 @@
   .pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
   .preset{
     border:1.5px solid var(--line);border-radius:9px;padding:8px 7px;cursor:pointer;
-    transition:.15s;background:#fff;min-width:0;
+    transition:.15s;background:var(--surface);min-width:0;
   }
-  .preset:hover{border-color:#c2c7d0;transform:translateY(-1px);box-shadow:0 3px 10px rgba(0,0,0,.06)}
+  .preset:hover{border-color:var(--line-hover-2);transform:translateY(-1px);box-shadow:0 3px 10px rgba(0,0,0,.06)}
   .preset.on{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
   .pbar{height:22px;border-radius:5px;display:flex;align-items:center;justify-content:center;gap:4px}
   .pbar b{width:12px;height:12px;border-radius:3px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.10)}
@@ -326,39 +482,39 @@
   }
   .fontbar button:hover{background:var(--accent);color:#fff;border-style:solid}
   .fontbar button.plain{
-    border-style:solid;border-color:var(--line);background:#fff;color:var(--text-2);font-weight:400;
+    border-style:solid;border-color:var(--line);background:var(--surface);color:var(--text-2);font-weight:400;
   }
-  .fontbar button.plain:hover{background:#f6f7f9;border-color:#c9cdd6;color:var(--text)}
+  .fontbar button.plain:hover{background:var(--surface-hover);border-color:var(--line-hover);color:var(--text)}
   .fontbar span{font-size:10.5px;color:var(--text-3);line-height:1.45}
   .fontchips{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:2px 0 10px;border-radius:8px}
   .fontchips.drop{outline:2px dashed var(--accent);outline-offset:4px}
   .fchip{
     position:relative;border:1.5px solid var(--line);border-radius:8px;
-    padding:7px 8px;cursor:pointer;transition:.15s;background:#fff;overflow:hidden;
+    padding:7px 8px;cursor:pointer;transition:.15s;background:var(--surface);overflow:hidden;
   }
-  .fchip:hover{border-color:#c2c7d0;transform:translateY(-1px)}
+  .fchip:hover{border-color:var(--line-hover-2);transform:translateY(-1px)}
   .fchip.on{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
   .fchip .fs{font-size:15px;line-height:1.35;white-space:nowrap;overflow:hidden}
   .fchip .fn{font-size:10.5px;color:var(--text-3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .fchip .dot{position:absolute;top:7px;right:7px;width:7px;height:7px;border-radius:50%;background:#d8dbe0}
-  .fchip .dot.ok{background:#31a24c}
-  .fchip .dot.loc{background:#2f7fe0}
-  .fchip.miss{background:#fbfbfc;border-style:dashed}
-  .fchip.miss .fs{color:#a8adb6}
+  .fchip .dot{position:absolute;top:7px;right:7px;width:7px;height:7px;border-radius:50%;background:var(--dot-off)}
+  .fchip .dot.ok{background:var(--ok)}
+  .fchip .dot.loc{background:var(--dot-loc)}
+  .fchip.miss{background:var(--surface-miss);border-style:dashed}
+  .fchip.miss .fs{color:var(--text-4)}
   .fchip .fload{
     margin-top:5px;width:100%;font:inherit;font-size:10.5px;
-    border:1px solid var(--line);border-radius:5px;background:#fff;color:var(--text-2);
+    border:1px solid var(--line);border-radius:5px;background:var(--surface);color:var(--text-2);
     padding:2px 0;cursor:pointer;transition:.15s;
   }
   .fchip .fload:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
-  .fchip.cust{border-style:solid;border-color:#c9d8ee;background:#fafcff}
+  .fchip.cust{border-style:solid;border-color:var(--cust-line);background:var(--cust-bg)}
   .fchip.cust .dot{right:25px}
   .fchip .fdel{
     position:absolute;top:5px;right:5px;width:17px;height:17px;padding:0;line-height:1;
-    border:0;border-radius:4px;background:transparent;color:#bcc1c9;
+    border:0;border-radius:4px;background:transparent;color:var(--fdel);
     font:inherit;font-size:14px;cursor:pointer;transition:.15s;
   }
-  .fchip .fdel:hover{background:#f6dcdc;color:#b3261e}
+  .fchip .fdel:hover{background:var(--err-soft);color:var(--err-strong)}
   .fhint{font-size:11px;color:var(--text-3);line-height:1.55;margin:-4px 0 8px}
   .fnote{
     font-size:11px;color:var(--text-3);line-height:1.7;margin:8px 0 2px;
@@ -373,18 +529,18 @@
   .dchips{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:4px 0 10px}
   .dchip{
     border:1.5px solid var(--line);border-radius:8px;padding:7px 9px;
-    cursor:pointer;background:#fff;transition:.15s;
+    cursor:pointer;background:var(--surface);transition:.15s;
   }
-  .dchip:hover{border-color:#c2c7d0;transform:translateY(-1px)}
+  .dchip:hover{border-color:var(--line-hover-2);transform:translateY(-1px)}
   .dchip.on{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
   .dchip .dn{font-size:12.5px;font-weight:500;color:var(--text)}
   .dchip .ds{font-size:10.5px;color:var(--text-3);margin-top:2px}
   .deconote{
-    border:1px solid #f0dfae;background:#fff8e6;border-radius:8px;
-    padding:8px 10px;font-size:11.5px;line-height:1.65;color:#7a5c14;margin:2px 0 10px;
+    border:1px solid var(--warn-line);background:var(--warn-bg);border-radius:8px;
+    padding:8px 10px;font-size:11.5px;line-height:1.65;color:var(--warn-text);margin:2px 0 10px;
   }
-  .deconote b{color:#6b4d0a}
-  .deconote code{background:#f4e8c4;border-radius:3px;padding:0 3px;font-size:10.5px}
+  .deconote b{color:var(--warn-text-b)}
+  .deconote code{background:var(--warn-code);border-radius:3px;padding:0 3px;font-size:10.5px}
   .lblprev{
     display:flex;align-items:center;gap:9px;flex-wrap:wrap;
     font-size:12.5px;color:var(--text-2);margin:6px 0 2px;
@@ -398,7 +554,7 @@
   .gnavbar{
     position:sticky;top:0;z-index:6;
     padding:9px 12px 10px;margin:-1px -1px 4px;
-    background:rgba(255,255,255,.96);backdrop-filter:blur(6px);
+    background:var(--nav-bg);backdrop-filter:blur(6px);
     border-bottom:1px solid var(--line);
   }
   .gnavbar .gnt{
@@ -414,7 +570,7 @@
   .gnavwrap{display:flex;flex-wrap:wrap;gap:5px}
   .gnav{
     display:inline-flex;align-items:center;gap:3px;
-    border:1px solid var(--line);background:#fff;border-radius:20px;
+    border:1px solid var(--line);background:var(--surface);border-radius:20px;
     padding:3px 9px;font:inherit;font-size:11.5px;color:var(--text-2);
     cursor:pointer;transition:.14s;white-space:nowrap;
   }
@@ -425,54 +581,54 @@
   .group.dropafter{box-shadow:0 3px 0 -1px var(--accent)}
   /* 拖动把手：放在标题文字后面、箭头左边（用 flex order 摆位，不动原有结构） */
   details.group>summary::after{
-    content:"⠿";order:2;color:#ccd1d9;font-size:13px;cursor:grab;
+    content:"⠿";order:2;color:var(--drag);font-size:13px;cursor:grab;
   }
   details.group>summary:hover::after{color:var(--text-3)}
   details.group>summary .chev{order:3}
 
   /* ---------- 修复盒（方案级补丁指引） ---------- */
   .fixbox{
-    border:1px solid #dfe6f2;background:#f8fafe;border-radius:9px;
+    border:1px solid var(--info-line);background:var(--info-bg);border-radius:9px;
     padding:10px 12px 12px;margin:2px 0 10px;
   }
-  .fixt{font-size:12.5px;font-weight:600;color:#26497f;margin:0 0 2px}
+  .fixt{font-size:12.5px;font-weight:600;color:var(--info-text);margin:0 0 2px}
   .fixbox .row{margin:7px 0}
   .fixbtns{display:flex;gap:7px;flex-wrap:wrap;margin:9px 0 2px}
   .fixbtns button{
     font:inherit;font-size:12px;font-weight:600;cursor:pointer;
-    border:1px solid var(--accent);color:var(--accent);background:#fff;
+    border:1px solid var(--accent);color:var(--accent);background:var(--surface);
     border-radius:7px;padding:5px 11px;transition:.15s;
   }
   .fixbtns button:hover{background:var(--accent);color:#fff}
-  .fixbox .fhint{color:#5d6b80}
-  .fixbox code{background:#e9effa;border-radius:3px;padding:0 3px;font-size:10.5px}
+  .fixbox .fhint{color:var(--info-hint)}
+  .fixbox code{background:var(--info-code);border-radius:3px;padding:0 3px;font-size:10.5px}
   .fixwarn{
     margin:8px 0 0;padding:7px 10px;border-radius:7px;
-    background:#fff8e6;border:1px solid #f0dfae;color:#7a5c14;
+    background:var(--warn-bg);border:1px solid var(--warn-line);color:var(--warn-text);
     font-size:11.5px;line-height:1.6;
   }
-  .fixwarn code{background:#f4e8c4;border-radius:3px;padding:0 3px;font-size:10.5px}
-  .fixwarn b{color:#6b4d0a}
+  .fixwarn code{background:var(--warn-code);border-radius:3px;padding:0 3px;font-size:10.5px}
+  .fixwarn b{color:var(--warn-text-b)}
 
   /* ---------- 通用分段控件（.stagebar 里已有同名规则，此处供分组复用） ---------- */
-  .seg{display:flex;background:#eef0f3;border-radius:8px;padding:2px}
+  .seg{display:flex;background:var(--surface-3);border-radius:8px;padding:2px}
   .seg button{
     border:none;background:transparent;padding:4px 10px;border-radius:6px;
     font-size:12px;font-family:inherit;color:var(--text-2);cursor:pointer;transition:.15s;
   }
-  .seg button.on{background:#fff;color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.1);font-weight:500}
+  .seg button.on{background:var(--surface);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.1);font-weight:500}
 
   /* ---------- 预览舞台 ---------- */
   .stagebar{
     display:flex;align-items:center;gap:8px;flex-wrap:wrap;
-    padding:10px 18px;border-bottom:1px solid var(--line);background:#fff;
+    padding:10px 18px;border-bottom:1px solid var(--line);background:var(--surface);
   }
-  .stagebar .seg{display:flex;background:#eef0f3;border-radius:8px;padding:2px}
+  .stagebar .seg{display:flex;background:var(--surface-3);border-radius:8px;padding:2px}
   .stagebar .seg button{
     border:none;background:transparent;padding:5px 12px;border-radius:6px;
     font-size:12.5px;font-family:inherit;color:var(--text-2);cursor:pointer;transition:.15s;
   }
-  .stagebar .seg button.on{background:#fff;color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.1);font-weight:500}
+  .stagebar .seg button.on{background:var(--surface);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.1);font-weight:500}
   .stagetip{font-size:11.5px;color:var(--text-3);margin-left:auto}
 
   .canvas{
@@ -536,7 +692,7 @@
 
   /* ---------- 输出区 ---------- */
   .out{
-    border-top:1px solid var(--line);background:#fff;
+    border-top:1px solid var(--line);background:var(--surface);
     display:flex;flex-direction:column;flex:none;
   }
   .outhead{
@@ -548,25 +704,25 @@
   pre.code{
     margin:0;padding:14px 18px;max-height:270px;overflow:auto;
     font-family:var(--mono);font-size:12px;line-height:1.62;
-    color:#2b2f36;background:#fbfcfd;
+    color:var(--code-text);background:var(--code-bg);
     white-space:pre;
   }
   pre.code::-webkit-scrollbar{width:9px;height:9px}
-  pre.code::-webkit-scrollbar-thumb{background:#d4d7dd;border-radius:5px;border:2px solid #fbfcfd}
-  .cmt{color:#98a0ad}
-  .key{color:#2f6fed}
-  .str{color:#a24fbf}
-  .num{color:#c2571a}
+  pre.code::-webkit-scrollbar-thumb{background:var(--scroll-thumb);border-radius:5px;border:2px solid var(--code-bg)}
+  .cmt{color:var(--cmt)}
+  .key{color:var(--key)}
+  .str{color:var(--str)}
+  .num{color:var(--num)}
 
   /* ---------- 导入弹层 ---------- */
   .modal{
     position:fixed;inset:0;z-index:200;display:none;
-    background:rgba(20,22,27,.42);backdrop-filter:blur(3px);
+    background:var(--overlay);backdrop-filter:blur(3px);
     align-items:center;justify-content:center;padding:24px;
   }
   .modal.on{display:flex}
   .sheet{
-    background:#fff;border-radius:14px;width:min(640px,100%);max-height:86vh;
+    background:var(--surface);border-radius:14px;width:min(640px,100%);max-height:86vh;
     display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.28);overflow:hidden;
   }
   .sheet h3{margin:0;padding:16px 20px 6px;font-size:15px}
@@ -574,18 +730,18 @@
   .sheet textarea{
     flex:1;margin:0 20px;padding:12px 14px;min-height:220px;resize:vertical;
     font-family:var(--mono);font-size:12px;line-height:1.6;
-    border:1px solid var(--line);border-radius:9px;background:#fbfcfd;color:var(--text);
+    border:1px solid var(--line);border-radius:9px;background:var(--code-bg);color:var(--text);
   }
   .sheet textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
   .sheet .foot{display:flex;gap:9px;padding:14px 20px 18px;justify-content:flex-end}
   .sheet .msg{margin:0 20px 10px;font-size:12px;color:var(--text-2);min-height:17px}
-  .sheet .msg.ok{color:#1a8a4a}
-  .sheet .msg.err{color:#d1362f}
+  .sheet .msg.ok{color:var(--ok-text)}
+  .sheet .msg.err{color:var(--err)}
 
   /* toast */
   .toast{
     position:fixed;left:50%;bottom:32px;transform:translate(-50%,14px);
-    background:#22252b;color:#fff;font-size:13px;padding:9px 18px;border-radius:9px;
+    background:var(--toast-bg);color:var(--toast-text);font-size:13px;padding:9px 18px;border-radius:9px;
     opacity:0;pointer-events:none;transition:.22s;z-index:300;box-shadow:0 6px 24px rgba(0,0,0,.25);
   }
   .toast.on{opacity:1;transform:translate(-50%,0)}
@@ -597,20 +753,112 @@
     .canvas{min-height:340px}
     header{position:static}
   }
+
+  /* ================= 网页主题按钮（与皮肤「🌙 夜间」配色无关） ================= */
+  .hacts{display:flex;align-items:center;gap:8px;flex-shrink:0}
+  .btn.icon{padding:5px 9px;font-size:14px;line-height:1.25}
+  .btn.theme{padding:6px 10px;font-size:12.5px;gap:5px}
+  .btn[disabled]{opacity:.36;cursor:not-allowed;pointer-events:none}
+  .savestate{
+    display:inline-flex;align-items:center;gap:5px;white-space:nowrap;
+    font-size:11px;color:var(--text-3);user-select:none;
+  }
+  .savestate i{
+    width:6px;height:6px;border-radius:50%;background:var(--ok);flex:none;
+    transition:background .2s;
+  }
+  .savestate.idle i{background:var(--dot-off)}
+  .savestate.err{color:var(--err)}
+  .savestate.err i{background:var(--err)}
+
+  /* ================= 键盘可达性：只在键盘操作时画焦点圈 ================= */
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .btn:focus-visible,.gnav:focus-visible,.prand:focus-visible,.preset:focus-visible,
+  .fchip:focus-visible,.dchip:focus-visible,.pl-btn:focus-visible,.promo-tog:focus-visible,
+  .fixbtns button:focus-visible,.fontbar button:focus-visible,.sheet .foot button:focus-visible{
+    outline:2px solid var(--accent);outline-offset:2px;
+  }
+  .row input:focus-visible,.chex:focus-visible,.sheet textarea:focus-visible{
+    outline:2px solid var(--accent);outline-offset:1px;box-shadow:none;
+  }
+  .sw input:focus-visible + i{outline:2px solid var(--accent);outline-offset:2px}
+  .crow input[type=color]:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  details.group>summary:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+
+  /* 系统开了「减少动效」就把过渡关掉 */
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{
+      transition-duration:.01ms !important;
+      animation-duration:.01ms !important;
+      animation-iteration-count:1 !important;
+      scroll-behavior:auto !important;
+    }
+  }
+
+  /* ================= 中等宽度：顶栏一行放不下，换成两行（主区高度由 JS 量出来） ================= */
+  @media (max-width:1180px){
+    header{flex-wrap:wrap;gap:8px 10px}
+    .spacer{display:none}
+    .hacts{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px;scrollbar-width:none}
+    .hacts::-webkit-scrollbar{display:none}
+    .savestate{display:none}
+  }
+
+  /* ================= 窄屏：左侧面板改成抽屉 ================= */
+  .drawerbtn{display:none}
+  .scrim{
+    position:fixed;inset:0;z-index:110;background:var(--overlay);
+    opacity:0;pointer-events:none;transition:opacity .2s;
+  }
+  body.drawer-open .scrim{opacity:1;pointer-events:auto}
+  @media (max-width:820px){
+    header{position:static;flex-wrap:wrap;gap:8px 10px;padding:10px 12px}
+    .titles h1{font-size:14px}
+    .titles p{display:none}
+    .spacer{display:none}
+    .hacts{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px;scrollbar-width:none}
+    .hacts::-webkit-scrollbar{display:none}
+    .savestate{display:none}
+    .drawerbtn{display:inline-flex}
+    main{display:block;height:auto;overflow:visible}
+    .panel{
+      position:fixed;top:0;left:0;bottom:0;z-index:120;width:min(92vw,420px);
+      max-height:none;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;
+      border-right:1px solid var(--line);padding:8px 0 48px;
+      transform:translateX(-103%);transition:transform .24s ease;
+      box-shadow:0 0 40px rgba(0,0,0,.3);overscroll-behavior:contain;
+    }
+    body.drawer-open .panel{transform:none}
+    .stage{height:auto}
+    .canvas{min-height:300px;padding:30px 16px}
+    .stagetip{display:none}
+    pre.code{max-height:220px}
+    .stagebar{padding:9px 12px}
+    .logo{width:26px;height:26px}
+  }
 </style>
 </head>
 <body>
 
+<div class="scrim" id="scrim"></div>
+
 <header>
+  <button class="btn icon drawerbtn" id="btnDrawer" aria-label="打开参数面板" aria-expanded="false" title="打开/收起参数面板">☰</button>
   <div class="logo" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="小狼毫皮肤工作室"><defs><linearGradient id="lgBg" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="64" y2="64"><stop offset="0" stop-color="#FCE3E6"/><stop offset="1" stop-color="#ECAFB8"/></linearGradient></defs><rect width="64" height="64" rx="15" fill="url(#lgBg)"/><!-- 剪纸装饰：左上角星芒、小圆点 --><path d="M13 9.4c.5 3.2 1.4 4.1 4.6 4.6-3.2.5-4.1 1.4-4.6 4.6-.5-3.2-1.4-4.1-4.6-4.6 3.2-.5 4.1-1.4 4.6-4.6Z" fill="#26232B"/><circle cx="23.5" cy="13.5" r="1.4" fill="#26232B"/><!-- 剪纸地线 --><path d="M5.5 56 H56.5" stroke="#26232B" stroke-width="2" stroke-linecap="round"/><!-- 猫剪影（用户提供的素材，potrace 矢量化） --><path d="M13.9 55.5C14.0 55.5 14.5 55.3 14.9 55.1C15.7 54.7 18.1 53.9 19.8 53.4C23.9 52.3 26.8 51.1 28.8 49.7C29.2 49.5 29.3 49.4 29.6 49.4C31.1 49.4 32.7 49.0 34.2 48.3C35.7 47.6 36.8 46.8 38.0 45.6C38.4 45.1 38.5 45.1 38.6 45.1C38.7 45.5 38.9 45.9 39.3 46.6C39.7 47.2 39.8 47.4 39.8 47.6C39.8 48.0 39.2 49.3 38.4 50.4C38.1 51.0 38.0 51.1 37.7 51.1C37.0 51.1 36.6 51.4 36.3 51.9C35.9 52.6 36.1 53.1 36.8 53.3C37.3 53.4 38.5 53.4 39.1 53.3C39.6 53.3 39.6 53.2 39.9 53.0C40.1 52.7 40.9 51.5 41.9 50.0C42.4 49.2 43.0 48.1 43.1 47.7C43.1 47.5 43.2 47.3 43.1 47.1C43.0 46.8 42.9 45.8 42.9 45.8C43.0 45.8 43.8 47.4 43.9 47.7C44.0 48.1 43.7 49.6 43.3 50.6C42.9 51.7 42.7 51.9 42.3 51.9C41.9 51.9 41.4 52.3 41.1 52.9C40.9 53.2 40.9 53.4 41.1 53.7C41.3 54.1 41.5 54.2 42.2 54.3C43.3 54.4 44.3 54.3 44.7 54.0C44.9 53.9 45.3 53.2 45.9 51.7C46.1 51.3 46.3 50.8 46.4 50.6C46.5 50.3 47.4 47.8 47.6 47.5C47.7 47.1 47.6 46.8 47.4 45.7C47.2 45.0 47.2 44.7 47.2 43.7C47.2 42.1 47.3 41.2 48.1 38.3C49.0 34.5 49.2 33.5 48.9 31.0C48.8 29.4 48.4 27.5 48.1 26.9C48.0 26.8 48.0 26.6 48.0 26.6C48.0 26.6 48.4 26.4 48.8 26.1C51.9 24.0 54.1 19.3 53.7 15.5C53.5 12.8 52.5 10.4 50.8 8.5C49.2 6.7 46.7 5.4 45.6 5.7C45.0 5.8 44.7 6.1 44.7 6.7C44.7 7.3 45.1 7.9 46.2 8.6C48.0 9.8 48.9 10.7 49.7 12.2C50.7 13.9 50.9 16.4 50.3 18.4C49.7 20.3 48.3 22.0 46.7 23.1C46.2 23.5 46.0 23.5 45.6 23.2C45.0 22.8 43.8 22.3 43.1 22.0C41.5 21.5 39.6 21.4 38.1 21.7C35.7 22.3 33.5 23.9 31.9 26.4C30.4 28.6 29.7 30.4 28.8 34.6C28.6 35.7 28.4 36.1 28.1 36.6C27.9 36.8 27.8 37.1 27.7 37.1C27.7 37.2 27.7 37.1 27.6 36.9C27.4 35.9 27.0 35.1 26.8 35.0C26.7 34.9 26.6 35.0 26.3 35.3C26.1 35.5 25.6 36.0 25.3 36.4C25.0 36.7 24.7 37.1 24.7 37.1C24.6 37.2 24.5 37.2 24.1 37.1C23.5 37.0 22.6 37.0 22.0 37.1L21.5 37.2 21.1 36.8C19.8 35.8 18.2 34.8 18.0 34.9C17.9 35.0 18.1 36.1 18.4 37.1C18.7 37.9 18.8 38.2 18.8 38.7C18.8 39.3 18.8 39.3 18.7 39.4C18.5 39.6 18.0 40.4 17.8 41.1C17.7 41.6 17.7 42.2 17.9 43.0L18.1 43.6 18.0 43.9C17.8 44.3 17.8 44.7 18.1 45.1C18.3 45.5 18.5 45.7 18.8 45.7C18.9 45.8 19.0 45.9 19.1 46.0C19.2 46.1 19.3 46.3 19.5 46.3C19.6 46.4 19.8 46.5 19.8 46.5C19.8 46.6 18.5 47.5 17.4 48.1C17.0 48.3 16.4 48.7 16.1 48.8C15.2 49.3 12.2 50.8 11.4 51.2C10.7 51.5 10.7 51.5 10.1 51.4C9.5 51.4 9.1 51.5 8.6 51.9C7.7 52.7 7.8 53.5 8.9 54.0C9.3 54.3 9.4 54.3 9.8 54.3L10.3 54.3 10.4 53.9C10.5 53.3 11.0 52.7 11.6 52.5C11.9 52.4 12.3 52.3 12.7 52.3C13.3 52.2 13.4 52.2 14.5 51.7C17.6 50.2 19.7 49.0 21.5 47.8C22.5 47.2 22.8 47.0 22.2 47.6C21.1 48.5 19.0 49.7 15.5 51.5C13.7 52.4 13.3 52.5 12.7 52.5C11.6 52.5 10.7 53.2 10.6 54.1C10.5 54.9 11.1 55.4 12.0 55.3C12.3 55.3 12.5 55.3 12.6 55.4C13.0 55.6 13.4 55.7 13.9 55.5Z" fill="#26232B" fill-rule="evenodd"/></svg></div><div class="titles">
     <h1>小狼毫输入法皮肤可视化设置</h1>
     <p>小狼毫皮肤工作室 · Rime 皮肤在线编辑器 · 生成 weasel.custom.yaml</p>
   </div>
   <div class="spacer"></div>
-  <button class="btn ghost" id="btnImport">导入配置</button>
-  <button class="btn ghost" id="btnReset">重置</button>
-  <button class="btn" id="btnCopy">复制 YAML</button>
-  <button class="btn primary" id="btnDownload">下载 weasel.custom.yaml</button>
+  <div class="hacts">
+    <button class="btn icon" id="btnUndo" aria-label="撤销上一步改动" title="撤销 (Ctrl+Z)" disabled>↶</button>
+    <button class="btn icon" id="btnRedo" aria-label="重做上一步改动" title="重做 (Ctrl+Shift+Z)" disabled>↷</button>
+    <span class="savestate" id="saveState" role="status" aria-live="polite" title="改动会自动保存在这个浏览器里，刷新或关闭后重新打开还在"><i></i><span id="saveText">自动保存</span></span>
+    <button class="btn theme" id="btnTheme" title="切换网页主题（与皮肤「夜间」配色无关）">🌓 跟随系统</button>
+    <button class="btn ghost" id="btnImport">导入配置</button>
+    <button class="btn ghost" id="btnReset">重置</button>
+    <button class="btn" id="btnCopy">复制 YAML</button>
+    <button class="btn primary" id="btnDownload">下载 weasel.custom.yaml</button>
+  </div>
 </header>
 
 <!-- ================= 顶部推荐条：输入法本体下载 ================= -->
@@ -916,9 +1164,9 @@
         <button data-canvas="dark">深色背景</button>
       </div>
       <button class="btn ghost night" id="btnNight" style="padding:5px 12px">🌙 夜间</button>
-      <button class="btn ghost" id="btnZoomOut" style="padding:5px 10px">－</button>
+      <button class="btn ghost" id="btnZoomOut" style="padding:5px 10px" aria-label="缩小预览" title="缩小预览">－</button>
       <span class="val" id="zoomVal" style="min-width:38px">100%</span>
-      <button class="btn ghost" id="btnZoomIn" style="padding:5px 10px">＋</button>
+      <button class="btn ghost" id="btnZoomIn" style="padding:5px 10px" aria-label="放大预览" title="放大预览">＋</button>
       <span class="stagetip">预览为近似效果，实际以重新部署后为准</span>
     </div>
 
@@ -939,9 +1187,9 @@
 </main>
 
 <!-- ================= 导入弹层 ================= -->
-<div class="modal" id="modal">
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="impTitle">
   <div class="sheet">
-    <h3>导入现有 weasel.custom.yaml</h3>
+    <h3 id="impTitle">导入现有 weasel.custom.yaml</h3>
     <p class="hint">
       把文件内容整段粘进来。会尝试读取 <code>style</code> 与 <code>preset_color_schemes</code> 下的设置。<br>
       颜色按 <b>0xBBGGRR / 0xAABBGGRR</b>（BGR 顺序）解析。
@@ -955,7 +1203,7 @@
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script type="text/plain" id="mintBatFix">
 @echo off
@@ -2849,6 +3097,8 @@ function updateNightBtn(){
   b.classList.toggle("on", NIGHT.on);
   b.textContent = NIGHT.on ? "☀️ 日间" : "🌙 夜间";
   b.title = NIGHT.on ? "点一下还原日间配色" : "把当前主题一键转成夜色（参考千禧粉·夜色的派生方式）";
+  b.setAttribute("aria-pressed", NIGHT.on ? "true" : "false");
+  b.setAttribute("aria-label", b.title);
 }
 
 /* ---------- 装饰：套用 / 切换 / 还原 ----------
@@ -3237,6 +3487,7 @@ function applyFontFamily(name){
   const inp = document.querySelector('[data-path="font.face"]');
   if(inp) inp.value = name;
   renderFaceChain();
+  if(typeof afterChange === "function") afterChange();
 }
 
 /* ---- 生成「名称回退链」 ----
@@ -3899,6 +4150,7 @@ function renderAll(){
   renderPreview();
   renderOutput();
   if(typeof renderLabelPreview==="function") renderLabelPreview();
+  if(typeof afterChange === "function") afterChange();
 }
 
 /* =========================================================
@@ -3936,6 +4188,8 @@ function renderGroupNav(){
       const t = groupEls().find(d=>d.dataset.gkey===key);
       if(t) t.scrollIntoView({block:"start", behavior:"smooth"});
       nav.querySelectorAll(".gnav").forEach(x=>x.classList.toggle("on", x===btn));
+      /* 手机上：跳完就把抽屉收起来，让预览露出来 */
+      if(window.matchMedia && window.matchMedia("(max-width:820px)").matches) closeDrawer();
     };
   });
 }
@@ -4052,12 +4306,14 @@ $("#segLayout").addEventListener("click", e=>{
   syncSegLayout();
   renderAll();
 });
+let canvasPicked = false;   // 用户手动点过「浅色/深色背景」后就不再跟随网页主题自动切
 function setCanvasBg(mode){
   $("#canvas").classList.toggle("dark", mode==="dark");
   $("#segCanvas").querySelectorAll("button").forEach(x=>x.classList.toggle("on",x.dataset.canvas===mode));
 }
 $("#segCanvas").addEventListener("click", e=>{
   const b = e.target.closest("button"); if(!b) return;
+  canvasPicked = true;
   setCanvasBg(b.dataset.canvas);
 });
 $("#btnNight").addEventListener("click", ()=>setNight(!NIGHT.on));
@@ -4169,10 +4425,11 @@ $("#btnDlDiag").onclick = ()=>{
   downloadText(s, "声全局-修复诊断.bat");
 };
 
-// 重置
+// 重置（会先记入撤销栈，Ctrl+Z 可以撤销这次重置）
 $("#btnReset").onclick = ()=>{
   state = clonePreset(PRESETS[0]);
-  syncFormFromState(); renderColors(); renderPresets(); renderAll(); toast("已重置");
+  NIGHT.on = false; NIGHT.day = null;
+  syncFormFromState(); renderColors(); renderPresets(); renderAll(); updateNightBtn(); toast("已重置");
 };
 
 /* ---------------- 导入 ---------------- */
@@ -4300,6 +4557,174 @@ $("#btnImpOk").onclick = ()=>{
 };
 
 /* =========================================================
+   10.6 自动保存草稿 + 撤销/重做 + 网页主题
+   ========================================================= */
+/* ---- 汇总钩子：几乎所有改动最终都会走到 renderAll，在这里统一收口 ---- */
+function afterChange(){
+  scheduleCommit();
+  scheduleDraftSave();
+}
+
+/* ---------- 网页主题（亮 / 暗 / 跟随系统） ----------
+   注意：这只换「这个网页」的颜色。皮肤预览的「🌙 夜间」是把配色方案转成夜色，
+   两者是两件事——按钮的提示文字里也写明了，避免混淆。 */
+const THEME_KEY = "rss_theme";
+const THEME_ORDER = ["auto","light","dark"];
+const THEME_LABEL = { auto:"🌓 跟随系统", light:"☀️ 亮色", dark:"🌙 暗色" };
+const THEME_TIP = {
+  auto:"网页配色正跟随系统外观，点一下固定为亮色",
+  light:"网页当前是亮色，点一下固定为暗色",
+  dark:"网页当前是暗色，点一下回到跟随系统"
+};
+const mqDark = (window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null);
+let themePref = "auto";
+function resolvedTheme(){
+  if(themePref === "dark") return "dark";
+  if(themePref === "light") return "light";
+  return (mqDark && mqDark.matches) ? "dark" : "light";
+}
+function applyTheme(pref, silent){
+  themePref = THEME_ORDER.indexOf(pref) >= 0 ? pref : "auto";
+  const t = resolvedTheme();
+  document.documentElement.setAttribute("data-theme", t);
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if(meta) meta.setAttribute("content", t === "dark" ? "#181B21" : "#ECAFB8");
+  const b = $("#btnTheme");
+  if(b){
+    b.textContent = THEME_LABEL[themePref];
+    b.title = THEME_TIP[themePref] + "。只改网页本身，不是皮肤的「夜间」配色";
+    b.setAttribute("aria-label", "网页主题：" + THEME_TIP[themePref]);
+  }
+  /* 预览画布的底色跟着网页主题走（模拟桌面），用户手动点过就不再覆盖 */
+  if(!canvasPicked) setCanvasBg(t === "dark" ? "dark" : "light");
+  if(!silent){ try{ localStorage.setItem(THEME_KEY, themePref); }catch(e){} }
+}
+window.__applyTheme = applyTheme;
+
+/* ---------- 窄屏抽屉 ---------- */
+function setDrawer(open){
+  document.body.classList.toggle("drawer-open", !!open);
+  const b = $("#btnDrawer");
+  if(b){
+    b.setAttribute("aria-expanded", open ? "true" : "false");
+    b.setAttribute("aria-label", open ? "收起参数面板" : "打开参数面板");
+    b.textContent = open ? "✕" : "☰";
+  }
+}
+function closeDrawer(){ setDrawer(false); }
+
+/* ---------- 自动保存草稿 ----------
+   改动防抖 700ms 后整份写进 localStorage；下次打开自动恢复。
+   导出的「含字体网页」自带状态，不读也不写草稿，避免把作者的样子冲掉。 */
+const DRAFT_KEY = "rss_draft_v1";
+let draftTimer = null, draftSuspended = false;
+function scheduleDraftSave(){
+  if(draftSuspended) return;
+  clearTimeout(draftTimer);
+  draftTimer = setTimeout(saveDraftNow, 700);
+}
+function saveDraftNow(){
+  try{
+    localStorage.setItem(DRAFT_KEY, JSON.stringify({ v:1, t:Date.now(), night:NIGHT.on, state:state }));
+    markSaved("saved");
+  }catch(e){ markSaved("err"); }
+}
+function loadDraft(){
+  try{
+    const raw = localStorage.getItem(DRAFT_KEY);
+    if(!raw) return null;
+    const j = JSON.parse(raw);
+    if(!j || !j.state || !j.state.colors || !j.state.font) return null;
+    return j;
+  }catch(e){ return null; }
+}
+function clearDraft(){ try{ localStorage.removeItem(DRAFT_KEY); }catch(e){} }
+function markSaved(mode){
+  const el = $("#saveState"), tx = $("#saveText");
+  if(!el || !tx) return;
+  el.classList.toggle("err", mode === "err");
+  tx.textContent = mode === "err" ? "未能自动保存"
+                 : mode === "restored" ? "已恢复上次草稿"
+                 : mode === "saved" ? "已自动保存" : "自动保存";
+  el.title = mode === "err"
+    ? "浏览器拒绝了写入（可能处于隐私/无痕模式）。不影响调色，但刷新后会回到默认。"
+    : "改动会自动保存在这个浏览器里，刷新或关闭后重新打开还在。";
+}
+
+/* ---------- 撤销 / 重做（快照式，最多 50 步） ---------- */
+const UNDO_CAP = 50;
+let undoStack = [], redoStack = [], lastSnap = null, commitTimer = null;
+function snapState(){ return JSON.stringify({ s:state, n:NIGHT.on }); }
+function scheduleCommit(){
+  clearTimeout(commitTimer);
+  commitTimer = setTimeout(commitNow, 420);   // 拖滑块会连发几十次 input，这里合并成一步
+}
+function commitNow(){
+  const cur = snapState();
+  if(lastSnap === null){ lastSnap = cur; return; }
+  if(cur === lastSnap) return;
+  undoStack.push(lastSnap);
+  if(undoStack.length > UNDO_CAP) undoStack.shift();
+  redoStack.length = 0;
+  lastSnap = cur;
+  updateUndoBtns();
+}
+function restoreSnap(str){
+  const j = JSON.parse(str);
+  state = j.s;
+  state.flags = state.flags || {};
+  state.layout = state.layout || {};
+  state.colors = state.colors || {};
+  state.font = state.font || {};
+  if(state.decoId === undefined) state.decoId = "";
+  /* 快照本身已带当时的配色，「夜间」是否开着只影响按钮外观与再点一下的行为 */
+  NIGHT.on = !!j.n; NIGHT.day = null;
+  syncFormFromState(); renderColors(); renderPresets(); renderAll(); updateNightBtn();
+}
+function undo(){
+  commitNow();
+  if(!undoStack.length) return;
+  redoStack.push(snapState());
+  restoreSnap(undoStack.pop());
+  lastSnap = snapState();
+  updateUndoBtns();
+  toast("已撤销");
+}
+function redo(){
+  if(!redoStack.length) return;
+  undoStack.push(snapState());
+  restoreSnap(redoStack.pop());
+  lastSnap = snapState();
+  updateUndoBtns();
+  toast("已重做");
+}
+function updateUndoBtns(){
+  const u = $("#btnUndo"), r = $("#btnRedo");
+  if(u) u.disabled = !undoStack.length;
+  if(r) r.disabled = !redoStack.length;
+}
+
+/* ---------- 快捷键 ---------- */
+document.addEventListener("keydown", e=>{
+  if(e.key === "Escape"){
+    if($("#modal").classList.contains("on")) $("#modal").classList.remove("on");
+    else if(document.body.classList.contains("drawer-open")) closeDrawer();
+    return;
+  }
+  const mod = e.ctrlKey || e.metaKey;
+  if(!mod) return;
+  const k = String(e.key || "").toLowerCase();
+  if(k !== "z" && k !== "y") return;
+  const ae = document.activeElement;
+  const tag = ae ? ae.tagName : "";
+  const type = ae && ae.tagName === "INPUT" ? (ae.type || "text") : "";
+  /* 文本/数字框里让浏览器自己处理 Ctrl+Z，不抢 */
+  if(tag === "TEXTAREA" || type === "text" || type === "number") return;
+  e.preventDefault();
+  if(k === "y" || e.shiftKey) redo(); else undo();
+});
+
+/* =========================================================
    11. 启动
    ========================================================= */
 /* 导出的「含字体的网页」会注入 __EMBED_EXTRAS__：内嵌字体名 + 导出时的皮肤状态，
@@ -4333,16 +4758,54 @@ $("#btnImpOk").onclick = ()=>{
   }
 })();
 
+/* ---- 恢复上次草稿（导出的「含字体网页」自带状态，不读草稿） ---- */
+let restoredDraft = null;
+if(!window.__EMBED_EXTRAS__){
+  restoredDraft = loadDraft();
+  if(restoredDraft){
+    state = restoredDraft.state;
+    state.flags = state.flags || {};
+    state.layout = state.layout || {};
+    state.colors = state.colors || {};
+    state.font = state.font || {};
+    if(state.decoId === undefined) state.decoId = "";
+    NIGHT.on = !!restoredDraft.night;
+  }
+}
+
 renderColors();
 renderPresets();
 renderFontChips();
 syncFormFromState();
 setZoom(1.2);
 renderAll();
+/* 撤销基线 + 网页主题（要在首次渲染后设，避免把「启动本身」记成一步改动） */
+lastSnap = snapState();
+updateUndoBtns();
+applyTheme((function(){ try{ const v = localStorage.getItem(THEME_KEY); return THEME_ORDER.indexOf(v)>=0 ? v : "auto"; }catch(e){ return "auto"; } })(), true);
+if(restoredDraft) markSaved("restored");
+updateNightBtn();
 /* 左侧栏目：先按记忆顺序排好，再建导航条与拖动排序 */
 applyGroupOrder();
 renderGroupNav();
 enableGroupSort();
+/* 网页主题按钮 / 窄屏抽屉 */
+$("#btnTheme").addEventListener("click", ()=>{
+  applyTheme(THEME_ORDER[(THEME_ORDER.indexOf(themePref) + 1) % THEME_ORDER.length]);
+});
+$("#btnUndo").addEventListener("click", undo);
+$("#btnRedo").addEventListener("click", redo);
+$("#btnDrawer").addEventListener("click", ()=>setDrawer(!document.body.classList.contains("drawer-open")));
+$("#scrim").addEventListener("click", closeDrawer);
+if(mqDark && mqDark.addEventListener) mqDark.addEventListener("change", ()=>{ if(themePref==="auto") applyTheme("auto", true); });
+/* 主区高度 = 视口 - 顶栏实际高度（顶栏在中等宽度会换成两行） */
+function syncHeaderH(){
+  const h = document.querySelector("header");
+  if(h) document.documentElement.style.setProperty("--header-h", h.offsetHeight + "px");
+}
+if(window.ResizeObserver){ new ResizeObserver(syncHeaderH).observe(document.querySelector("header")); }
+window.addEventListener("resize", syncHeaderH);
+syncHeaderH();
 /* 载入字体：按钮 + 拖拽到卡片区 */
 (function(){
   const bf = $("#btnLoadFont");
