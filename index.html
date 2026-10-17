@@ -352,6 +352,9 @@
     padding:3px 9px;cursor:pointer;transition:.15s;
   }
   .promo-tog:hover{background:var(--promo-tog-hover-bg);border-color:var(--promo-tog-hover-line);color:var(--promo-tog-hover-text)}
+  /* 整条都能点：收起态整栏可点展开，展开态点标题行可收起 */
+  .promo-head{cursor:pointer}
+  .promo.collapsed:hover .promo-tog{background:var(--promo-tog-hover-bg);border-color:var(--promo-tog-hover-line);color:var(--promo-tog-hover-text)}
   /* 收起后仍保留两个主下载入口，不会「消失找不着」 */
   .promo-mini{display:none;align-items:center;gap:7px;flex-wrap:wrap}
   .promo-body{
@@ -4992,18 +4995,30 @@ restoreSavedFonts();
   const box = document.getElementById("promo");
   const tog = document.getElementById("promoToggle");
   if(!box || !tog) return;
+  const head = box.querySelector(".promo-head");
   const KEY = "rss_promo_collapsed";
   const setCollapsed = (on, save)=>{
     box.classList.toggle("collapsed", on);
     tog.textContent = on ? "展开 ▼" : "收起 ▲";
     tog.setAttribute("aria-expanded", on ? "false" : "true");
+    if(head) head.title = on ? "点这一栏任意位置展开" : "";
     if(save){ try{ localStorage.setItem(KEY, on ? "1" : "0"); }catch(e){} }
   };
   /* 默认收起（只露一条），用户点开过才记住「展开」 */
   let collapsed = true;
   try{ const v = localStorage.getItem(KEY); if(v !== null) collapsed = v === "1"; }catch(e){}
   setCollapsed(collapsed, false);
-  tog.addEventListener("click", ()=>setCollapsed(!box.classList.contains("collapsed"), true));
+
+  const flip = ()=>setCollapsed(!box.classList.contains("collapsed"), true);
+  tog.addEventListener("click", e=>{ e.stopPropagation(); flip(); });
+
+  /* 整条都能点：收起态点任意空白处展开；展开态只点标题行收起，正文里选字不误触 */
+  box.addEventListener("click", e=>{
+    if(e.target.closest("a,button,input,select,textarea,label,summary")) return;
+    if(String((window.getSelection && window.getSelection()) || "").length) return;
+    if(!box.classList.contains("collapsed") && !e.target.closest(".promo-head")) return;
+    flip();
+  });
 })();
 
 /* ---------- 顶部推荐条：小狼毫下载直链自动跟随 GitHub 最新版 ----------
